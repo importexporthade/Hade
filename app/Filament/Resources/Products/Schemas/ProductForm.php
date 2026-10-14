@@ -3,8 +3,9 @@
 namespace App\Filament\Resources\Products\Schemas;
 
 use App\Filament\Resources\Categories\CategoryResource;
+use App\Filament\Support\PhotoUpload;
+use App\Support\ImageOptimizer;
 use App\Support\Price;
-use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\RichEditor;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
@@ -67,19 +68,13 @@ class ProductForm
                     Section::make('Fotos')
                         ->description('La primera foto es la portada. Arrástralas para cambiar el orden.')
                         ->schema([
-                            FileUpload::make('images')
+                            PhotoUpload::make('images', 'products', ImageOptimizer::PRODUCT_SIZE, ImageOptimizer::PRODUCT_THUMBNAIL_SIZE)
                                 ->hiddenLabel()
-                                ->image()
                                 ->multiple()
                                 ->reorderable()
                                 ->appendFiles()
-                                ->imageEditor()
                                 ->panelLayout('grid')
-                                ->maxFiles(10)
-                                ->maxSize(5120)
-                                ->disk('public')
-                                ->directory('products')
-                                ->visibility('public'),
+                                ->maxFiles(10),
                         ]),
                 ])->columnSpan(['lg' => 2]),
 

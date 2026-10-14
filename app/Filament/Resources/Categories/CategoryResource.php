@@ -3,11 +3,12 @@
 namespace App\Filament\Resources\Categories;
 
 use App\Filament\Resources\Categories\Pages\ManageCategories;
+use App\Filament\Support\PhotoUpload;
 use App\Models\Category;
+use App\Support\ImageOptimizer;
 use BackedEnum;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\EditAction;
-use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
@@ -62,14 +63,8 @@ class CategoryResource extends Resource
                     ->label('Descripción')
                     ->rows(3)
                     ->columnSpanFull(),
-                FileUpload::make('image')
+                PhotoUpload::make('image', 'categories', ImageOptimizer::CATEGORY_SIZE)
                     ->label('Foto')
-                    ->image()
-                    ->imageEditor()
-                    ->maxSize(5120)
-                    ->disk('public')
-                    ->directory('categories')
-                    ->visibility('public')
                     ->columnSpanFull(),
                 Toggle::make('is_visible')
                     ->label('Visible en la tienda')

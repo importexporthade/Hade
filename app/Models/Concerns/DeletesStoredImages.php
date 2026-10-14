@@ -2,6 +2,7 @@
 
 namespace App\Models\Concerns;
 
+use App\Support\ImageOptimizer;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Storage;
@@ -54,7 +55,9 @@ trait DeletesStoredImages
     protected function deleteStoredImages(array $paths): void
     {
         if ($paths !== []) {
-            Storage::disk('public')->delete(array_values($paths));
+            $thumbnails = array_map(ImageOptimizer::thumbnailPath(...), $paths);
+
+            Storage::disk('public')->delete([...array_values($paths), ...array_values($thumbnails)]);
         }
     }
 }

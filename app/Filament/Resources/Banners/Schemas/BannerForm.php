@@ -2,8 +2,9 @@
 
 namespace App\Filament\Resources\Banners\Schemas;
 
+use App\Filament\Support\PhotoUpload;
+use App\Support\ImageOptimizer;
 use Filament\Forms\Components\DateTimePicker;
-use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
 use Filament\Schemas\Components\Section;
@@ -20,25 +21,13 @@ class BannerForm
                     ->columns(2)
                     ->columnSpanFull()
                     ->schema([
-                        FileUpload::make('image')
+                        PhotoUpload::make('image', 'banners', ImageOptimizer::BANNER_SIZE)
                             ->label('Imagen para computadora')
                             ->helperText('Horizontal, idealmente 1920 × 640 px.')
-                            ->required()
-                            ->image()
-                            ->imageEditor()
-                            ->maxSize(5120)
-                            ->disk('public')
-                            ->directory('banners')
-                            ->visibility('public'),
-                        FileUpload::make('mobile_image')
+                            ->required(),
+                        PhotoUpload::make('mobile_image', 'banners', ImageOptimizer::MOBILE_BANNER_SIZE)
                             ->label('Imagen para celular (opcional)')
-                            ->helperText('Vertical o cuadrada, idealmente 1080 × 1080 px. Si no la subes se usa la de computadora.')
-                            ->image()
-                            ->imageEditor()
-                            ->maxSize(5120)
-                            ->disk('public')
-                            ->directory('banners')
-                            ->visibility('public'),
+                            ->helperText('Vertical o cuadrada, idealmente 1080 × 1080 px. Si no la subes se usa la de computadora.'),
                     ]),
                 Section::make('Texto y enlace')
                     ->description('Todo opcional: un banner puede ser solo la imagen.')

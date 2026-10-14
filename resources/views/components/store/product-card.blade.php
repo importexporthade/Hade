@@ -4,7 +4,7 @@
 <article {{ $attributes->class(['group relative flex flex-col', 'bg-tile' => $size === 'large']) }}>
     <a href="{{ route('products.show', $product) }}" class="relative block aspect-square overflow-hidden bg-tile">
         <img
-            src="{{ $product->coverImageUrl() }}"
+            src="{{ $size === 'large' ? $product->coverImageUrl() : $product->coverThumbnailUrl() }}"
             alt="{{ $product->name }}"
             loading="lazy"
             class="size-full object-cover transition duration-500 group-hover:scale-105"

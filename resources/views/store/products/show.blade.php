@@ -2,6 +2,7 @@
     use App\Support\Price;
 
     $images = $product->imageUrls();
+    $thumbnails = $product->thumbnailUrls();
     $settings = \App\Models\StoreSetting::current();
     $whatsappUrl = $settings->whatsappUrl("Hola, quiero pedir: {$product->name} (".Price::format($product->price).")\n".route('products.show', $product));
     $plainDescription = str(strip_tags((string) $product->description))->squish()->limit(155)->toString();
@@ -10,7 +11,7 @@
         'name' => $product->name,
         'price' => (float) $product->price,
         'url' => route('products.show', $product),
-        'image' => $images[0],
+        'image' => $thumbnails[0],
     ];
 @endphp
 
@@ -41,7 +42,7 @@
                         @foreach ($images as $index => $image)
                             <li>
                                 <button type="button" @class(['block aspect-square w-full overflow-hidden bg-tile ring-2 ring-offset-2 ring-offset-cream', 'ring-ink' => $index === 0, 'ring-transparent' => $index > 0]) data-gallery-thumb="{{ $image }}" aria-label="Ver foto {{ $index + 1 }}">
-                                    <img src="{{ $image }}" alt="" loading="lazy" class="size-full object-cover">
+                                    <img src="{{ $thumbnails[$index] }}" alt="" loading="lazy" class="size-full object-cover">
                                 </button>
                             </li>
                         @endforeach

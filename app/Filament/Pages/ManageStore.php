@@ -2,10 +2,11 @@
 
 namespace App\Filament\Pages;
 
+use App\Filament\Support\PhotoUpload;
 use App\Models\StoreSetting;
+use App\Support\ImageOptimizer;
 use BackedEnum;
 use Filament\Actions\Action;
-use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Notifications\Notification;
@@ -63,23 +64,11 @@ class ManageStore extends Page
                             ->label('Aviso superior')
                             ->helperText('Franja sobre el menú, p. ej. "Delivery gratis a todo el Perú".')
                             ->maxLength(255),
-                        FileUpload::make('logo')
-                            ->label('Logo')
-                            ->image()
-                            ->imageEditor()
-                            ->maxSize(2048)
-                            ->disk('public')
-                            ->directory('store')
-                            ->visibility('public'),
-                        FileUpload::make('header_image')
+                        PhotoUpload::make('logo', 'store', ImageOptimizer::LOGO_SIZE)
+                            ->label('Logo'),
+                        PhotoUpload::make('header_image', 'store', ImageOptimizer::HEADER_SIZE)
                             ->label('Imagen de cabecera')
-                            ->helperText('La franja de fotos sobre el logo.')
-                            ->image()
-                            ->imageEditor()
-                            ->maxSize(5120)
-                            ->disk('public')
-                            ->directory('store')
-                            ->visibility('public'),
+                            ->helperText('La franja de fotos sobre el logo.'),
                     ]),
                 Section::make('Pedidos por WhatsApp')
                     ->schema([

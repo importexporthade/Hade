@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Models\Concerns\DeletesStoredImages;
+use App\Support\ImageOptimizer;
 use Database\Factories\ProductFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\Scope;
@@ -106,18 +107,44 @@ class Product extends Model
      */
     public function imageUrls(): array
     {
-        $urls = collect($this->images ?? [])
-            ->filter()
-            ->map(fn (string $path): string => Storage::disk('public')->url($path))
-            ->values()
-            ->all();
+        return $this->photoUrls(thumbnails: false);
+    }
 
-        return $urls !== [] ? $urls : [asset('images/product-placeholder.svg')];
+    /**
+     * Same photos in their small version, for tiles and gallery thumbnails; photos stored
+     * before the optimizer existed have no thumbnail and fall back to the full photo.
+     *
+     * @return list<string>
+     */
+    public function thumbnailUrls(): array
+    {
+        return $this->photoUrls(thumbnails: true);
     }
 
     public function coverImageUrl(): string
     {
         return $this->imageUrls()[0];
+    }
+
+    public function coverThumbnailUrl(): string
+    {
+        return $this->thumbnailUrls()[0];
+    }
+
+    /**
+     * @return list<string>
+     */
+    private function photoUrls(bool $thumbnails): array
+    {
+        $urls = collect($this->images ?? [])
+            ->filter()
+            ->map(fn (string $path): string => Storage::disk('public')->url(
+                $thumbnails && ImageOptimizer::isOptimized($path) ? ImageOptimizer::thumbnailPath($path) : $path,
+            ))
+            ->values()
+            ->all();
+
+        return $urls !== [] ? $urls : [asset('images/product-placeholder.svg')];
     }
 
     /**
