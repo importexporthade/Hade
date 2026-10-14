@@ -1,0 +1,33 @@
+<?php
+
+namespace App\Filament\Widgets;
+
+use App\Filament\Resources\Products\ProductResource;
+use App\Models\Banner;
+use App\Models\Product;
+use Filament\Support\Icons\Heroicon;
+use Filament\Widgets\StatsOverviewWidget;
+use Filament\Widgets\StatsOverviewWidget\Stat;
+
+class CatalogOverview extends StatsOverviewWidget
+{
+    protected static ?int $sort = -1;
+
+    protected function getStats(): array
+    {
+        return [
+            Stat::make('Productos en la tienda', Product::query()->visible()->count())
+                ->description(Product::query()->where('is_visible', false)->count().' ocultos')
+                ->icon(Heroicon::OutlinedShoppingBag)
+                ->url(ProductResource::getUrl()),
+            Stat::make('En oferta', Product::query()->visible()->onSale()->count())
+                ->icon(Heroicon::OutlinedTag)
+                ->color('danger'),
+            Stat::make('Sin stock', Product::query()->visible()->where('is_in_stock', false)->count())
+                ->icon(Heroicon::OutlinedExclamationTriangle)
+                ->color('warning'),
+            Stat::make('Banners visibles', Banner::query()->showing()->count())
+                ->icon(Heroicon::OutlinedPhoto),
+        ];
+    }
+}
