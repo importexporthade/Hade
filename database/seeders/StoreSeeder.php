@@ -13,8 +13,8 @@ use Illuminate\Database\Seeder;
 use Illuminate\Support\Str;
 
 /**
- * The catalog as published on hade.tiendada.com in October 2026, without photos, so the
- * manager starts with the store's real categories, products and prices.
+ * A starter catalog taken from the products featured on hade.tiendada.com in October 2026,
+ * without photos. The full catalog with photos comes from `php artisan hade:import-tiendada`.
  */
 class StoreSeeder extends Seeder
 {
@@ -77,7 +77,7 @@ class StoreSeeder extends Seeder
 
         $sections = [
             ['title' => 'Ofertas', 'type' => HomeSectionType::Offers],
-            ['title' => 'Categorías', 'type' => HomeSectionType::Categories],
+            ['title' => 'Novedades', 'type' => HomeSectionType::Latest, 'products_limit' => 10],
             ['title' => 'Stickers Manicure', 'type' => HomeSectionType::Category, 'category_id' => $categories['Stickers Manicure']->id],
             ['title' => 'Stickers Pedicure', 'type' => HomeSectionType::Category, 'category_id' => $categories['Stickers Pedicure']->id],
             ['title' => 'Kits y Promociones', 'type' => HomeSectionType::Category, 'category_id' => $categories['Kits y Promociones']->id],
@@ -97,6 +97,8 @@ class StoreSeeder extends Seeder
 
         StoreSetting::current()->update([
             'store_name' => 'Hade',
+            'announcement' => 'Envío gratis a todo el Perú',
+            'footer_text' => 'En HADE creemos en una manicura elegante, rápida y accesible. Nuestros gel nail stickers se aplican en minutos, duran hasta 10–14 días y se retiran sin dañar. Envío gratis a todo el Perú y descuentos desde la 2ª unidad.',
             'whatsapp_number' => '51 986 000 362',
             'whatsapp_message' => 'Hola. Me gustaría comprar un producto de tu tienda.',
             'email' => 'import.export.hade@gmail.com',

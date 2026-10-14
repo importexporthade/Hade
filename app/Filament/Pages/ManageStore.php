@@ -6,6 +6,7 @@ use App\Models\StoreSetting;
 use BackedEnum;
 use Filament\Actions\Action;
 use Filament\Forms\Components\FileUpload;
+use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Notifications\Notification;
 use Filament\Pages\Page;
@@ -103,9 +104,11 @@ class ManageStore extends Page
                             ->label('Teléfono')
                             ->tel()
                             ->maxLength(30),
-                        TextInput::make('footer_text')
+                        Textarea::make('footer_text')
                             ->label('Texto del pie de página')
-                            ->maxLength(255),
+                            ->helperText('Un párrafo sobre la tienda.')
+                            ->rows(4)
+                            ->maxLength(1000),
                     ]),
                 Section::make('Redes sociales')
                     ->columns(2)

@@ -10,6 +10,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Support\Facades\Storage;
 
 #[Fillable([
     'category_id', 'name', 'slug', 'sku', 'description', 'price', 'compare_at_price',
@@ -90,9 +91,33 @@ class Product extends Model
         ]);
     }
 
-    public function coverImage(): ?string
+    /**
+     * How much the customer saves, for the "¡Ahorra S/ 13.10!" note, or null when not on sale.
+     */
+    public function savings(): ?float
     {
-        return $this->images[0] ?? null;
+        return $this->isOnSale() ? round((float) $this->compare_at_price - (float) $this->price, 2) : null;
+    }
+
+    /**
+     * Public URLs of the photos in the order the owner set, or the placeholder when there are none.
+     *
+     * @return list<string>
+     */
+    public function imageUrls(): array
+    {
+        $urls = collect($this->images ?? [])
+            ->filter()
+            ->map(fn (string $path): string => Storage::disk('public')->url($path))
+            ->values()
+            ->all();
+
+        return $urls !== [] ? $urls : [asset('images/product-placeholder.svg')];
+    }
+
+    public function coverImageUrl(): string
+    {
+        return $this->imageUrls()[0];
     }
 
     /**
@@ -104,12 +129,17 @@ class Product extends Model
     }
 
     /**
+     * Products the store shows: switched on, and not inside a category the owner hid.
+     *
      * @param  Builder<Product>  $query
      */
     #[Scope]
     protected function visible(Builder $query): void
     {
-        $query->where('is_visible', true);
+        $query->where('is_visible', true)
+            ->where(fn (Builder $query) => $query
+                ->whereNull('category_id')
+                ->orWhereHas('category', fn (Builder $query) => $query->where('is_visible', true)));
     }
 
     /**

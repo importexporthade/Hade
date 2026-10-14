@@ -3,7 +3,97 @@
 @source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
 @source '../../storage/framework/views/*.php';
 
+/*
+ * The storefront keeps the look of the store on hade.tiendada.com: cream paper, Albert Sans
+ * text with Playfair Display accents, light gray product tiles and square corners.
+ */
 @theme {
-    --font-sans: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
-        'Segoe UI Symbol', 'Noto Color Emoji';
+    --font-sans: var(--font-albert-sans), ui-sans-serif, system-ui, sans-serif;
+    --font-serif: var(--font-playfair-display), Georgia, serif;
+
+    --color-cream: #f8f6f2;
+    --color-tile: #f4f4f6;
+    --color-ink: #171717;
+    --color-sage: #95b998;
+    --color-sage-dark: #7da582;
+    --color-sage-light: #eef3ee;
+    --color-emerald: #1f5c45;
+    --color-taupe: #8b7360;
+    --color-sale: #b91c1c;
+    --color-whatsapp: #25d366;
+}
+
+@layer base {
+    body {
+        @apply bg-cream font-sans text-ink antialiased;
+    }
+
+    [x-cloak],
+    [hidden] {
+        display: none !important;
+    }
+}
+
+@layer components {
+    .store-container {
+        @apply mx-auto w-full max-w-7xl px-4 sm:px-6;
+    }
+
+    .btn-sage {
+        @apply inline-flex items-center justify-center gap-2 bg-sage px-6 py-3 text-sm font-semibold text-white transition hover:bg-sage-dark focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald disabled:cursor-not-allowed disabled:opacity-50;
+    }
+
+    .btn-outline {
+        @apply inline-flex items-center justify-center gap-2 border border-ink/15 bg-white px-6 py-3 text-sm font-semibold text-ink transition hover:border-ink/40 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald;
+    }
+
+    .btn-whatsapp {
+        @apply inline-flex items-center justify-center gap-2 bg-whatsapp px-6 py-3 text-sm font-semibold text-white transition hover:brightness-95 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald;
+    }
+
+    .section-heading {
+        @apply text-xl font-bold text-ink;
+    }
+
+    /* Horizontal product rows that snap card by card, like the storefront carousels */
+    .snap-row {
+        @apply flex snap-x snap-mandatory gap-4 overflow-x-auto scroll-smooth pb-2;
+        scrollbar-width: none;
+
+        &::-webkit-scrollbar {
+            display: none;
+        }
+
+        & > * {
+            @apply snap-start;
+        }
+    }
+
+    .rich-text {
+        @apply space-y-3 text-[0.95rem] leading-relaxed text-ink/80;
+
+        & h2 {
+            @apply pt-2 text-lg font-bold text-ink;
+        }
+
+        & h3 {
+            @apply pt-1 font-bold text-ink;
+        }
+
+        & ul {
+            @apply list-disc space-y-1 ps-5;
+        }
+
+        & ol {
+            @apply list-decimal space-y-1 ps-5;
+        }
+
+        & a {
+            @apply text-emerald underline;
+        }
+
+        & strong {
+            @apply font-semibold text-ink;
+        }
+    }
 }

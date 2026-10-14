@@ -15,6 +15,15 @@ class StoreSetting extends Model
     use DeletesStoredImages;
 
     /**
+     * Mirrors the column default so a row created on first use already carries the name.
+     *
+     * @var array<string, mixed>
+     */
+    protected $attributes = [
+        'store_name' => 'Hade',
+    ];
+
+    /**
      * The store keeps a single row of settings; it is created on first use.
      */
     public static function current(): self

@@ -10,6 +10,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Support\Facades\Storage;
 
 #[Fillable(['name', 'slug', 'description', 'image', 'is_visible', 'sort_order'])]
 class Category extends Model
@@ -42,6 +43,11 @@ class Category extends Model
     protected function visible(Builder $query): void
     {
         $query->where('is_visible', true);
+    }
+
+    public function imageUrl(): ?string
+    {
+        return $this->image ? Storage::disk('public')->url($this->image) : null;
     }
 
     /**
