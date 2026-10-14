@@ -1,0 +1,158 @@
+@import '../../../../vendor/filament/filament/resources/css/theme.css';
+
+@source '../../../../app/Filament/**/*';
+@source '../../../../resources/views/filament/**/*';
+
+/*
+ * Hade's look, taken from the storefront: cream paper, the emerald of the logo, sage
+ * accents, Playfair Display headings over Albert Sans, and nearly square corners.
+ * The cream-to-forest gray palette lives in ManagerPanelProvider, so light mode reads
+ * as paper and dark mode as deep green instead of neutral gray.
+ */
+@theme {
+    --font-heading: var(--serif-font-family), Georgia, serif;
+    --radius-md: 0.25rem;
+    --radius-lg: 0.3rem;
+    --radius-xl: 0.4rem;
+    --color-hade-sage: #95b998;
+    --color-hade-sage-light: #eef3ee;
+    --color-hade-emerald: #1f5c45;
+    --color-hade-taupe: #8b7360;
+    --color-hade-cream: #f8f6f2;
+}
+
+/* Headings in the storefront's serif */
+.fi-header-heading,
+.fi-simple-header-heading,
+.fi-section-header-heading,
+.fi-modal-heading,
+.fi-ta-header-heading,
+.fi-wi-stats-overview-stat-value {
+    font-family: var(--font-heading);
+    letter-spacing: 0.005em;
+}
+
+.fi-header-heading,
+.fi-simple-header-heading {
+    @apply font-semibold text-hade-emerald dark:text-hade-sage-light;
+}
+
+.fi-section-header-heading {
+    @apply text-base font-semibold;
+}
+
+.fi-wi-stats-overview-stat-value {
+    @apply font-semibold text-hade-emerald lining-nums dark:text-hade-sage;
+}
+
+/* Brand mark: the logo, or an emerald monogram until one is uploaded */
+.hade-brand {
+    @apply flex items-center gap-x-2.5;
+}
+
+.hade-brand-mark {
+    @apply grid size-9 shrink-0 place-items-center rounded-full bg-hade-emerald text-lg font-semibold text-hade-cream ring-2 ring-hade-sage/60 ring-offset-2 ring-offset-gray-50 dark:ring-offset-gray-950;
+    font-family: var(--font-heading);
+}
+
+.hade-brand-mark-image {
+    @apply bg-hade-cream object-cover;
+}
+
+.hade-brand-text {
+    @apply flex flex-col leading-none;
+}
+
+.hade-brand-name {
+    @apply text-xl font-semibold text-hade-emerald dark:text-hade-sage-light;
+    font-family: var(--font-heading);
+}
+
+.hade-brand-tagline {
+    @apply mt-1 text-[0.65rem] font-semibold tracking-[0.25em] text-hade-taupe uppercase dark:text-hade-sage;
+}
+
+/* Sidebar and topbar sit on the paper instead of white cards */
+.fi-topbar {
+    @apply bg-gray-50/90 shadow-none ring-gray-200 backdrop-blur dark:bg-gray-950/90 dark:ring-white/5;
+}
+
+@media (min-width: 1024px) {
+    .fi-sidebar {
+        @apply border-e border-gray-200 bg-gray-100/60 dark:border-white/5 dark:bg-gray-900/40;
+    }
+}
+
+.fi-sidebar-group-label {
+    @apply text-[0.7rem] font-semibold tracking-[0.15em] text-hade-taupe uppercase dark:text-hade-sage/80;
+}
+
+.fi-sidebar-item.fi-active > .fi-sidebar-item-btn {
+    @apply bg-hade-sage-light shadow-[inset_3px_0_0_var(--color-hade-emerald)] dark:bg-hade-sage/10 dark:shadow-[inset_3px_0_0_var(--color-hade-sage)];
+}
+
+/* Cards: white paper with a warm hairline in light mode, forest green in dark mode */
+.fi-section:not(.fi-section-not-contained),
+.fi-ta-ctn,
+.fi-wi-stats-overview-stat {
+    @apply shadow-none ring-gray-200 dark:ring-white/5;
+}
+
+.fi-wi-stats-overview-stat {
+    @apply border-t-2 border-hade-sage;
+}
+
+/* Login and the other simple pages: the storefront's photo band behind the card */
+.fi-simple-layout {
+    @apply relative isolate;
+}
+
+.hade-band {
+    @apply absolute inset-x-0 top-0 -z-10 h-64 bg-hade-taupe;
+    background-image:
+        radial-gradient(circle at 20% 30%, rgb(255 255 255 / 0.12) 0 2px, transparent 3px),
+        radial-gradient(circle at 70% 60%, rgb(255 255 255 / 0.1) 0 1.5px, transparent 2.5px),
+        linear-gradient(135deg, var(--color-hade-taupe), #6f5a4a);
+    background-size:
+        28px 28px,
+        36px 36px,
+        auto;
+}
+
+.hade-band.hade-band-has-image {
+    @apply bg-cover bg-center;
+}
+
+/* Plain CSS: Filament's dark variant cannot follow a pseudo-element */
+.hade-band::after {
+    @apply absolute inset-x-0 bottom-0 h-24 content-[''];
+    background: linear-gradient(to bottom, transparent, var(--gray-50));
+}
+
+.dark .hade-band::after {
+    background: linear-gradient(to bottom, transparent, var(--gray-950));
+}
+
+.fi-simple-main {
+    @apply border-t-4 border-hade-emerald shadow-lg shadow-gray-950/5 ring-gray-200 dark:border-hade-sage dark:ring-white/5;
+}
+
+.fi-simple-main .fi-logo {
+    @apply mb-2 h-auto!;
+}
+
+.fi-simple-main .hade-brand {
+    @apply flex-col gap-y-3;
+}
+
+.fi-simple-main .hade-brand-mark {
+    @apply size-16 text-3xl;
+}
+
+.fi-simple-main .hade-brand-text {
+    @apply items-center;
+}
+
+.fi-simple-main .hade-brand-name {
+    @apply text-3xl;
+}

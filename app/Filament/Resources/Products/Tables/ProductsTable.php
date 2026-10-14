@@ -34,6 +34,7 @@ class ProductsTable
                     ->label('Foto')
                     ->disk('public')
                     ->limit(1)
+                    ->defaultImageUrl(asset('images/product-placeholder.svg'))
                     ->square(),
                 TextColumn::make('name')
                     ->label('Producto')

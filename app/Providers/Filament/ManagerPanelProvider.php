@@ -9,8 +9,9 @@ use Filament\Http\Middleware\DispatchServingFilamentEvent;
 use Filament\Pages\Dashboard;
 use Filament\Panel;
 use Filament\PanelProvider;
-use Filament\Support\Colors\Color;
+use Filament\View\PanelsRenderHook;
 use Filament\Widgets\AccountWidget;
+use Illuminate\Contracts\View\View;
 use Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse;
 use Illuminate\Cookie\Middleware\EncryptCookies;
 use Illuminate\Foundation\Http\Middleware\PreventRequestForgery;
@@ -20,18 +21,67 @@ use Illuminate\View\Middleware\ShareErrorsFromSession;
 
 class ManagerPanelProvider extends PanelProvider
 {
+    /**
+     * Sage from the storefront buttons in the light shades, the logo's emerald in the dark ones.
+     *
+     * @var array<int, string>
+     */
+    private const array PRIMARY = [
+        50 => '#eef3ee',
+        100 => '#dde8de',
+        200 => '#c2d6c4',
+        300 => '#a6c4a9',
+        400 => '#95b998',
+        500 => '#4f8a6c',
+        600 => '#2e6b55',
+        700 => '#1f5c45',
+        800 => '#194a38',
+        900 => '#133a2c',
+        950 => '#0b241b',
+    ];
+
+    /**
+     * Grays that run from the storefront's cream paper to deep forest green, so light mode
+     * feels like the store and dark mode stays green instead of neutral.
+     *
+     * @var array<int, string>
+     */
+    private const array GRAY = [
+        50 => '#f8f6f2',
+        100 => '#f0ece5',
+        200 => '#e3ddd3',
+        300 => '#cdc6ba',
+        400 => '#a19c92',
+        500 => '#7a776f',
+        600 => '#5b5f59',
+        700 => '#3f4743',
+        800 => '#28312d',
+        900 => '#19221e',
+        950 => '#0f1714',
+    ];
+
     public function panel(Panel $panel): Panel
     {
         return $panel
             ->default()
             ->id('manager')
             ->path('manager')
+            ->viteTheme('resources/css/filament/manager/theme.css')
             ->login()
             ->profile()
             ->brandName('Hade Manager')
+            ->brandLogo(fn (): View => view('filament.brand'))
+            ->brandLogoHeight('2.75rem')
+            ->font('Albert Sans')
+            ->serifFont('Playfair Display')
             ->colors([
-                'primary' => Color::hex('#2e6b55'),
+                'primary' => self::PRIMARY,
+                'gray' => self::GRAY,
             ])
+            ->renderHook(
+                PanelsRenderHook::SIMPLE_LAYOUT_START,
+                fn (): View => view('filament.simple-layout-band'),
+            )
             ->navigationGroups([
                 'Catálogo',
                 'Tienda online',
