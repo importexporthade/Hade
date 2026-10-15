@@ -104,4 +104,31 @@ class HomeSectionTest extends TestCase
         $this->assertTrue($section->category->is($category));
         $this->assertSame(4, $section->products_limit);
     }
+
+    public function test_the_sections_open_ready_to_drag_and_the_new_order_is_saved(): void
+    {
+        $this->actingAs(User::factory()->admin()->create());
+        $first = HomeSection::factory()->create(['sort_order' => 1]);
+        $second = HomeSection::factory()->create(['sort_order' => 2]);
+
+        Livewire::test(ManageHomeSections::class)
+            ->assertSet('isTableReordering', true)
+            ->call('toggleTableReordering')
+            ->assertSet('isTableReordering', true)
+            ->call('reorderTable', [(string) $second->id, (string) $first->id]);
+
+        $this->assertSame([$second->id, $first->id], HomeSection::query()->orderBy('sort_order')->pluck('id')->all());
+    }
+
+    public function test_a_section_is_still_edited_while_the_list_is_draggable(): void
+    {
+        $this->actingAs(User::factory()->admin()->create());
+        $section = HomeSection::factory()->create(['title' => 'Novedades']);
+
+        Livewire::test(ManageHomeSections::class)
+            ->callTableAction('edit', $section, data: ['title' => 'Lo nuevo de Hade'])
+            ->assertHasNoTableActionErrors();
+
+        $this->assertSame('Lo nuevo de Hade', $section->refresh()->title);
+    }
 }

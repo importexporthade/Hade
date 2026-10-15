@@ -6,6 +6,7 @@ use App\Enums\HomeSectionType;
 use App\Filament\Resources\HomeSections\Pages\ManageHomeSections;
 use App\Models\HomeSection;
 use BackedEnum;
+use Filament\Actions\Action;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\EditAction;
 use Filament\Forms\Components\Select;
@@ -17,6 +18,7 @@ use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Columns\ToggleColumn;
+use Filament\Tables\Columns\ViewColumn;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use UnitEnum;
@@ -83,7 +85,10 @@ class HomeSectionResource extends Resource
             ->modifyQueryUsing(fn (Builder $query): Builder => $query->with('category'))
             ->defaultSort('sort_order')
             ->reorderable('sort_order')
-            ->description('Arrastra las filas para cambiar el orden en que aparecen en la portada.')
+            // The table always stays in reorder mode, so the button that leaves it is hidden.
+            // Filament prints it even when hidden(), hence the theme class.
+            ->reorderRecordsTriggerAction(fn (Action $action): Action => $action->extraAttributes(['class' => 'hade-always-reordering'], merge: true))
+            ->description('Este es el orden en que se ven en la portada.')
             ->columns([
                 TextColumn::make('title')
                     ->label('Título')
@@ -98,10 +103,19 @@ class HomeSectionResource extends Resource
                     ->placeholder('—'),
                 ToggleColumn::make('is_active')
                     ->label('Visible'),
+                ViewColumn::make('edit')
+                    ->label('')
+                    ->view('filament.tables.edit-button'),
             ])
+            // Reorder mode hides row buttons: the edit column opens this action, and deleting
+            // lives inside its window.
             ->recordActions([
-                EditAction::make(),
-                DeleteAction::make(),
+                EditAction::make()
+                    ->extraModalFooterActions(fn (EditAction $action): array => [
+                        DeleteAction::make()
+                            ->record($action->getRecord())
+                            ->cancelParentActions(),
+                    ]),
             ]);
     }
 

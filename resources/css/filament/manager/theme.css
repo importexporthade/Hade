@@ -103,6 +103,15 @@
     @apply border-t-2 border-hade-sage;
 }
 
+/* Tables that are always in reorder mode: no button to leave it, and no empty toolbar left behind */
+.hade-always-reordering {
+    display: none !important;
+}
+
+.fi-ta-header-toolbar:has(.hade-always-reordering):not(:has(input, .fi-dropdown)) {
+    display: none !important;
+}
+
 /* Login and the other simple pages: the storefront's photo band behind the card */
 .fi-simple-layout {
     @apply relative isolate;
