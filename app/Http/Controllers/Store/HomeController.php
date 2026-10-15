@@ -23,7 +23,7 @@ class HomeController extends Controller
             ->reject(fn (HomeSection $section): bool => $section->category !== null && ! $section->category->is_visible);
 
         return view('store.home', [
-            'banners' => Banner::query()->showing()->orderBy('sort_order')->get(),
+            'banners' => Banner::query()->showing()->with(['linkProduct.category', 'linkCategory', 'linkPage'])->orderBy('sort_order')->get(),
             'sections' => $sections,
             'categories' => Category::query()->visible()->orderBy('sort_order')->get(),
         ]);

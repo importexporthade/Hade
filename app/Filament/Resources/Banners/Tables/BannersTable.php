@@ -11,12 +11,14 @@ use Filament\Tables\Columns\ImageColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Columns\ToggleColumn;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Builder;
 
 class BannersTable
 {
     public static function configure(Table $table): Table
     {
         return $table
+            ->modifyQueryUsing(fn (Builder $query): Builder => $query->with(['linkProduct', 'linkCategory', 'linkPage']))
             ->defaultSort('sort_order')
             ->reorderable('sort_order')
             ->columns([
@@ -29,6 +31,9 @@ class BannersTable
                     ->placeholder('Sin título')
                     ->description(fn (Banner $record): ?string => $record->subtitle)
                     ->searchable(),
+                TextColumn::make('destination')
+                    ->label('Lleva a')
+                    ->state(fn (Banner $record): string => $record->destinationLabel()),
                 TextColumn::make('status')
                     ->label('Estado')
                     ->state(fn (Banner $record): string => match (true) {

@@ -7,8 +7,13 @@
         <section aria-label="Promociones" class="bg-white">
             <x-store.carousel label="Promociones" class="gap-0">
                 @foreach ($banners as $banner)
-                    @php($bannerTag = $banner->link_url ? 'a' : 'div')
-                    <{{ $bannerTag }} @if ($banner->link_url) href="{{ $banner->link_url }}" @endif class="relative block w-full shrink-0">
+                    @php($bannerUrl = $banner->linkUrl())
+                    @php($bannerTag = $bannerUrl ? 'a' : 'div')
+                    <{{ $bannerTag }}
+                        @if ($bannerUrl) href="{{ $bannerUrl }}" @endif
+                        @if ($bannerUrl && $banner->link_type->opensOutsideTheStore()) target="_blank" rel="noopener" @endif
+                        class="relative block w-full shrink-0"
+                    >
                         <picture>
                             @if ($banner->mobile_image)
                                 <source media="(max-width: 640px)" srcset="{{ Storage::disk('public')->url($banner->mobile_image) }}">

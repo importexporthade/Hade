@@ -41,7 +41,9 @@ return [
         'public' => [
             'driver' => 'local',
             'root' => storage_path('app/public'),
-            'url' => rtrim(env('APP_URL', 'http://localhost'), '/').'/storage',
+            // Root-relative so photos load on whatever address the site is opened from
+            // (hade.test, the PC's network IP from a phone, or the final domain).
+            'url' => '/storage',
             'visibility' => 'public',
             'throw' => false,
             'report' => false,

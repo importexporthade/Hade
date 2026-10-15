@@ -2,12 +2,16 @@
 
 namespace App\Filament\Resources\Banners\Schemas;
 
+use App\Enums\BannerLinkType;
 use App\Filament\Support\PhotoUpload;
 use App\Support\ImageOptimizer;
 use Filament\Forms\Components\DateTimePicker;
+use Filament\Forms\Components\Radio;
+use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
 use Filament\Schemas\Components\Section;
+use Filament\Schemas\Components\Utilities\Get;
 use Filament\Schemas\Schema;
 
 class BannerForm
@@ -29,22 +33,14 @@ class BannerForm
                             ->label('Imagen para celular (opcional)')
                             ->helperText('Vertical o cuadrada, idealmente 1080 × 1080 px. Si no la subes se usa la de computadora.'),
                     ]),
-                Section::make('Texto y enlace')
-                    ->description('Todo opcional: un banner puede ser solo la imagen.')
+                Section::make('Texto')
+                    ->description('Opcional: un banner puede ser solo la imagen.')
                     ->schema([
                         TextInput::make('title')
                             ->label('Título')
                             ->maxLength(255),
                         TextInput::make('subtitle')
                             ->label('Subtítulo')
-                            ->maxLength(255),
-                        TextInput::make('button_label')
-                            ->label('Texto del botón')
-                            ->placeholder('Ver ofertas')
-                            ->maxLength(60),
-                        TextInput::make('link_url')
-                            ->label('Enlace al hacer clic')
-                            ->placeholder('/category/kits-y-promociones')
                             ->maxLength(255),
                     ]),
                 Section::make('Publicación')
@@ -62,6 +58,60 @@ class BannerForm
                             ->seconds(false)
                             ->after('starts_at'),
                     ]),
+                Section::make('Al tocar el banner')
+                    ->description('Elige a dónde lleva a la clienta cuando toca el banner.')
+                    ->columnSpanFull()
+                    ->schema([
+                        Radio::make('link_type')
+                            ->hiddenLabel()
+                            ->options(BannerLinkType::class)
+                            ->default(BannerLinkType::None->value)
+                            ->required()
+                            ->live()
+                            ->columns(['md' => 2]),
+                        Select::make('link_product_id')
+                            ->label('¿Qué producto?')
+                            ->relationship('linkProduct', 'name')
+                            ->searchable()
+                            ->preload()
+                            ->placeholder('Escribe para buscar, por ejemplo "Kit Hade"')
+                            ->visible(fn (Get $get): bool => self::linkType($get) === BannerLinkType::Product)
+                            ->required(fn (Get $get): bool => self::linkType($get) === BannerLinkType::Product),
+                        Select::make('link_category_id')
+                            ->label('¿Qué categoría?')
+                            ->relationship('linkCategory', 'name')
+                            ->preload()
+                            ->visible(fn (Get $get): bool => self::linkType($get) === BannerLinkType::Category)
+                            ->required(fn (Get $get): bool => self::linkType($get) === BannerLinkType::Category),
+                        Select::make('link_page_id')
+                            ->label('¿Qué página?')
+                            ->relationship('linkPage', 'title')
+                            ->preload()
+                            ->visible(fn (Get $get): bool => self::linkType($get) === BannerLinkType::Page)
+                            ->required(fn (Get $get): bool => self::linkType($get) === BannerLinkType::Page),
+                        TextInput::make('link_url')
+                            ->label('Dirección de la página')
+                            ->helperText('Ábrela en tu navegador, copia lo que aparece arriba en la barra y pégalo aquí.')
+                            ->placeholder('https://www.instagram.com/hade.pe')
+                            ->url()
+                            ->validationMessages(['url' => 'Pega la dirección completa, empezando por https://'])
+                            ->maxLength(255)
+                            ->visible(fn (Get $get): bool => self::linkType($get) === BannerLinkType::External)
+                            ->required(fn (Get $get): bool => self::linkType($get) === BannerLinkType::External),
+                        TextInput::make('button_label')
+                            ->label('Texto del botón (opcional)')
+                            ->helperText('Si lo llenas, aparece un botón sobre la imagen.')
+                            ->placeholder('Ver ofertas')
+                            ->maxLength(60)
+                            ->visible(fn (Get $get): bool => (self::linkType($get) ?? BannerLinkType::None) !== BannerLinkType::None),
+                    ]),
             ]);
+    }
+
+    private static function linkType(Get $get): ?BannerLinkType
+    {
+        $type = $get('link_type');
+
+        return $type instanceof BannerLinkType ? $type : BannerLinkType::tryFrom((string) $type);
     }
 }

@@ -11,8 +11,9 @@
         @endif
         <meta property="og:title" content="{{ $pageTitle() }}">
         <meta property="og:site_name" content="{{ $settings->store_name }}">
-        @if ($image ?? $publicUrl($settings->logo))
-            <meta property="og:image" content="{{ $image ?? $publicUrl($settings->logo) }}">
+        @if ($shareImage = $image ?? $publicUrl($settings->logo))
+            {{-- Social networks need a full address, not the relative one the page uses --}}
+            <meta property="og:image" content="{{ url($shareImage) }}">
         @endif
 
         @fonts
