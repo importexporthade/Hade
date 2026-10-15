@@ -43,6 +43,11 @@ class PageResource extends Resource
         return PagesTable::configure($table);
     }
 
+    public static function getBreadcrumb(): string
+    {
+        return 'Páginas informativas';
+    }
+
     public static function getPages(): array
     {
         return [

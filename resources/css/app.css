@@ -51,6 +51,18 @@
         @apply inline-flex items-center justify-center gap-2 bg-whatsapp px-6 py-3 text-sm font-semibold text-white transition hover:brightness-95 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald;
     }
 
+    .form-label {
+        @apply block text-sm font-medium text-ink;
+    }
+
+    .form-input {
+        @apply mt-1.5 block w-full border border-ink/20 bg-white px-3 py-2.5 text-sm text-ink placeholder:text-ink/40 focus:border-emerald focus:ring-2 focus:ring-emerald/20 focus:outline-none aria-invalid:border-sale;
+    }
+
+    .form-error {
+        @apply mt-1 text-sm text-sale;
+    }
+
     .section-heading {
         @apply text-xl font-bold text-ink;
     }

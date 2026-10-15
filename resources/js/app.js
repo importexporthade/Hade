@@ -14,7 +14,21 @@ function initMobileMenu() {
     });
 }
 
+/**
+ * A checkbox with data-toggles="x" shows or hides the element marked data-toggled="x".
+ */
+function initToggles() {
+    document.querySelectorAll('[data-toggles]').forEach((checkbox) => {
+        const target = document.querySelector(`[data-toggled="${checkbox.dataset.toggles}"]`);
+
+        checkbox.addEventListener('change', () => {
+            target.hidden = !checkbox.checked;
+        });
+    });
+}
+
 initMobileMenu();
+initToggles();
 initCarousels();
 initGalleries();
 initCart();

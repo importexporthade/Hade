@@ -128,16 +128,19 @@
                 </div>
 
                 @php($footerPages = $pages->where('show_in_footer', true))
-                @if ($footerPages->isNotEmpty())
-                    <div>
-                        <h2 class="text-sm font-bold">Información</h2>
-                        <ul class="mt-3 space-y-2 text-sm text-ink/70">
-                            @foreach ($footerPages as $page)
-                                <li><a href="{{ route('pages.show', $page) }}" class="hover:text-ink">{{ $page->title }}</a></li>
-                            @endforeach
-                        </ul>
-                    </div>
-                @endif
+                <div>
+                    <h2 class="text-sm font-bold">Información</h2>
+                    <ul class="mt-3 space-y-2 text-sm text-ink/70">
+                        @foreach ($footerPages as $page)
+                            <li><a href="{{ route('pages.show', $page) }}" class="hover:text-ink">{{ $page->title }}</a></li>
+                        @endforeach
+                    </ul>
+                    {{-- Stores in Peru must show the complaints book where customers can see it --}}
+                    <a href="{{ route('complaints.create') }}" class="mt-4 inline-flex items-center gap-2 border border-ink/15 px-3 py-2 text-sm font-medium hover:border-ink/40">
+                        <x-store.icon name="book" class="size-5 text-emerald" />
+                        Libro de Reclamaciones
+                    </a>
+                </div>
 
                 <div>
                     <h2 class="text-sm font-bold">Contáctanos</h2>

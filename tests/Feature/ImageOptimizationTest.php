@@ -26,7 +26,7 @@ class ImageOptimizationTest extends TestCase
 
     public function test_a_large_photo_is_stored_as_webp_within_the_size_with_its_thumbnail(): void
     {
-        $contents = UploadedFile::fake()->image('big.png', 3000, 2000)->get();
+        $contents = UploadedFile::fake()->image('big.png', 1800, 1200)->get();
 
         $path = ImageOptimizer::store($contents, 'products', 1200, 480);
 
@@ -59,7 +59,7 @@ class ImageOptimizationTest extends TestCase
                 'name' => 'Kit Hade Recargada',
                 'category_id' => Category::factory()->create()->id,
                 'price' => '76.90',
-                'images' => [UploadedFile::fake()->image('foto-del-celular.jpg', 2400, 1800)],
+                'images' => [UploadedFile::fake()->image('foto-del-celular.jpg', 1600, 1200)],
             ])
             ->call('create')
             ->assertHasNoFormErrors();
@@ -72,7 +72,7 @@ class ImageOptimizationTest extends TestCase
 
     public function test_the_command_converts_old_photos_and_removes_the_originals(): void
     {
-        Storage::disk('public')->put('products/old.png', UploadedFile::fake()->image('old.png', 2000, 2000)->get());
+        Storage::disk('public')->put('products/old.png', UploadedFile::fake()->image('old.png', 1500, 1500)->get());
         $alreadyOptimized = ImageOptimizer::store(UploadedFile::fake()->image('new.png', 500, 500)->get(), 'products', 1200, 480);
         $product = Product::factory()->create(['images' => ['products/old.png', $alreadyOptimized]]);
 

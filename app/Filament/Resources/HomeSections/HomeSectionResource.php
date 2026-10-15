@@ -105,6 +105,11 @@ class HomeSectionResource extends Resource
             ]);
     }
 
+    public static function getBreadcrumb(): string
+    {
+        return 'Secciones de portada';
+    }
+
     public static function getPages(): array
     {
         return [

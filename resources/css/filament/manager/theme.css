@@ -29,6 +29,7 @@
 .fi-ta-header-heading,
 .fi-wi-stats-overview-stat-value {
     font-family: var(--font-heading);
+    font-variant-numeric: lining-nums;
     letter-spacing: 0.005em;
 }
 

@@ -87,6 +87,7 @@ class ManageStore extends Page
                     ->schema([
                         TextInput::make('email')
                             ->label('Correo')
+                            ->helperText('También aquí llegan los avisos del Libro de Reclamaciones.')
                             ->email()
                             ->maxLength(255),
                         TextInput::make('phone')
@@ -107,6 +108,24 @@ class ManageStore extends Page
                         TextInput::make('instagram_url')->label('Instagram')->url()->maxLength(255),
                         TextInput::make('tiktok_url')->label('TikTok')->url()->maxLength(255),
                         TextInput::make('youtube_url')->label('YouTube')->url()->maxLength(255),
+                    ]),
+                Section::make('Datos legales')
+                    ->description('Se imprimen en cada hoja del Libro de Reclamaciones, como pide Indecopi.')
+                    ->columns(2)
+                    ->columnSpanFull()
+                    ->schema([
+                        TextInput::make('legal_name')
+                            ->label('Razón social o nombre del titular')
+                            ->maxLength(255),
+                        TextInput::make('ruc')
+                            ->label('RUC')
+                            ->regex('/^\d{11}$/')
+                            ->validationMessages(['regex' => 'El RUC tiene 11 dígitos.'])
+                            ->maxLength(11),
+                        TextInput::make('legal_address')
+                            ->label('Dirección fiscal')
+                            ->maxLength(255)
+                            ->columnSpanFull(),
                     ]),
             ]);
     }
