@@ -77,6 +77,7 @@ class CategoryResource extends Resource
     {
         return $table
             ->defaultSort('sort_order')
+            ->description('El interruptor Visible se guarda solo al tocarlo. Para cambiar nombre o foto, pulsa Editar.')
             ->reorderable('sort_order')
             ->columns([
                 ImageColumn::make('image')

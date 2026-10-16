@@ -29,6 +29,7 @@ class ProductsTable
         return $table
             ->modifyQueryUsing(fn (Builder $query): Builder => $query->with('category'))
             ->defaultSort('sort_order')
+            ->description('Los interruptores se guardan solos al tocarlos. Para cambiar precio, fotos o textos, pulsa Editar.')
             ->reorderable('sort_order')
             ->columns([
                 ImageColumn::make('cover')

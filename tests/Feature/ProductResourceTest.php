@@ -137,4 +137,15 @@ class ProductResourceTest extends TestCase
         $this->assertSame('90.00', $product->price);
         $this->assertNull($product->compare_at_price);
     }
+
+    public function test_a_switch_in_the_list_saves_at_once_and_says_so(): void
+    {
+        $product = Product::factory()->create(['is_in_stock' => true]);
+
+        Livewire::test(ListProducts::class)
+            ->call('updateTableColumnState', 'is_in_stock', (string) $product->id, false)
+            ->assertNotified('Cambio guardado');
+
+        $this->assertFalse($product->refresh()->is_in_stock);
+    }
 }

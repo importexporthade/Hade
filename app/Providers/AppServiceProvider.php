@@ -4,7 +4,9 @@ namespace App\Providers;
 
 use Filament\Actions\CreateAction;
 use Filament\Actions\EditAction;
+use Filament\Notifications\Notification;
 use Filament\Pages\BasePage;
+use Filament\Tables\Columns\ToggleColumn;
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
@@ -23,6 +25,22 @@ class AppServiceProvider extends ServiceProvider
     public function boot(): void
     {
         $this->keepSaveButtonsInView();
+        $this->confirmInlineChanges();
+    }
+
+    /**
+     * Switches in the lists (Visible, Stock, Destacado…) save the moment they are tapped,
+     * with no button; a notice says so, or the owner keeps looking for a save button.
+     */
+    private function confirmInlineChanges(): void
+    {
+        ToggleColumn::configureUsing(fn (ToggleColumn $column): ToggleColumn => $column->afterStateUpdated(
+            fn (bool $state) => Notification::make()
+                ->success()
+                ->title('Cambio guardado')
+                ->body($column->getLabel().': '.($state ? 'sí' : 'no'))
+                ->send(),
+        ));
     }
 
     /**
