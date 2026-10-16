@@ -8,6 +8,8 @@ export function initGalleries() {
 
         thumbs.forEach((thumb) => {
             thumb.addEventListener('click', () => {
+                // srcset wins over src, so both change or the old photo stays on screen
+                main.srcset = thumb.dataset.gallerySrcset ?? '';
                 main.src = thumb.dataset.galleryThumb;
 
                 thumbs.forEach((other) => {

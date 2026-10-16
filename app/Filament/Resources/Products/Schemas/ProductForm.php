@@ -2,9 +2,9 @@
 
 namespace App\Filament\Resources\Products\Schemas;
 
+use App\Enums\ImageKind;
 use App\Filament\Resources\Categories\CategoryResource;
 use App\Filament\Support\PhotoUpload;
-use App\Support\ImageOptimizer;
 use App\Support\Price;
 use Filament\Forms\Components\RichEditor;
 use Filament\Forms\Components\Select;
@@ -66,9 +66,9 @@ class ProductForm
                                 ->columnSpanFull(),
                         ]),
                     Section::make('Fotos')
-                        ->description('La primera foto es la portada. Arrástralas para cambiar el orden.')
+                        ->description('Se ven en la página del producto. Arrástralas para cambiar el orden.')
                         ->schema([
-                            PhotoUpload::make('images', 'products', ImageOptimizer::PRODUCT_SIZE, ImageOptimizer::PRODUCT_THUMBNAIL_SIZE)
+                            PhotoUpload::make('images', ImageKind::Product)
                                 ->hiddenLabel()
                                 ->multiple()
                                 ->reorderable()
@@ -79,6 +79,15 @@ class ProductForm
                 ])->columnSpan(['lg' => 2]),
 
                 Group::make([
+                    Section::make('Portada')
+                        ->description('La foto de la tarjeta en la tienda. Si no subes una, se usa la primera foto de la galería.')
+                        ->schema([
+                            PhotoUpload::make('cover_image', ImageKind::ProductCover)
+                                ->hiddenLabel()
+                                ->imageCropAspectRatio('1:1')
+                                ->imageEditorAspectRatios(['1:1'])
+                                ->helperText('Se recorta cuadrada. Usa el lápiz para elegir qué parte se ve.'),
+                        ]),
                     Section::make('Precio')
                         ->schema([
                             TextInput::make('price')

@@ -4,7 +4,7 @@
 
 <span class="hade-brand">
     @if ($logo)
-        <img src="{{ \Illuminate\Support\Facades\Storage::disk('public')->url($logo) }}" alt="" class="hade-brand-mark hade-brand-mark-image">
+        <img src="{{ \App\Support\ImageOptimizer::url($logo, 192) }}" alt="" class="hade-brand-mark hade-brand-mark-image">
     @else
         <span class="hade-brand-mark" aria-hidden="true">H</span>
     @endif

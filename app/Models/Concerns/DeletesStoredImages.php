@@ -55,9 +55,9 @@ trait DeletesStoredImages
     protected function deleteStoredImages(array $paths): void
     {
         if ($paths !== []) {
-            $thumbnails = array_map(ImageOptimizer::thumbnailPath(...), $paths);
+            $companions = collect($paths)->flatMap(ImageOptimizer::companionPaths(...))->all();
 
-            Storage::disk('public')->delete([...array_values($paths), ...array_values($thumbnails)]);
+            Storage::disk('public')->delete([...array_values($paths), ...$companions]);
         }
     }
 }

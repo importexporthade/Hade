@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enums\ImageKind;
 use App\Models\Concerns\DeletesStoredImages;
 use App\Support\ImageOptimizer;
 use Database\Factories\ProductFactory;
@@ -11,11 +12,10 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Support\Facades\Storage;
 
 #[Fillable([
     'category_id', 'name', 'slug', 'sku', 'description', 'price', 'compare_at_price',
-    'images', 'is_visible', 'is_featured', 'is_in_stock', 'sort_order',
+    'images', 'cover_image', 'is_visible', 'is_featured', 'is_in_stock', 'sort_order',
 ])]
 class Product extends Model
 {
@@ -101,50 +101,37 @@ class Product extends Model
     }
 
     /**
-     * Public URLs of the photos in the order the owner set, or the placeholder when there are none.
+     * The gallery photos in the order the owner set.
      *
      * @return list<string>
      */
-    public function imageUrls(): array
+    public function galleryPaths(): array
     {
-        return $this->photoUrls(thumbnails: false);
+        return collect($this->images ?? [])->filter()->values()->all();
     }
 
     /**
-     * Same photos in their small version, for tiles and gallery thumbnails; photos stored
-     * before the optimizer existed have no thumbnail and fall back to the full photo.
-     *
-     * @return list<string>
+     * The photo of the product tile: the cover the owner cropped, or else the first photo
+     * of the gallery.
      */
-    public function thumbnailUrls(): array
+    public function coverPath(): ?string
     {
-        return $this->photoUrls(thumbnails: true);
+        return $this->cover_image ?: ($this->galleryPaths()[0] ?? null);
     }
 
-    public function coverImageUrl(): string
+    public function coverKind(): ImageKind
     {
-        return $this->imageUrls()[0];
-    }
-
-    public function coverThumbnailUrl(): string
-    {
-        return $this->thumbnailUrls()[0];
+        return $this->cover_image ? ImageKind::ProductCover : ImageKind::Product;
     }
 
     /**
-     * @return list<string>
+     * URL of the tile photo at the given width, or the placeholder when there is none.
      */
-    private function photoUrls(bool $thumbnails): array
+    public function coverUrl(?int $width = null): string
     {
-        $urls = collect($this->images ?? [])
-            ->filter()
-            ->map(fn (string $path): string => Storage::disk('public')->url(
-                $thumbnails && ImageOptimizer::isOptimized($path) ? ImageOptimizer::thumbnailPath($path) : $path,
-            ))
-            ->values()
-            ->all();
+        $cover = $this->coverPath();
 
-        return $urls !== [] ? $urls : [asset('images/product-placeholder.svg')];
+        return $cover ? ImageOptimizer::url($cover, $width) : asset('images/product-placeholder.svg');
     }
 
     /**
@@ -152,7 +139,7 @@ class Product extends Model
      */
     protected function storedImageAttributes(): array
     {
-        return ['images'];
+        return ['images', 'cover_image'];
     }
 
     /**

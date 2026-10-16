@@ -2,6 +2,7 @@
 
 namespace App\Console\Commands;
 
+use App\Enums\ImageKind;
 use App\Models\Banner;
 use App\Models\Category;
 use App\Models\Product;
@@ -13,75 +14,91 @@ use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Storage;
 
 #[Signature('hade:optimize-images')]
-#[Description('Convierte a WebP liviano las fotos guardadas antes de que existiera el optimizador')]
+#[Description('Convierte las fotos a WebP liviano y genera las copias de cada tamaño que les falten')]
 class OptimizeImagesCommand extends Command
 {
-    private int $optimizedImages = 0;
+    private int $convertedImages = 0;
+
+    private int $completedImages = 0;
 
     /**
      * Execute the console command.
      *
      * Each record points to the new WebP file first; the models then delete the photos they
-     * no longer use, so an interrupted run never leaves a record without its photo.
-     * Photos that are already WebP are skipped, so running it again is safe.
+     * no longer use, so an interrupted run never leaves a record without its photo. Photos
+     * already done are skipped, so running it again is safe.
      */
     public function handle(): int
     {
         $bytesBefore = $this->publicDiskSize();
 
-        $products = Product::query()->whereNotNull('images')->get();
-        $this->info("Optimizando fotos de {$products->count()} productos…");
+        $products = Product::query()->get();
+        $this->info("Revisando fotos de {$products->count()} productos…");
         $this->withProgressBar($products, function (Product $product): void {
             $product->update([
-                'images' => collect($product->images)
-                    ->map(fn (string $path): string => $this->optimized($path, ImageOptimizer::PRODUCT_SIZE, ImageOptimizer::PRODUCT_THUMBNAIL_SIZE))
+                'images' => collect($product->images ?? [])
+                    ->map(fn (string $path): string => $this->optimized($path, ImageKind::Product))
                     ->all(),
+                'cover_image' => $product->cover_image ? $this->optimized($product->cover_image, ImageKind::ProductCover) : null,
             ]);
         });
         $this->newLine();
 
         Category::query()->whereNotNull('image')->each(function (Category $category): void {
-            $category->update(['image' => $this->optimized($category->image, ImageOptimizer::CATEGORY_SIZE)]);
+            $category->update(['image' => $this->optimized($category->image, ImageKind::Category)]);
         });
 
         Banner::query()->each(function (Banner $banner): void {
             $banner->update([
-                'image' => $this->optimized($banner->image, ImageOptimizer::BANNER_SIZE),
-                'mobile_image' => $banner->mobile_image ? $this->optimized($banner->mobile_image, ImageOptimizer::MOBILE_BANNER_SIZE) : null,
+                'image' => $this->optimized($banner->image, ImageKind::Banner),
+                'mobile_image' => $banner->mobile_image ? $this->optimized($banner->mobile_image, ImageKind::MobileBanner) : null,
             ]);
         });
 
         $settings = StoreSetting::current();
         $settings->update([
-            'logo' => $settings->logo ? $this->optimized($settings->logo, ImageOptimizer::LOGO_SIZE) : null,
-            'header_image' => $settings->header_image ? $this->optimized($settings->header_image, ImageOptimizer::HEADER_SIZE) : null,
+            'logo' => $settings->logo ? $this->optimized($settings->logo, ImageKind::Logo) : null,
+            'header_image' => $settings->header_image ? $this->optimized($settings->header_image, ImageKind::Header) : null,
         ]);
 
-        $bytesAfter = $this->publicDiskSize();
-
         $this->info(sprintf(
-            'Fotos optimizadas: %d. Espacio usado: de %s a %s.',
-            $this->optimizedImages,
+            'Fotos convertidas a WebP: %d. Fotos con copias nuevas: %d. Espacio usado: de %s a %s.',
+            $this->convertedImages,
+            $this->completedImages,
             $this->megabytes($bytesBefore),
-            $this->megabytes($bytesAfter),
+            $this->megabytes($this->publicDiskSize()),
         ));
 
         return self::SUCCESS;
     }
 
     /**
-     * Path of the optimized copy of a photo, or the same path when it is already WebP,
-     * missing, or not an image GD can read.
+     * Path of the photo once it is a WebP with every copy of its kind. A photo that is not
+     * WebP yet is saved again; one that is gets the copies it lacks, and the "thumbs" copy
+     * of the previous system is removed.
      */
-    private function optimized(string $path, int $maxSize, ?int $thumbnailSize = null): string
+    private function optimized(string $path, ImageKind $kind): string
     {
         $disk = Storage::disk('public');
 
-        if (ImageOptimizer::isOptimized($path) || ! $disk->exists($path)) {
+        if (! $disk->exists($path)) {
             return $path;
         }
 
-        $optimizedPath = ImageOptimizer::store($disk->get($path), dirname($path), $maxSize, $thumbnailSize);
+        if (ImageOptimizer::isOptimized($path)) {
+            $hadAllCopies = collect($kind->widths())->every(fn (int $width): bool => $disk->exists(ImageOptimizer::variantPath($path, $width)));
+
+            if (! $hadAllCopies && ImageOptimizer::addMissingVariants($path, $kind)) {
+                $this->completedImages++;
+            }
+
+            $legacyThumbnail = dirname($path).'/thumbs/'.basename($path);
+            $disk->delete($legacyThumbnail);
+
+            return $path;
+        }
+
+        $optimizedPath = ImageOptimizer::store($disk->get($path), $kind);
 
         if ($optimizedPath === null) {
             $this->warn("No se pudo optimizar {$path}.");
@@ -89,7 +106,7 @@ class OptimizeImagesCommand extends Command
             return $path;
         }
 
-        $this->optimizedImages++;
+        $this->convertedImages++;
 
         return $optimizedPath;
     }

@@ -2,9 +2,9 @@
 
 namespace App\Filament\Pages;
 
+use App\Enums\ImageKind;
 use App\Filament\Support\PhotoUpload;
 use App\Models\StoreSetting;
-use App\Support\ImageOptimizer;
 use BackedEnum;
 use Filament\Actions\Action;
 use Filament\Forms\Components\Textarea;
@@ -64,9 +64,9 @@ class ManageStore extends Page
                             ->label('Aviso superior')
                             ->helperText('Franja sobre el menú, p. ej. "Delivery gratis a todo el Perú".')
                             ->maxLength(255),
-                        PhotoUpload::make('logo', 'store', ImageOptimizer::LOGO_SIZE)
+                        PhotoUpload::make('logo', ImageKind::Logo)
                             ->label('Logo'),
-                        PhotoUpload::make('header_image', 'store', ImageOptimizer::HEADER_SIZE)
+                        PhotoUpload::make('header_image', ImageKind::Header)
                             ->label('Imagen de cabecera')
                             ->helperText('La franja de fotos sobre el logo.'),
                     ]),

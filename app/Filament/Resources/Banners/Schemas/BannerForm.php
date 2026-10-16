@@ -3,8 +3,8 @@
 namespace App\Filament\Resources\Banners\Schemas;
 
 use App\Enums\BannerLinkType;
+use App\Enums\ImageKind;
 use App\Filament\Support\PhotoUpload;
-use App\Support\ImageOptimizer;
 use Filament\Forms\Components\DateTimePicker;
 use Filament\Forms\Components\Radio;
 use Filament\Forms\Components\Select;
@@ -25,11 +25,11 @@ class BannerForm
                     ->columns(2)
                     ->columnSpanFull()
                     ->schema([
-                        PhotoUpload::make('image', 'banners', ImageOptimizer::BANNER_SIZE)
+                        PhotoUpload::make('image', ImageKind::Banner)
                             ->label('Imagen para computadora')
                             ->helperText('Horizontal, idealmente 1920 × 640 px.')
                             ->required(),
-                        PhotoUpload::make('mobile_image', 'banners', ImageOptimizer::MOBILE_BANNER_SIZE)
+                        PhotoUpload::make('mobile_image', ImageKind::MobileBanner)
                             ->label('Imagen para celular (opcional)')
                             ->helperText('Vertical o cuadrada, idealmente 1080 × 1080 px. Si no la subes se usa la de computadora.'),
                     ]),

@@ -3,12 +3,15 @@
 {{-- "large" is the big tile of the offers carousel; "base" the smaller tile of rows and grids. --}}
 <article {{ $attributes->class(['group relative flex flex-col', 'bg-tile' => $size === 'large']) }}>
     <a href="{{ route('products.show', $product) }}" class="relative block aspect-square overflow-hidden bg-tile">
-        <img
-            src="{{ $size === 'large' ? $product->coverImageUrl() : $product->coverThumbnailUrl() }}"
-            alt="{{ $product->name }}"
+        <x-store.image
+            :path="$product->coverPath()"
+            :kind="$product->coverKind()"
+            :width="480"
+            :sizes="$size === 'large' ? '(min-width: 1024px) 400px, (min-width: 640px) 50vw, 80vw' : '(min-width: 1024px) 240px, (min-width: 640px) 192px, 160px'"
+            :alt="$product->name"
             loading="lazy"
             class="size-full object-cover transition duration-500 group-hover:scale-105"
-        >
+        />
 
         <span class="absolute top-0 left-0 flex flex-col items-start">
             @if ($product->isOnSale())

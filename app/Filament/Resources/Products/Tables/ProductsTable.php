@@ -3,6 +3,7 @@
 namespace App\Filament\Resources\Products\Tables;
 
 use App\Models\Product;
+use App\Support\ImageOptimizer;
 use App\Support\Price;
 use Filament\Actions\BulkAction;
 use Filament\Actions\BulkActionGroup;
@@ -30,10 +31,10 @@ class ProductsTable
             ->defaultSort('sort_order')
             ->reorderable('sort_order')
             ->columns([
-                ImageColumn::make('images')
+                ImageColumn::make('cover')
                     ->label('Foto')
+                    ->state(fn (Product $record): ?string => $record->coverPath() ? ImageOptimizer::displayPath($record->coverPath(), 320) : null)
                     ->disk('public')
-                    ->limit(1)
                     ->defaultImageUrl(asset('images/product-placeholder.svg'))
                     ->square(),
                 TextColumn::make('name')

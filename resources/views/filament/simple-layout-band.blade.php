@@ -6,7 +6,7 @@
 <div
     @class(['hade-band', 'hade-band-has-image' => $headerImage])
     @if ($headerImage)
-        style="background-image: url('{{ \Illuminate\Support\Facades\Storage::disk('public')->url($headerImage) }}')"
+        style="background-image: url('{{ \App\Support\ImageOptimizer::url($headerImage, 1200) }}')"
     @endif
     aria-hidden="true"
 ></div>

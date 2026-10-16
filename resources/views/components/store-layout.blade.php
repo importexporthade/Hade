@@ -37,12 +37,12 @@
             {{-- Photo band with the round logo sitting on its lower edge --}}
             <div class="relative h-36 bg-taupe sm:h-48">
                 @if ($settings->header_image)
-                    <img src="{{ $publicUrl($settings->header_image) }}" alt="" class="size-full object-contain">
+                    <x-store.image :path="$settings->header_image" :kind="\App\Enums\ImageKind::Header" :width="1200" sizes="100vw" class="size-full object-contain" />
                 @endif
 
                 <a href="{{ route('home') }}" class="absolute bottom-0 left-1/2 z-10 grid size-20 -translate-x-1/2 translate-y-1/2 place-items-center overflow-hidden rounded-full bg-cream ring-4 ring-cream sm:size-24" aria-label="{{ $settings->store_name }}, ir al inicio">
                     @if ($settings->logo)
-                        <img src="{{ $publicUrl($settings->logo) }}" alt="{{ $settings->store_name }}" class="size-full object-cover">
+                        <x-store.image :path="$settings->logo" :kind="\App\Enums\ImageKind::Logo" :width="192" sizes="96px" :alt="$settings->store_name" class="size-full object-cover" />
                     @else
                         <span class="grid size-full place-items-center rounded-full bg-emerald font-serif text-4xl text-cream">{{ mb_substr($settings->store_name, 0, 1) }}</span>
                     @endif

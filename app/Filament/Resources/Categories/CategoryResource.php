@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\Categories;
 
+use App\Enums\ImageKind;
 use App\Filament\Resources\Categories\Pages\ManageCategories;
 use App\Filament\Support\PhotoUpload;
 use App\Models\Category;
@@ -63,7 +64,7 @@ class CategoryResource extends Resource
                     ->label('Descripción')
                     ->rows(3)
                     ->columnSpanFull(),
-                PhotoUpload::make('image', 'categories', ImageOptimizer::CATEGORY_SIZE)
+                PhotoUpload::make('image', ImageKind::Category)
                     ->label('Foto')
                     ->columnSpanFull(),
                 Toggle::make('is_visible')
@@ -80,6 +81,7 @@ class CategoryResource extends Resource
             ->columns([
                 ImageColumn::make('image')
                     ->label('Foto')
+                    ->state(fn (Category $record): ?string => $record->image ? ImageOptimizer::displayPath($record->image, 320) : null)
                     ->disk('public')
                     ->square(),
                 TextColumn::make('name')

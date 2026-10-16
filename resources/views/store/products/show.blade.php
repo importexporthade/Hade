@@ -1,8 +1,9 @@
 @php
+    use App\Enums\ImageKind;
+    use App\Support\ImageOptimizer;
     use App\Support\Price;
 
-    $images = $product->imageUrls();
-    $thumbnails = $product->thumbnailUrls();
+    $gallery = $product->galleryPaths();
     $settings = \App\Models\StoreSetting::current();
     $whatsappUrl = $settings->whatsappUrl("Hola, quiero pedir: {$product->name} (".Price::format($product->price).")\n".route('products.show', $product));
     $plainDescription = str(strip_tags((string) $product->description))->squish()->limit(155)->toString();
@@ -11,11 +12,11 @@
         'name' => $product->name,
         'price' => (float) $product->price,
         'url' => route('products.show', $product),
-        'image' => $thumbnails[0],
+        'image' => $product->coverUrl(320),
     ];
 @endphp
 
-<x-store-layout :title="$product->name" :description="$plainDescription ?: null" :image="$images[0]">
+<x-store-layout :title="$product->name" :description="$plainDescription ?: null" :image="$product->coverUrl()">
     <div class="store-container pt-8">
         <nav class="text-xs text-ink/60" aria-label="Ruta">
             <a href="{{ route('home') }}" class="hover:text-ink">Inicio</a>
@@ -31,18 +32,32 @@
             {{-- Gallery: big photo plus thumbnails, switched by resources/js/gallery.js --}}
             <div data-gallery>
                 <div class="relative aspect-square overflow-hidden bg-tile">
-                    <img src="{{ $images[0] }}" alt="{{ $product->name }}" class="size-full object-cover" data-gallery-main>
+                    <x-store.image
+                        :path="$gallery[0] ?? $product->coverPath()"
+                        :kind="$gallery !== [] ? ImageKind::Product : $product->coverKind()"
+                        :width="800"
+                        sizes="(min-width: 1280px) 600px, (min-width: 768px) 50vw, 100vw"
+                        :alt="$product->name"
+                        class="size-full object-cover"
+                        data-gallery-main
+                    />
                     @if ($product->isOnSale())
                         <span class="absolute top-0 left-0 bg-ink/50 px-2.5 py-1.5 text-sm font-bold text-white">-{{ $product->discountPercentage() }} %</span>
                     @endif
                 </div>
 
-                @if (count($images) > 1)
+                @if (count($gallery) > 1)
                     <ul class="mt-3 grid grid-cols-5 gap-2">
-                        @foreach ($images as $index => $image)
+                        @foreach ($gallery as $index => $photo)
                             <li>
-                                <button type="button" @class(['block aspect-square w-full overflow-hidden bg-tile ring-2 ring-offset-2 ring-offset-cream', 'ring-ink' => $index === 0, 'ring-transparent' => $index > 0]) data-gallery-thumb="{{ $image }}" aria-label="Ver foto {{ $index + 1 }}">
-                                    <img src="{{ $thumbnails[$index] }}" alt="" loading="lazy" class="size-full object-cover">
+                                <button
+                                    type="button"
+                                    @class(['block aspect-square w-full overflow-hidden bg-tile ring-2 ring-offset-2 ring-offset-cream', 'ring-ink' => $index === 0, 'ring-transparent' => $index > 0])
+                                    data-gallery-thumb="{{ ImageOptimizer::url($photo, 800) }}"
+                                    data-gallery-srcset="{{ ImageOptimizer::srcset($photo, ImageKind::Product) }}"
+                                    aria-label="Ver foto {{ $index + 1 }}"
+                                >
+                                    <img src="{{ ImageOptimizer::url($photo, 320) }}" alt="" loading="lazy" class="size-full object-cover">
                                 </button>
                             </li>
                         @endforeach

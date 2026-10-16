@@ -2,6 +2,7 @@
 
 namespace App\Console\Commands;
 
+use App\Enums\ImageKind;
 use App\Models\Category;
 use App\Models\Product;
 use App\Models\StoreSetting;
@@ -116,7 +117,7 @@ class ImportTiendadaCommand extends Command
             );
 
             if (blank($category->image) && $remote['image_url']) {
-                $category->update(['image' => $this->storeImage($catalog, $remote['image_url'], 'categories', ImageOptimizer::CATEGORY_SIZE)]);
+                $category->update(['image' => $this->storeImage($catalog, $remote['image_url'], ImageKind::Category)]);
             }
 
             return [$remote['id'] => $category];
@@ -159,7 +160,7 @@ class ImportTiendadaCommand extends Command
 
         if (blank($product->images)) {
             $missing['images'] = collect($detail['images'])
-                ->map(fn (string $url): ?string => $this->storeImage($catalog, $url, 'products', ImageOptimizer::PRODUCT_SIZE, ImageOptimizer::PRODUCT_THUMBNAIL_SIZE))
+                ->map(fn (string $url): ?string => $this->storeImage($catalog, $url, ImageKind::Product))
                 ->filter()
                 ->values()
                 ->all();
@@ -181,15 +182,15 @@ class ImportTiendadaCommand extends Command
         }
 
         $settings->update(array_filter([
-            'logo' => blank($settings->logo) && $images['logo'] ? $this->storeImage($catalog, $images['logo'], 'store', ImageOptimizer::LOGO_SIZE) : null,
-            'header_image' => blank($settings->header_image) && $images['header_image'] ? $this->storeImage($catalog, $images['header_image'], 'store', ImageOptimizer::HEADER_SIZE) : null,
+            'logo' => blank($settings->logo) && $images['logo'] ? $this->storeImage($catalog, $images['logo'], ImageKind::Logo) : null,
+            'header_image' => blank($settings->header_image) && $images['header_image'] ? $this->storeImage($catalog, $images['header_image'], ImageKind::Header) : null,
         ]));
     }
 
     /**
      * Saves a downloaded image on the public disk as optimized WebP and returns its path.
      */
-    private function storeImage(TiendadaCatalog $catalog, string $url, string $directory, int $maxSize, ?int $thumbnailSize = null): ?string
+    private function storeImage(TiendadaCatalog $catalog, string $url, ImageKind $kind): ?string
     {
         $image = rescue(fn () => $catalog->downloadImage($url), report: false);
 
@@ -199,10 +200,10 @@ class ImportTiendadaCommand extends Command
             return null;
         }
 
-        $path = ImageOptimizer::store($image['contents'], $directory, $maxSize, $thumbnailSize);
+        $path = ImageOptimizer::store($image['contents'], $kind);
 
         if ($path === null) {
-            $path = "{$directory}/".Str::uuid().".{$image['extension']}";
+            $path = $kind->directory().'/'.Str::uuid().".{$image['extension']}";
             Storage::disk('public')->put($path, $image['contents']);
         }
 

@@ -1,5 +1,7 @@
 @php
     use App\Enums\HomeSectionType;
+    use App\Enums\ImageKind;
+    use App\Support\ImageOptimizer;
 @endphp
 
 <x-store-layout>
@@ -16,9 +18,20 @@
                     >
                         <picture>
                             @if ($banner->mobile_image)
-                                <source media="(max-width: 640px)" srcset="{{ Storage::disk('public')->url($banner->mobile_image) }}">
+                                <source
+                                    media="(max-width: 640px)"
+                                    srcset="{{ ImageOptimizer::srcset($banner->mobile_image, ImageKind::MobileBanner) ?? ImageOptimizer::url($banner->mobile_image) }}"
+                                    sizes="100vw"
+                                >
                             @endif
-                            <img src="{{ Storage::disk('public')->url($banner->image) }}" alt="{{ $banner->title }}" class="max-h-[32rem] w-full object-cover">
+                            <x-store.image
+                                :path="$banner->image"
+                                :kind="ImageKind::Banner"
+                                :width="1080"
+                                sizes="100vw"
+                                :alt="(string) $banner->title"
+                                class="max-h-[32rem] w-full object-cover"
+                            />
                         </picture>
 
                         @if ($banner->title || $banner->button_label)
@@ -73,8 +86,15 @@
                                     <li>
                                         <a href="{{ route('categories.show', $category) }}" class="group block">
                                             <span class="block aspect-square overflow-hidden bg-tile">
-                                                @if ($category->imageUrl())
-                                                    <img src="{{ $category->imageUrl() }}" alt="" loading="lazy" class="size-full object-cover transition duration-500 group-hover:scale-105">
+                                                @if ($category->image)
+                                                    <x-store.image
+                                                        :path="$category->image"
+                                                        :kind="ImageKind::Category"
+                                                        :width="320"
+                                                        sizes="(min-width: 1024px) 240px, (min-width: 640px) 33vw, 50vw"
+                                                        loading="lazy"
+                                                        class="size-full object-cover transition duration-500 group-hover:scale-105"
+                                                    />
                                                 @else
                                                     <span class="grid size-full place-items-center bg-sage-light font-serif text-4xl text-emerald">{{ mb_substr($category->name, 0, 1) }}</span>
                                                 @endif

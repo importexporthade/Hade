@@ -2,41 +2,25 @@
 
 namespace App\Support;
 
+use App\Enums\ImageKind;
 use GdImage;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 
 /**
- * Turns photos into light WebP files on the public disk: scaled down to a maximum size,
- * turned upright when the camera stored them sideways, and optionally with a small
- * thumbnail beside them for product tiles.
+ * Turns photos into light WebP files on the public disk: the main copy scaled down to its
+ * kind's maximum size, turned upright when the camera stored it sideways, and smaller
+ * copies beside it ("abc-480.webp") so every screen downloads only the size it shows.
  */
 class ImageOptimizer
 {
     public const int QUALITY = 82;
 
     /**
-     * Longest side, in pixels, of each kind of photo the store keeps.
+     * Saves the image and its smaller copies, and returns the main copy's path, or null
+     * when the contents are not an image GD can read.
      */
-    public const int PRODUCT_SIZE = 1200;
-
-    public const int PRODUCT_THUMBNAIL_SIZE = 480;
-
-    public const int CATEGORY_SIZE = 800;
-
-    public const int BANNER_SIZE = 1920;
-
-    public const int MOBILE_BANNER_SIZE = 1080;
-
-    public const int LOGO_SIZE = 600;
-
-    public const int HEADER_SIZE = 2000;
-
-    /**
-     * Saves the image as optimized WebP in the directory and returns its path, or null when
-     * the contents are not an image GD can read.
-     */
-    public static function store(string $contents, string $directory, int $maxSize, ?int $thumbnailSize = null): ?string
+    public static function store(string $contents, ImageKind $kind): ?string
     {
         $image = self::decode($contents);
 
@@ -44,30 +28,110 @@ class ImageOptimizer
             return null;
         }
 
-        $path = trim($directory, '/').'/'.Str::uuid().'.webp';
+        $path = $kind->directory().'/'.Str::uuid().'.webp';
 
-        self::write($image, $path, $maxSize);
-
-        if ($thumbnailSize !== null) {
-            self::write($image, self::thumbnailPath($path), $thumbnailSize);
-        }
+        self::write($image, $path, longestSide: $kind->maxSize());
+        self::writeVariants($image, $path, $kind);
 
         return $path;
     }
 
     /**
-     * Where the thumbnail of a photo lives: a "thumbs" folder next to it, same file name.
+     * Makes the smaller copies a photo is missing, reading them from its main copy.
+     * Returns false when the photo is not an optimized one that can be read.
      */
-    public static function thumbnailPath(string $path): string
+    public static function addMissingVariants(string $path, ImageKind $kind): bool
     {
-        $directory = dirname($path);
+        $disk = Storage::disk('public');
 
-        return ($directory === '.' ? '' : $directory.'/').'thumbs/'.basename($path);
+        if (! self::isOptimized($path) || ! $disk->exists($path)) {
+            return false;
+        }
+
+        $missing = array_filter($kind->widths(), fn (int $width): bool => ! $disk->exists(self::variantPath($path, $width)));
+
+        if ($missing === []) {
+            return true;
+        }
+
+        $image = self::decode($disk->get($path));
+
+        if ($image === null) {
+            return false;
+        }
+
+        foreach ($missing as $width) {
+            self::write($image, self::variantPath($path, $width), width: $width);
+        }
+
+        return true;
+    }
+
+    /**
+     * Where the copy of a given width lives: "products/abc.webp" → "products/abc-480.webp".
+     */
+    public static function variantPath(string $path, int $width): string
+    {
+        return preg_replace('/\.webp$/i', "-{$width}.webp", $path) ?? $path;
+    }
+
+    /**
+     * Every file that may belong to a photo besides the photo itself: its copies of every
+     * width, and the "thumbs" copy older versions of the store made.
+     *
+     * @return list<string>
+     */
+    public static function companionPaths(string $path): array
+    {
+        if (! self::isOptimized($path)) {
+            return [];
+        }
+
+        $directory = dirname($path);
+        $legacyThumbnail = ($directory === '.' ? '' : $directory.'/').'thumbs/'.basename($path);
+
+        return [
+            ...array_map(fn (int $width): string => self::variantPath($path, $width), ImageKind::allWidths()),
+            $legacyThumbnail,
+        ];
     }
 
     public static function isOptimized(string $path): bool
     {
         return str_ends_with(strtolower($path), '.webp');
+    }
+
+    /**
+     * Public URL of a photo, at the requested width when it has copies; photos saved before
+     * the optimizer have none and are served as they are.
+     */
+    public static function url(string $path, ?int $width = null): string
+    {
+        return Storage::disk('public')->url(self::displayPath($path, $width));
+    }
+
+    /**
+     * Disk path of the copy closest to the requested width, for places that take a path.
+     */
+    public static function displayPath(string $path, ?int $width = null): string
+    {
+        return $width !== null && self::isOptimized($path) ? self::variantPath($path, $width) : $path;
+    }
+
+    /**
+     * The "srcset" list that lets the browser pick the copy that fits the screen, or null
+     * for photos without copies.
+     */
+    public static function srcset(string $path, ImageKind $kind): ?string
+    {
+        if (! self::isOptimized($path)) {
+            return null;
+        }
+
+        return collect($kind->widths())
+            ->map(fn (int $width): string => self::url($path, $width)." {$width}w")
+            ->push(self::url($path)." {$kind->maxSize()}w")
+            ->implode(', ');
     }
 
     private static function decode(string $contents): ?GdImage
@@ -119,14 +183,29 @@ class ImageOptimizer
         }
     }
 
-    private static function write(GdImage $image, string $path, int $maxSize): void
+    private static function writeVariants(GdImage $image, string $path, ImageKind $kind): void
     {
-        $width = imagesx($image);
-        $height = imagesy($image);
-        $scale = min(1, $maxSize / max($width, $height));
+        foreach ($kind->widths() as $width) {
+            self::write($image, self::variantPath($path, $width), width: $width);
+        }
+    }
+
+    /**
+     * Saves a WebP copy no larger than the limit given: the longest side for main copies,
+     * the width for smaller ones. Photos are never enlarged, so a copy of a small photo is
+     * simply the photo itself and every listed copy exists.
+     */
+    private static function write(GdImage $image, string $path, ?int $longestSide = null, ?int $width = null): void
+    {
+        $imageWidth = imagesx($image);
+        $imageHeight = imagesy($image);
+
+        $scale = min(1, $width !== null
+            ? $width / $imageWidth
+            : (int) $longestSide / max($imageWidth, $imageHeight));
 
         $resized = $scale < 1
-            ? imagescale($image, max(1, (int) round($width * $scale)), max(1, (int) round($height * $scale)), IMG_BICUBIC)
+            ? imagescale($image, max(1, (int) round($imageWidth * $scale)), max(1, (int) round($imageHeight * $scale)), IMG_BICUBIC)
             : $image;
 
         imagealphablending($resized, false);

@@ -3,6 +3,7 @@
 namespace App\Filament\Resources\Banners\Tables;
 
 use App\Models\Banner;
+use App\Support\ImageOptimizer;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\DeleteBulkAction;
@@ -24,6 +25,7 @@ class BannersTable
             ->columns([
                 ImageColumn::make('image')
                     ->label('Imagen')
+                    ->state(fn (Banner $record): string => ImageOptimizer::displayPath($record->image, 640))
                     ->disk('public')
                     ->imageHeight(56),
                 TextColumn::make('title')
