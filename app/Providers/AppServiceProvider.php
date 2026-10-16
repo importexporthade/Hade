@@ -2,6 +2,9 @@
 
 namespace App\Providers;
 
+use Filament\Actions\CreateAction;
+use Filament\Actions\EditAction;
+use Filament\Pages\BasePage;
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
@@ -19,6 +22,18 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        //
+        $this->keepSaveButtonsInView();
+    }
+
+    /**
+     * Product and category forms are long, and their save buttons sat below the fold where
+     * the owner did not find them; they now stay pinned at the bottom of the screen.
+     */
+    private function keepSaveButtonsInView(): void
+    {
+        BasePage::stickyFormActions();
+
+        CreateAction::configureUsing(fn (CreateAction $action): CreateAction => $action->stickyModalFooter());
+        EditAction::configureUsing(fn (EditAction $action): EditAction => $action->stickyModalFooter());
     }
 }

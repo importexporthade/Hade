@@ -103,6 +103,11 @@
     @apply border-t-2 border-hade-sage;
 }
 
+/* The save bar pinned to the bottom of long forms stands apart from the cards it floats over */
+.fi-sc-actions.fi-sticky > .fi-ac {
+    @apply shadow-lg ring-1 shadow-gray-950/10 ring-gray-200 dark:shadow-black/40 dark:ring-white/10;
+}
+
 /* Tables that are always in reorder mode: no button to leave it, and no empty toolbar left behind */
 .hade-always-reordering {
     display: none !important;

@@ -142,7 +142,7 @@ class ManageStore extends Page
                             Action::make('save')
                                 ->label('Guardar cambios')
                                 ->submit('save'),
-                        ]),
+                        ])->sticky(),
                     ]),
             ]);
     }
