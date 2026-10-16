@@ -70,6 +70,8 @@ class ManagerPanelProvider extends PanelProvider
             ->viteTheme('resources/css/filament/manager/theme.css')
             ->login()
             ->profile()
+            // After creating something, go back to its list instead of opening it to edit.
+            ->resourceCreatePageRedirect('index')
             ->brandName('Hade Manager')
             ->brandLogo(fn (): View => view('filament.brand'))
             ->brandLogoHeight('2.75rem')

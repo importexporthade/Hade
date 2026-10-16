@@ -3,6 +3,7 @@
 namespace Tests\Feature;
 
 use App\Enums\BannerLinkType;
+use App\Filament\Resources\Banners\BannerResource;
 use App\Filament\Resources\Banners\Pages\CreateBanner;
 use App\Models\Banner;
 use App\Models\Category;
@@ -80,7 +81,8 @@ class BannerLinkTest extends TestCase
                 'button_label' => 'Ver kit',
             ])
             ->call('create')
-            ->assertHasNoFormErrors();
+            ->assertHasNoFormErrors()
+            ->assertRedirect(BannerResource::getUrl('index'));
 
         $banner = Banner::query()->sole();
         $this->assertSame(BannerLinkType::Product, $banner->link_type);

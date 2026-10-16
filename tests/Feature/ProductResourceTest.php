@@ -5,6 +5,7 @@ namespace Tests\Feature;
 use App\Filament\Resources\Products\Pages\CreateProduct;
 use App\Filament\Resources\Products\Pages\EditProduct;
 use App\Filament\Resources\Products\Pages\ListProducts;
+use App\Filament\Resources\Products\ProductResource;
 use App\Models\Category;
 use App\Models\Product;
 use App\Models\User;
@@ -36,7 +37,8 @@ class ProductResourceTest extends TestCase
             ])
             ->assertSchemaStateSet(['slug' => 'kit-hade-recargada'])
             ->call('create')
-            ->assertHasNoFormErrors();
+            ->assertHasNoFormErrors()
+            ->assertRedirect(ProductResource::getUrl('index'));
 
         $product = Product::query()->sole();
         $this->assertSame('kit-hade-recargada', $product->slug);
