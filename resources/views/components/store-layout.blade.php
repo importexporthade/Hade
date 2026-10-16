@@ -9,6 +9,11 @@
             <meta name="description" content="{{ $description }}">
             <meta property="og:description" content="{{ $description }}">
         @endif
+        <link rel="icon" href="{{ \App\Support\Favicon::url(32) }}" sizes="32x32">
+        <link rel="icon" href="{{ \App\Support\Favicon::url(192) }}" sizes="192x192">
+        <link rel="apple-touch-icon" href="{{ \App\Support\Favicon::url(180) }}">
+        <meta name="theme-color" content="#1f5c45">
+
         <meta property="og:title" content="{{ $pageTitle() }}">
         <meta property="og:site_name" content="{{ $settings->store_name }}">
         @if ($shareImage = $image ?? $publicUrl($settings->logo))

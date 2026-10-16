@@ -2,6 +2,7 @@
 
 namespace App\Providers\Filament;
 
+use App\Support\Favicon;
 use Filament\Http\Middleware\Authenticate;
 use Filament\Http\Middleware\AuthenticateSession;
 use Filament\Http\Middleware\DisableBladeIconComponents;
@@ -72,6 +73,7 @@ class ManagerPanelProvider extends PanelProvider
             ->brandName('Hade Manager')
             ->brandLogo(fn (): View => view('filament.brand'))
             ->brandLogoHeight('2.75rem')
+            ->favicon(fn (): string => Favicon::url(32))
             ->font('Albert Sans')
             ->serifFont('Playfair Display')
             ->colors([
