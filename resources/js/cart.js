@@ -34,11 +34,31 @@ function setItems(nextItems) {
     render();
 }
 
+/**
+ * The order as the store receives it: each product with its quantity, subtotal and link,
+ * so the owner sees the photo of exactly what was chosen, then the total.
+ */
 export function orderMessage(cartItems) {
-    const lines = cartItems.map((item) => `• ${item.quantity} x ${item.name} — ${formatPrice(item.price * item.quantity)}`);
+    const lines = cartItems.flatMap((item) => [
+        `• ${item.quantity} x ${item.name} — ${formatPrice(item.price * item.quantity)}`,
+        `  ${item.url}`,
+    ]);
     const total = cartItems.reduce((sum, item) => sum + item.price * item.quantity, 0);
+    const count = cartItems.reduce((sum, item) => sum + item.quantity, 0);
 
-    return ['Hola, quiero hacer este pedido:', '', ...lines, '', `Total: ${formatPrice(total)}`].join('\n');
+    return [
+        'Hola, quiero comprar estos productos:',
+        '',
+        ...lines,
+        '',
+        `Total: ${formatPrice(total)} (${count} ${count === 1 ? 'producto' : 'productos'})`,
+    ].join('\n');
+}
+
+function checkoutUrl(cartItems) {
+    const number = document.body.dataset.whatsappNumber;
+
+    return number ? `https://wa.me/${number}?text=${encodeURIComponent(orderMessage(cartItems))}` : null;
 }
 
 function render() {
@@ -76,6 +96,13 @@ function render() {
     document.querySelector('[data-cart-empty]').hidden = items.length > 0;
     document.querySelector('[data-cart-footer]').hidden = items.length === 0;
     document.querySelector('[data-cart-total]').textContent = formatPrice(total);
+
+    // The checkout link always carries the current cart, so tapping it opens WhatsApp at once
+    const checkout = document.querySelector('[data-cart-checkout]');
+    const url = checkoutUrl(items);
+
+    checkout.hidden = url === null;
+    checkout.href = url ?? '#';
 }
 
 function changeQuantity(id, delta) {
@@ -137,16 +164,5 @@ export function initCart() {
             addItem(JSON.parse(form.dataset.addToCart), quantity);
             openCart();
         });
-    });
-
-    const number = document.body.dataset.whatsappNumber;
-    const checkout = document.querySelector('[data-cart-checkout]');
-
-    if (!number) {
-        checkout.hidden = true;
-    }
-
-    checkout.addEventListener('click', () => {
-        window.open(`https://wa.me/${number}?text=${encodeURIComponent(orderMessage(items))}`, '_blank', 'noopener');
     });
 }

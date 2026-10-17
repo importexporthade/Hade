@@ -203,10 +203,12 @@
                         <span class="text-sm">Total</span>
                         <span class="font-serif text-xl font-semibold" data-cart-total></span>
                     </div>
-                    <button type="button" class="btn-whatsapp w-full" data-cart-checkout>
+                    {{-- A real link rather than window.open, so phones open the WhatsApp app instead of blocking a pop-up --}}
+                    <a href="#" target="_blank" rel="noopener" class="btn-whatsapp w-full" data-cart-checkout>
                         <x-store.icon name="whatsapp" class="size-5" />
-                        Pedir por WhatsApp
-                    </button>
+                        Comprar por WhatsApp
+                    </a>
+                    <p class="text-center text-xs text-ink/60">Se abre WhatsApp con tu pedido escrito; solo envía el mensaje.</p>
                     <button type="button" class="w-full text-center text-sm text-ink/60 underline" data-cart-close>Seguir comprando</button>
                 </div>
             </div>

@@ -181,6 +181,7 @@ class StorefrontTest extends TestCase
             ->assertSee('Envío gratis a todo el Perú')
             ->assertSee('import.export.hade@gmail.com')
             ->assertSee('https://www.instagram.com/hade.pe')
-            ->assertSee('data-whatsapp-number="51986000362"', false);
+            ->assertSee('data-whatsapp-number="51986000362"', false)
+            ->assertSee('Comprar por WhatsApp');
     }
 }
