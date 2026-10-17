@@ -97,7 +97,7 @@
                         @endif
                     </form>
                 @else
-                    <p class="mt-8 border border-ink/10 bg-white px-4 py-3 text-sm">Este producto está agotado por ahora.</p>
+                    <p class="mt-8 border border-sale/30 bg-sale/5 px-4 py-3 text-sm font-semibold text-sale" role="status">Agotado: este producto no tiene stock por ahora.</p>
                     @if ($whatsappUrl)
                         <a href="{{ $settings->whatsappUrl("Hola, ¿cuándo vuelve a estar disponible {$product->name}?") }}" target="_blank" rel="noopener" class="btn-outline mt-3 w-full">Avísame por WhatsApp</a>
                     @endif

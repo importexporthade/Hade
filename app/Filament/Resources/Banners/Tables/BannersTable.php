@@ -52,7 +52,7 @@ class BannersTable
                     }),
                 TextColumn::make('ends_at')
                     ->label('Hasta')
-                    ->dateTime('d/m/Y H:i')
+                    ->dateTime()
                     ->placeholder('Sin fecha'),
                 ToggleColumn::make('is_active')
                     ->label('Activo'),

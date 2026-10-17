@@ -2,6 +2,7 @@
 
 namespace Database\Factories;
 
+use App\Enums\PageVisibility;
 use App\Models\Page;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Support\Str;
@@ -24,8 +25,7 @@ class PageFactory extends Factory
             'title' => Str::ucfirst($title),
             'slug' => Str::slug($title),
             'content' => '<p>'.fake()->paragraph().'</p>',
-            'is_published' => true,
-            'show_in_footer' => true,
+            'visibility' => PageVisibility::MenuAndFooter,
             'sort_order' => 0,
         ];
     }

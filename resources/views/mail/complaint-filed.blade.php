@@ -1,7 +1,7 @@
 <x-mail::message>
 # Hoja de reclamación N° {{ $complaint->code() }}
 
-Hola {{ $complaint->consumer_name }}, registramos tu {{ strtolower($complaint->type->getLabel()) }} el {{ $complaint->created_at->format('d/m/Y \a \l\a\s H:i') }}. Esta es tu copia.
+Hola {{ $complaint->consumer_name }}, registramos tu {{ strtolower($complaint->type->getLabel()) }} el {{ $complaint->created_at->format('d/m/Y \a \l\a\s h:i a') }}. Esta es tu copia.
 
 Te responderemos a este correo en un plazo máximo de {{ \App\Models\Complaint::RESPONSE_BUSINESS_DAYS }} días hábiles, hasta el {{ $complaint->responseDueDate()->format('d/m/Y') }}.
 

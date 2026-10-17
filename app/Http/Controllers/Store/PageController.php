@@ -10,7 +10,7 @@ class PageController extends Controller
 {
     public function show(Page $page): View
     {
-        abort_unless($page->is_published, 404);
+        abort_unless($page->isPublished(), 404);
 
         return view('store.pages.show', ['page' => $page]);
     }

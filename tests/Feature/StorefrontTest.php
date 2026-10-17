@@ -3,6 +3,7 @@
 namespace Tests\Feature;
 
 use App\Enums\HomeSectionType;
+use App\Enums\PageVisibility;
 use App\Models\Banner;
 use App\Models\Category;
 use App\Models\HomeSection;
@@ -92,7 +93,7 @@ class StorefrontTest extends TestCase
 
         $this->get('/product/lampara-conectada')
             ->assertOk()
-            ->assertSee('Este producto está agotado por ahora.')
+            ->assertSee('Agotado: este producto no tiene stock por ahora.')
             ->assertDontSee('Agregar al carrito');
     }
 
@@ -162,7 +163,7 @@ class StorefrontTest extends TestCase
 
     public function test_an_unpublished_page_is_not_found(): void
     {
-        Page::factory()->create(['slug' => 'borrador', 'is_published' => false]);
+        Page::factory()->create(['slug' => 'borrador', 'visibility' => PageVisibility::Hidden]);
 
         $this->get('/information/borrador')->assertNotFound();
     }

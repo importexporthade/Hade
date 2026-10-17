@@ -24,7 +24,7 @@ class ComplaintInfolist
                             ->formatStateUsing(fn (Complaint $record): string => $record->code()),
                         TextEntry::make('created_at')
                             ->label('Registrada')
-                            ->dateTime('d/m/Y H:i'),
+                            ->dateTime(),
                         TextEntry::make('type')
                             ->label('Tipo')
                             ->badge(),

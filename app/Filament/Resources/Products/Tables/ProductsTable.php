@@ -52,7 +52,10 @@ class ProductsTable
                     ->label('Oferta')
                     ->state(fn (Product $record): ?string => $record->isOnSale() ? "-{$record->discountPercentage()} %" : null)
                     ->badge()
-                    ->color('danger'),
+                    ->color('danger')
+                    ->sortable(query: fn (Builder $query, string $direction): Builder => $query->orderByRaw(
+                        'case when compare_at_price > price then (compare_at_price - price) * 1.0 / compare_at_price else 0 end '.($direction === 'desc' ? 'desc' : 'asc'),
+                    )),
                 ToggleColumn::make('is_visible')
                     ->label('Visible'),
                 ToggleColumn::make('is_in_stock')

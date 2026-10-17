@@ -2,11 +2,12 @@
 
 namespace App\Filament\Resources\Pages\Tables;
 
+use App\Enums\PageVisibility;
 use App\Models\Page;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\EditAction;
+use Filament\Tables\Columns\SelectColumn;
 use Filament\Tables\Columns\TextColumn;
-use Filament\Tables\Columns\ToggleColumn;
 use Filament\Tables\Table;
 
 class PagesTable
@@ -16,15 +17,16 @@ class PagesTable
         return $table
             ->defaultSort('sort_order')
             ->reorderable('sort_order')
+            ->description('Elige dónde se ve cada página; el cambio se guarda solo.')
             ->columns([
                 TextColumn::make('title')
                     ->label('Título')
                     ->description(fn (Page $record): string => '/'.$record->slug)
                     ->searchable(),
-                ToggleColumn::make('is_published')
-                    ->label('Publicada'),
-                ToggleColumn::make('show_in_footer')
-                    ->label('En el pie'),
+                SelectColumn::make('visibility')
+                    ->label('Dónde se ve')
+                    ->options(PageVisibility::class)
+                    ->selectablePlaceholder(false),
                 TextColumn::make('updated_at')
                     ->label('Actualizada')
                     ->since(),

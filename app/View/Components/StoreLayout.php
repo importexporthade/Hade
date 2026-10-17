@@ -31,7 +31,7 @@ class StoreLayout extends Component
     ) {
         $this->settings = StoreSetting::current();
         $this->categories = Category::query()->visible()->orderBy('sort_order')->get();
-        $this->pages = Page::query()->where('is_published', true)->orderBy('sort_order')->get();
+        $this->pages = Page::query()->published()->orderBy('sort_order')->get();
     }
 
     public function pageTitle(): string

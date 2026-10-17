@@ -2,8 +2,10 @@
 
 namespace App\Http\Controllers\Store;
 
+use App\Enums\ProductEventType;
 use App\Http\Controllers\Controller;
 use App\Models\Product;
+use App\Support\ProductMetrics;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\Request;
 
@@ -29,9 +31,11 @@ class ProductController extends Controller
         ]);
     }
 
-    public function show(Product $product): View
+    public function show(Request $request, Product $product): View
     {
         abort_unless(Product::query()->visible()->whereKey($product->id)->exists(), 404);
+
+        ProductMetrics::record($request, $product, ProductEventType::View);
 
         $product->load('category');
 

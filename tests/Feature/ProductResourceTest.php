@@ -62,6 +62,17 @@ class ProductResourceTest extends TestCase
         $this->assertDatabaseCount('products', 0);
     }
 
+    public function test_errors_are_shown_in_spanish_inside_the_form_not_by_the_browser(): void
+    {
+        Livewire::test(CreateProduct::class)
+            ->assertSeeHtml('novalidate')
+            ->fillForm(['name' => '', 'price' => 'abc'])
+            ->call('create')
+            ->assertHasFormErrors(['name' => 'required', 'price' => 'numeric'])
+            ->assertSee('Completa nombre.')
+            ->assertSee('Precio de venta debe ser un número.');
+    }
+
     public function test_two_products_cannot_share_a_link(): void
     {
         Product::factory()->create(['slug' => 'top-coat']);
@@ -102,6 +113,17 @@ class ProductResourceTest extends TestCase
             ->assertCanNotSeeTableRecords([$regular]);
     }
 
+    public function test_the_list_sorts_by_the_size_of_the_discount(): void
+    {
+        $small = Product::factory()->onSale(price: 90.00, compareAtPrice: 100.00)->create();
+        $big = Product::factory()->onSale(price: 50.00, compareAtPrice: 100.00)->create();
+        $regular = Product::factory()->create();
+
+        Livewire::test(ListProducts::class)
+            ->sortTable('discount', 'desc')
+            ->assertCanSeeTableRecords([$big, $small, $regular], inOrder: true);
+    }
+
     public function test_the_owner_puts_several_products_on_sale_at_once(): void
     {
         $regular = Product::factory()->create(['price' => 40.00]);
@@ -138,13 +160,13 @@ class ProductResourceTest extends TestCase
         $this->assertNull($product->compare_at_price);
     }
 
-    public function test_a_switch_in_the_list_saves_at_once_and_says_so(): void
+    public function test_a_switch_in_the_list_saves_at_once_without_a_notice(): void
     {
         $product = Product::factory()->create(['is_in_stock' => true]);
 
         Livewire::test(ListProducts::class)
             ->call('updateTableColumnState', 'is_in_stock', (string) $product->id, false)
-            ->assertNotified('Cambio guardado');
+            ->assertNotNotified();
 
         $this->assertFalse($product->refresh()->is_in_stock);
     }

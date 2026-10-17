@@ -105,18 +105,58 @@ function render() {
     checkout.href = url ?? '#';
 }
 
+/**
+ * Tells the store what happened in the cart, for the manager's metrics. It never gets in
+ * the customer's way: failures are ignored, and keepalive lets it finish while the page
+ * moves on to WhatsApp.
+ */
+function sendMetric(endpoint, payload) {
+    const url = document.querySelector(`meta[name="metrics-${endpoint}"]`)?.content;
+    const token = document.querySelector('meta[name="csrf-token"]')?.content;
+
+    if (!url || !token) {
+        return;
+    }
+
+    fetch(url, {
+        method: 'POST',
+        keepalive: true,
+        headers: { 'Content-Type': 'application/json', Accept: 'application/json', 'X-CSRF-TOKEN': token },
+        body: JSON.stringify(payload),
+    }).catch(() => {});
+}
+
 function changeQuantity(id, delta) {
-    setItems(items.map((item) => (item.id === id ? { ...item, quantity: Math.min(99, item.quantity + delta) } : item)));
+    const item = items.find((candidate) => candidate.id === id);
+
+    if (!item) {
+        return;
+    }
+
+    const quantity = Math.max(0, Math.min(99, item.quantity + delta));
+    const applied = quantity - item.quantity;
+
+    setItems(items.map((candidate) => (candidate.id === id ? { ...candidate, quantity } : candidate)));
+
+    if (applied !== 0) {
+        sendMetric('cart', { product_id: id, change: applied > 0 ? 'add' : 'remove', quantity: Math.abs(applied) });
+    }
 }
 
 function addItem(product, quantity) {
     const existing = items.find((item) => item.id === product.id);
+    const newQuantity = Math.min(99, (existing?.quantity ?? 0) + quantity);
+    const added = newQuantity - (existing?.quantity ?? 0);
 
     setItems(
         existing
-            ? items.map((item) => (item.id === product.id ? { ...product, quantity: Math.min(99, item.quantity + quantity) } : item))
-            : [...items, { ...product, quantity }],
+            ? items.map((item) => (item.id === product.id ? { ...product, quantity: newQuantity } : item))
+            : [...items, { ...product, quantity: newQuantity }],
     );
+
+    if (added > 0) {
+        sendMetric('cart', { product_id: product.id, change: 'add', quantity: added });
+    }
 }
 
 function openCart() {
@@ -164,5 +204,10 @@ export function initCart() {
             addItem(JSON.parse(form.dataset.addToCart), quantity);
             openCart();
         });
+    });
+
+    // The link opens WhatsApp on its own; this only records the order on the way out
+    document.querySelector('[data-cart-checkout]').addEventListener('click', () => {
+        sendMetric('checkout', { items: items.map((item) => ({ id: item.id, quantity: item.quantity })) });
     });
 }

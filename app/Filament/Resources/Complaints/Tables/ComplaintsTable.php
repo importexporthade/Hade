@@ -26,7 +26,7 @@ class ComplaintsTable
                     ->searchable(),
                 TextColumn::make('created_at')
                     ->label('Fecha')
-                    ->date('d/m/Y')
+                    ->date()
                     ->sortable(),
                 TextColumn::make('type')
                     ->label('Tipo')

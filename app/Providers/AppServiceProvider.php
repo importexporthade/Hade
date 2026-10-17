@@ -2,15 +2,27 @@
 
 namespace App\Providers;
 
+use Filament\Actions\Action;
 use Filament\Actions\CreateAction;
 use Filament\Actions\EditAction;
-use Filament\Notifications\Notification;
+use Filament\Forms\Components\DateTimePicker;
 use Filament\Pages\BasePage;
-use Filament\Tables\Columns\ToggleColumn;
+use Filament\Schemas\Components\Form;
+use Filament\Schemas\Schema;
+use Filament\Tables\Table;
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
 {
+    /**
+     * How dates and times read across the manager: day first and a 12-hour clock.
+     */
+    public const string DATE_FORMAT = 'd/m/Y';
+
+    public const string TIME_FORMAT = 'h:i a';
+
+    public const string DATE_TIME_FORMAT = 'd/m/Y h:i a';
+
     /**
      * Register any application services.
      */
@@ -25,22 +37,8 @@ class AppServiceProvider extends ServiceProvider
     public function boot(): void
     {
         $this->keepSaveButtonsInView();
-        $this->confirmInlineChanges();
-    }
-
-    /**
-     * Switches in the lists (Visible, Stock, Destacado…) save the moment they are tapped,
-     * with no button; a notice says so, or the owner keeps looking for a save button.
-     */
-    private function confirmInlineChanges(): void
-    {
-        ToggleColumn::configureUsing(fn (ToggleColumn $column): ToggleColumn => $column->afterStateUpdated(
-            fn (bool $state) => Notification::make()
-                ->success()
-                ->title('Cambio guardado')
-                ->body($column->getLabel().': '.($state ? 'sí' : 'no'))
-                ->send(),
-        ));
+        $this->showValidationInsideTheForm();
+        $this->useTwelveHourClock();
     }
 
     /**
@@ -53,5 +51,35 @@ class AppServiceProvider extends ServiceProvider
 
         CreateAction::configureUsing(fn (CreateAction $action): CreateAction => $action->stickyModalFooter());
         EditAction::configureUsing(fn (EditAction $action): EditAction => $action->stickyModalFooter());
+    }
+
+    /**
+     * Filament marks required fields for the browser, which then stops the form with its own
+     * grey bubble ("Completa este campo"). Turning that off lets the Spanish messages appear
+     * under each field, styled like the rest of the manager.
+     */
+    private function showValidationInsideTheForm(): void
+    {
+        Form::configureUsing(fn (Form $form): Form => $form->extraAttributes(['novalidate' => true], merge: true));
+
+        // Windows (create a category, answer a complaint…) are a form of their own
+        Action::configureUsing(fn (Action $action): Action => $action->extraModalWindowAttributes(['novalidate' => true], merge: true));
+    }
+
+    private function useTwelveHourClock(): void
+    {
+        Table::configureUsing(fn (Table $table): Table => $table
+            ->defaultDateDisplayFormat(self::DATE_FORMAT)
+            ->defaultTimeDisplayFormat(self::TIME_FORMAT)
+            ->defaultDateTimeDisplayFormat(self::DATE_TIME_FORMAT));
+
+        Schema::configureUsing(fn (Schema $schema): Schema => $schema
+            ->defaultDateDisplayFormat(self::DATE_FORMAT)
+            ->defaultTimeDisplayFormat(self::TIME_FORMAT)
+            ->defaultDateTimeDisplayFormat(self::DATE_TIME_FORMAT));
+
+        DateTimePicker::configureUsing(fn (DateTimePicker $picker): DateTimePicker => $picker
+            ->native(false)
+            ->displayFormat(self::DATE_TIME_FORMAT));
     }
 }

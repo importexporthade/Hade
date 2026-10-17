@@ -2,9 +2,10 @@
 
 namespace App\Filament\Resources\Pages\Schemas;
 
+use App\Enums\PageVisibility;
+use Filament\Forms\Components\Radio;
 use Filament\Forms\Components\RichEditor;
 use Filament\Forms\Components\TextInput;
-use Filament\Forms\Components\Toggle;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Components\Utilities\Set;
 use Filament\Schemas\Schema;
@@ -40,15 +41,14 @@ class PageForm
                         RichEditor::make('content')
                             ->label('Contenido'),
                     ]),
-                Section::make('Publicación')
+                Section::make('Dónde se ve')
                     ->columnSpan(['lg' => 1])
                     ->schema([
-                        Toggle::make('is_published')
-                            ->label('Publicada')
-                            ->default(true),
-                        Toggle::make('show_in_footer')
-                            ->label('Enlazar en el pie de página')
-                            ->default(true),
+                        Radio::make('visibility')
+                            ->hiddenLabel()
+                            ->options(PageVisibility::class)
+                            ->default(PageVisibility::MenuAndFooter->value)
+                            ->required(),
                     ]),
             ]);
     }

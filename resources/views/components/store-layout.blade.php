@@ -3,6 +3,9 @@
     <head>
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="csrf-token" content="{{ csrf_token() }}">
+        <meta name="metrics-cart" content="{{ route('metrics.cart') }}">
+        <meta name="metrics-checkout" content="{{ route('metrics.checkout') }}">
 
         <title>{{ $pageTitle() }}</title>
         @if ($description)
@@ -133,7 +136,7 @@
                     </ul>
                 </div>
 
-                @php($footerPages = $pages->where('show_in_footer', true))
+                @php($footerPages = $pages->filter->isInFooter())
                 <div>
                     <h2 class="text-sm font-bold">Información</h2>
                     <ul class="mt-3 space-y-2 text-sm text-ink/70">

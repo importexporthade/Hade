@@ -95,7 +95,7 @@ class Banner extends Model
                 : null,
             BannerLinkType::Category => $this->linkCategory?->is_visible ? route('categories.show', $this->linkCategory) : null,
             BannerLinkType::AllProducts => route('products.index'),
-            BannerLinkType::Page => $this->linkPage?->is_published ? route('pages.show', $this->linkPage) : null,
+            BannerLinkType::Page => $this->linkPage?->isPublished() ? route('pages.show', $this->linkPage) : null,
             BannerLinkType::WhatsApp => StoreSetting::current()->whatsappUrl(),
             BannerLinkType::External => $this->link_url ?: null,
             default => null,

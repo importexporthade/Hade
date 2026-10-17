@@ -18,7 +18,7 @@
                 <span class="bg-ink/50 px-2 py-1 text-xs font-bold text-white">-{{ $product->discountPercentage() }} %</span>
             @endif
             @unless ($product->is_in_stock)
-                <span class="bg-white/90 px-2 py-1 text-xs font-semibold text-ink">Agotado</span>
+                <span class="bg-sale px-2 py-1 text-xs font-bold text-white">Agotado</span>
             @endunless
         </span>
     </a>
