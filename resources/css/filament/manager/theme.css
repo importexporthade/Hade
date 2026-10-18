@@ -103,6 +103,19 @@
     @apply border-t-2 border-hade-sage;
 }
 
+/* Calendar: the chosen day in the brand's emerald, today ringed in sage */
+.fi-fo-date-time-picker-calendar-day {
+    @apply rounded-md transition;
+}
+
+.fi-fo-date-time-picker-calendar-day.fi-selected {
+    @apply bg-primary-600 font-semibold text-white dark:bg-primary-400 dark:text-gray-950;
+}
+
+.fi-fo-date-time-picker-calendar-day-today:not(.fi-selected) {
+    @apply font-semibold text-primary-700 ring-1 ring-primary-400 dark:text-primary-300;
+}
+
 /* The save bar pinned to the bottom of long forms stands apart from the cards it floats over */
 .fi-sc-actions.fi-sticky > .fi-ac {
     @apply shadow-lg ring-1 shadow-gray-950/10 ring-gray-200 dark:shadow-black/40 dark:ring-white/10;

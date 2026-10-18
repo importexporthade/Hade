@@ -4,13 +4,14 @@ namespace App\Filament\Resources\Banners\Schemas;
 
 use App\Enums\BannerLinkType;
 use App\Enums\ImageKind;
+use App\Filament\Support\DateTimeField;
 use App\Filament\Support\PhotoUpload;
-use Filament\Forms\Components\DateTimePicker;
 use Filament\Forms\Components\Radio;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
 use Filament\Schemas\Components\Section;
+use Filament\Schemas\Components\Text;
 use Filament\Schemas\Components\Utilities\Get;
 use Filament\Schemas\Schema;
 
@@ -48,15 +49,10 @@ class BannerForm
                         Toggle::make('is_active')
                             ->label('Activo')
                             ->default(true),
-                        DateTimePicker::make('starts_at')
-                            ->label('Mostrar desde')
-                            ->helperText('Déjalo vacío para mostrarlo ya.')
-                            ->seconds(false),
-                        DateTimePicker::make('ends_at')
-                            ->label('Mostrar hasta')
-                            ->helperText('Déjalo vacío para que no venza.')
-                            ->seconds(false)
-                            ->after('starts_at'),
+                        DateTimeField::make('starts_at', 'Mostrar desde', DateTimeField::START_OF_DAY, placeholder: 'Desde ya'),
+                        DateTimeField::make('ends_at', 'Mostrar hasta', DateTimeField::END_OF_DAY, placeholder: 'Sin fecha de fin', after: 'starts_at'),
+                        Text::make(fn (Get $get): string => DateTimeField::summary($get, 'starts_at', 'ends_at'))
+                            ->color('neutral'),
                     ]),
                 Section::make('Al tocar el banner')
                     ->description('Elige a dónde lleva a la clienta cuando toca el banner.')
