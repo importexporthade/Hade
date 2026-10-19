@@ -5,6 +5,7 @@ namespace Tests\Feature;
 use App\Filament\Widgets\CatalogOverview;
 use App\Models\Product;
 use App\Models\User;
+use Filament\Widgets\AccountWidget;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Livewire\Livewire;
 use Tests\TestCase;
@@ -30,7 +31,10 @@ class ManagerAccessTest extends TestCase
         $this->actingAs(User::factory()->admin()->create())
             ->get('/manager')
             ->assertOk()
-            ->assertSeeLivewire(CatalogOverview::class);
+            ->assertSeeLivewire(CatalogOverview::class)
+            ->assertSeeInOrder(['<title>', 'Dashboard', '</title>'], false)
+            ->assertDontSeeLivewire(AccountWidget::class)
+            ->assertDontSee('Escritorio');
     }
 
     public function test_the_dashboard_counts_the_catalog(): void
