@@ -109,6 +109,19 @@ class StorefrontTest extends TestCase
             ->assertDontSee('data-carousel-progress', false);
     }
 
+    public function test_the_how_it_works_section_renders_between_offers_and_latest_products(): void
+    {
+        Product::factory()->onSale()->create(['name' => 'Kit Primavera', 'slug' => 'kit-primavera']);
+        HomeSection::factory()->ofType(HomeSectionType::Offers)->create(['sort_order' => 1]);
+        HomeSection::factory()->ofType(HomeSectionType::Latest)->create(['sort_order' => 2]);
+
+        $this->get('/')
+            ->assertOk()
+            ->assertSeeInOrder(['Favoritos que combinan', 'Así de fácil. Así de Hade.', 'Nuevos hallazgos'])
+            ->assertSeeInOrder(['Prepara', 'Elige y pega', 'Recorta y lima', 'Cura y disfruta'])
+            ->assertSee('Encuentra tu diseño');
+    }
+
     public function test_the_latest_section_does_not_offer_out_of_stock_products_to_add_to_the_cart(): void
     {
         Product::factory()->create([

@@ -20,6 +20,7 @@
     --color-sage-light: #eef3ee;
     --color-emerald: #1f5c45;
     --color-taupe: #8b7360;
+    --color-blush: #f1e3e1;
     --color-sale: #b91c1c;
     --color-whatsapp: #25d366;
 }
@@ -41,7 +42,7 @@
     }
 
     .brand-nav {
-        background-color: var(--color-beige);
+        background-color: var(--color-cream);
     }
 
     .btn-sage {
@@ -86,7 +87,10 @@
         }
     }
 
-    .categories-section {
+    .categories-section,
+    .scalloped-section {
+        --scallop-color: var(--color-cream);
+
         position: relative;
 
         &::before,
@@ -104,26 +108,35 @@
 
         &::before {
             top: -0.875rem;
-            background-image: radial-gradient(ellipse 1.5rem 0.875rem at 50% 100%, var(--color-beige) 99%, transparent 100%);
+            background-image: radial-gradient(ellipse 1.5rem 0.875rem at 50% 100%, var(--scallop-color) 99%, transparent 100%);
         }
 
         &::after {
             bottom: -0.875rem;
-            background-image: radial-gradient(ellipse 1.5rem 0.875rem at 50% 0, var(--color-beige) 99%, transparent 100%);
+            background-image: radial-gradient(ellipse 1.5rem 0.875rem at 50% 0, var(--scallop-color) 99%, transparent 100%);
         }
     }
 
+    .categories-section {
+        --scallop-color: var(--color-cream);
+    }
+
+    /* Short dashes like the hero's: the current one fills from the left while its page shows */
     .carousel-dot {
-        @apply relative size-2.5 overflow-hidden rounded-full bg-white/25 transition duration-300 hover:bg-white/45 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white;
+        @apply relative h-0.5 w-6 overflow-hidden rounded-full bg-white/30 transition-[background-color,width] duration-300 hover:bg-white/50 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-white;
+
+        &::before {
+            @apply absolute -inset-x-1 -inset-y-3 content-[''];
+        }
 
         &[aria-current='true'] {
-            @apply scale-110 bg-white/35;
+            @apply w-8;
         }
     }
 
     .carousel-dot-progress {
-        @apply absolute inset-0 rounded-full bg-sage opacity-0;
-        transform: scale(0);
+        @apply absolute inset-0 origin-left rounded-full bg-white opacity-0;
+        transform: scaleX(0);
 
         .carousel-dot[aria-current='true'] & {
             animation: carousel-dot-progress var(--carousel-duration, 5000ms) linear forwards;
@@ -254,10 +267,10 @@
 
 @keyframes carousel-dot-progress {
     from {
-        transform: scale(0);
+        transform: scaleX(0);
     }
 
     to {
-        transform: scale(1);
+        transform: scaleX(1);
     }
 }

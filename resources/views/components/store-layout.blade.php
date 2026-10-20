@@ -105,7 +105,7 @@
                 </div>
             </div>
 
-            <nav class="relative z-10 border-t border-ink/5 bg-beige lg:hidden" aria-label="Principal móvil">
+            <nav class="relative z-10 border-t border-ink/5 bg-cream lg:hidden" aria-label="Principal móvil">
                 <ul id="menu-movil" class="store-container hidden flex-col gap-1 py-3 text-[0.95rem]" data-menu>
                     <li class="pb-2 md:hidden">
                         <form action="{{ route('products.index') }}" method="get" role="search" class="flex items-center gap-2 rounded-full border border-ink/15 px-4">
