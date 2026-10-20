@@ -40,7 +40,7 @@ class HomeSection extends Model
      *
      * @return Collection<int, Product>
      */
-    public function products(): Collection
+    public function products(?int $limit = null): Collection
     {
         if (! $this->type->showsProducts()) {
             return new Collection;
@@ -55,6 +55,6 @@ class HomeSection extends Model
             HomeSectionType::Category => $query->where('category_id', $this->category_id)->orderBy('sort_order'),
         };
 
-        return $query->limit($this->products_limit)->get();
+        return $query->limit($limit ?? $this->products_limit)->get();
     }
 }

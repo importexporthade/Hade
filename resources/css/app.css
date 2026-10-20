@@ -12,6 +12,7 @@
     --font-serif: var(--font-playfair-display), Georgia, serif;
 
     --color-cream: #f8f6f2;
+    --color-beige: #f2e8da;
     --color-tile: #f4f4f6;
     --color-ink: #171717;
     --color-sage: #95b998;
@@ -40,22 +41,7 @@
     }
 
     .brand-nav {
-        position: relative;
-        background-color: #fffdf8;
-    }
-
-    .brand-nav::before {
-        position: absolute;
-        inset: 0;
-        content: '';
-        pointer-events: none;
-        background-image:
-            linear-gradient(58deg, transparent 46.5%, rgb(31 92 69 / 10%) 47%, rgb(31 92 69 / 10%) 49%, transparent 49.5%),
-            linear-gradient(-58deg, transparent 46.5%, rgb(31 92 69 / 8%) 47%, rgb(31 92 69 / 8%) 49%, transparent 49.5%),
-            linear-gradient(112deg, transparent 47%, rgb(31 92 69 / 6%) 47.5%, rgb(31 92 69 / 6%) 49%, transparent 49.5%);
-        background-position: 0 0, 54px 0, 104px -22px;
-        background-size: 174px 112px, 196px 112px, 218px 112px;
-        mask-image: linear-gradient(to right, black, rgb(0 0 0 / 48%) 30%, rgb(0 0 0 / 28%) 50%, rgb(0 0 0 / 48%) 70%, black);
+        background-color: var(--color-beige);
     }
 
     .btn-sage {
@@ -100,6 +86,137 @@
         }
     }
 
+    .categories-section {
+        position: relative;
+
+        &::before,
+        &::after {
+            position: absolute;
+            right: 0;
+            left: 0;
+            z-index: 1;
+            height: 0.875rem;
+            content: '';
+            pointer-events: none;
+            background-repeat: repeat-x;
+            background-size: 3rem 0.875rem;
+        }
+
+        &::before {
+            top: -0.875rem;
+            background-image: radial-gradient(ellipse 1.5rem 0.875rem at 50% 100%, var(--color-beige) 99%, transparent 100%);
+        }
+
+        &::after {
+            bottom: -0.875rem;
+            background-image: radial-gradient(ellipse 1.5rem 0.875rem at 50% 0, var(--color-beige) 99%, transparent 100%);
+        }
+    }
+
+    .carousel-dot {
+        @apply relative size-2.5 overflow-hidden rounded-full bg-white/25 transition duration-300 hover:bg-white/45 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white;
+
+        &[aria-current='true'] {
+            @apply scale-110 bg-white/35;
+        }
+    }
+
+    .carousel-dot-progress {
+        @apply absolute inset-0 rounded-full bg-sage opacity-0;
+        transform: scale(0);
+
+        .carousel-dot[aria-current='true'] & {
+            animation: carousel-dot-progress var(--carousel-duration, 5000ms) linear forwards;
+            opacity: 1;
+        }
+
+        [data-carousel-paused] & {
+            animation-play-state: paused;
+        }
+    }
+
+    /*
+     * Home hero slides crossfade while the photo settles from a slight zoom and the copy
+     * rises in. The active button's bar fills over --hero-duration; resources/js/hero-slider.js
+     * moves on when it ends, and [data-paused] holds it.
+     */
+    .hero-slide {
+        opacity: 0;
+        visibility: hidden;
+        transition: opacity 900ms ease, visibility 0s 900ms;
+
+        &[data-active] {
+            z-index: 1;
+            opacity: 1;
+            visibility: visible;
+            transition: opacity 900ms ease;
+        }
+    }
+
+    .hero-slide-image {
+        transform: scale(1.08);
+        transition: transform 0s 900ms;
+
+        [data-active] & {
+            transform: scale(1);
+            transition: transform calc(var(--hero-duration) + 900ms) cubic-bezier(0.22, 1, 0.36, 1);
+        }
+    }
+
+    .hero-slide-copy > * {
+        opacity: 0;
+        transform: translateY(1.25rem);
+        transition: opacity 300ms ease, transform 0s 300ms;
+
+        [data-active] & {
+            opacity: 1;
+            transform: none;
+            transition: opacity 700ms ease 350ms, transform 800ms cubic-bezier(0.22, 1, 0.36, 1) 350ms;
+        }
+
+        [data-active] &:nth-child(2) {
+            transition-delay: 475ms;
+        }
+
+        [data-active] &:nth-child(3) {
+            transition-delay: 600ms;
+        }
+    }
+
+    .hero-progress {
+        transform: scaleX(0);
+
+        [aria-current='true'] & {
+            animation: hero-progress var(--hero-duration) linear forwards;
+        }
+
+        [data-paused] & {
+            animation-play-state: paused;
+        }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        .hero-slide,
+        .hero-slide-image,
+        .hero-slide-copy > * {
+            transition: none !important;
+            transform: none !important;
+        }
+
+        .hero-progress {
+            animation: none !important;
+
+            [aria-current='true'] & {
+                transform: none;
+            }
+        }
+
+        .carousel-dot-progress {
+            animation: none !important;
+            transform: none;
+        }
+    }
+
     .rich-text {
         @apply space-y-3 text-[0.95rem] leading-relaxed text-ink/80;
 
@@ -126,5 +243,21 @@
         & strong {
             @apply font-semibold text-ink;
         }
+    }
+}
+
+@keyframes hero-progress {
+    to {
+        transform: scaleX(1);
+    }
+}
+
+@keyframes carousel-dot-progress {
+    from {
+        transform: scale(0);
+    }
+
+    to {
+        transform: scale(1);
     }
 }

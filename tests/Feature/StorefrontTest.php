@@ -36,7 +36,7 @@ class StorefrontTest extends TestCase
 
         $this->get('/')
             ->assertOk()
-            ->assertSeeInOrder(['Ofertas', 'Kit Hade Recargada', 'Stickers Manicure', 'Crepusculo'])
+            ->assertSeeInOrder(['Kits y promociones', 'Kit Hade Recargada', 'Stickers Manicure', 'Crepusculo'])
             ->assertDontSee('Sección apagada');
     }
 
@@ -55,6 +55,77 @@ class StorefrontTest extends TestCase
             ->assertDontSee('Categoría oculta');
     }
 
+    public function test_the_latest_section_offers_in_stock_products_to_add_to_the_cart(): void
+    {
+        Product::factory()->create(['name' => 'Stickers Aurora', 'slug' => 'stickers-aurora']);
+        HomeSection::factory()->ofType(HomeSectionType::Latest)->create(['title' => 'Novedades']);
+
+        $this->get('/')
+            ->assertOk()
+            ->assertSee('Novedades')
+            ->assertSee('Nuevos hallazgos')
+            ->assertSee('Stickers Aurora')
+            ->assertSee('Pequeños detalles, grandes expresiones.')
+            ->assertSee('Entrar a la tienda')
+            ->assertSee('Ver novedades')
+            ->assertSee('data-add-to-cart', false)
+            ->assertSee('Agregar al carrito');
+    }
+
+    public function test_the_offers_section_offers_in_stock_products_to_add_to_the_cart(): void
+    {
+        Product::factory()->onSale()->create(['name' => 'Kit Esencial', 'slug' => 'kit-esencial']);
+        HomeSection::factory()->ofType(HomeSectionType::Offers)->create(['title' => 'Ofertas']);
+
+        $this->get('/')
+            ->assertOk()
+            ->assertSee('Favoritos que combinan')
+            ->assertSee('Kit Esencial')
+            ->assertSee('data-add-to-cart', false)
+            ->assertSee('Agregar al carrito');
+    }
+
+    public function test_the_offers_section_renders_as_an_automatic_carousel_with_pagination(): void
+    {
+        foreach (range(1, 6) as $position) {
+            Product::factory()->onSale()->create([
+                'name' => "Oferta {$position}",
+                'slug' => "oferta-{$position}",
+                'sort_order' => $position,
+            ]);
+        }
+        HomeSection::factory()->ofType(HomeSectionType::Offers)->create(['products_limit' => 3]);
+
+        $this->get('/')
+            ->assertOk()
+            ->assertSee('Oferta 1')
+            ->assertSee('Oferta 5')
+            ->assertDontSee('Oferta 6')
+            ->assertSee('data-carousel-autoplay', false)
+            ->assertSee('data-carousel-interval="5000"', false)
+            ->assertSee('data-carousel-merge-last-page', false)
+            ->assertSee('data-carousel-pagination', false)
+            ->assertSee('aria-label="Ver todos los productos"', false)
+            ->assertDontSee('data-carousel-progress', false);
+    }
+
+    public function test_the_latest_section_does_not_offer_out_of_stock_products_to_add_to_the_cart(): void
+    {
+        Product::factory()->create([
+            'name' => 'Stickers Eclipse',
+            'slug' => 'stickers-eclipse',
+            'is_in_stock' => false,
+        ]);
+        HomeSection::factory()->ofType(HomeSectionType::Latest)->create(['title' => 'Novedades']);
+
+        $this->get('/')
+            ->assertOk()
+            ->assertSee('Stickers Eclipse')
+            ->assertSee('Agotado')
+            ->assertDontSee('data-add-to-cart', false)
+            ->assertDontSee('Agregar al carrito');
+    }
+
     public function test_the_home_page_shows_only_banners_that_are_showing(): void
     {
         Banner::factory()->create(['title' => 'Promo de octubre']);
@@ -64,6 +135,39 @@ class StorefrontTest extends TestCase
             ->assertOk()
             ->assertSee('Promo de octubre')
             ->assertDontSee('Promo apagada');
+    }
+
+    public function test_the_home_hero_slides_through_the_showing_banners_in_the_owner_order(): void
+    {
+        Banner::factory()->create(['title' => 'Colección de verano', 'sort_order' => 2]);
+        Banner::factory()->create(['title' => 'Nuevos diseños', 'sort_order' => 1]);
+
+        $this->get('/')
+            ->assertOk()
+            ->assertSee('data-hero-slider', false)
+            ->assertSeeInOrder(['Ir a la diapositiva 1: Nuevos diseños', 'Ir a la diapositiva 2: Colección de verano'])
+            ->assertDontSee('Diseños que se aplican en minutos');
+    }
+
+    public function test_a_single_banner_shows_as_a_still_hero_without_slider_controls(): void
+    {
+        Banner::factory()->create(['title' => 'Promo de octubre']);
+
+        $this->get('/')
+            ->assertOk()
+            ->assertSee('Promo de octubre')
+            ->assertDontSee('data-hero-slider', false)
+            ->assertDontSee('Ir a la diapositiva');
+    }
+
+    public function test_without_banners_the_home_shows_the_brand_hero(): void
+    {
+        Banner::factory()->inactive()->create(['title' => 'Promo apagada']);
+
+        $this->get('/')
+            ->assertOk()
+            ->assertSee('Diseños que se aplican en minutos')
+            ->assertDontSee('data-hero-slider', false);
     }
 
     public function test_a_product_page_shows_the_sale_and_the_whatsapp_order_link(): void

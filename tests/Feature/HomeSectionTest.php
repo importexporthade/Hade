@@ -27,6 +27,17 @@ class HomeSectionTest extends TestCase
         $this->assertEquals([$onSale->id], $section->products()->modelKeys());
     }
 
+    public function test_a_section_can_request_a_display_limit_without_changing_its_saved_limit(): void
+    {
+        Product::factory()->onSale()->count(6)->create();
+        $section = HomeSection::factory()->ofType(HomeSectionType::Offers)->create(['products_limit' => 3]);
+
+        $products = $section->products(5);
+
+        $this->assertCount(5, $products);
+        $this->assertSame(3, $section->products_limit);
+    }
+
     public function test_a_featured_section_shows_featured_products(): void
     {
         $featured = Product::factory()->featured()->create();

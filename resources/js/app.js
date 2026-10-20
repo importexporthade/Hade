@@ -1,6 +1,7 @@
 import { initCarousels } from './carousel';
 import { initCart } from './cart';
 import { initGalleries } from './gallery';
+import { initHeroSliders } from './hero-slider';
 
 function initMobileMenu() {
     const toggle = document.querySelector('[data-menu-toggle]');
@@ -29,6 +30,7 @@ function initToggles() {
 
 initMobileMenu();
 initToggles();
+initHeroSliders();
 initCarousels();
 initGalleries();
 initCart();

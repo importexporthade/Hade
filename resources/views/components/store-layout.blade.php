@@ -39,14 +39,19 @@
         <header class="brand-nav border-b border-ink/10">
             @php($kitsCategory = $categories->first(fn ($category) => str_contains(mb_strtolower($category->name), 'kit')))
 
-            <div class="store-container relative z-10 flex h-20 items-center gap-4 lg:h-24">
-                <button type="button" class="-ms-2 p-2 lg:hidden" data-menu-toggle aria-controls="menu-movil" aria-expanded="false">
+            <div class="store-container relative z-10 flex h-16 items-center justify-between lg:h-24 lg:justify-start lg:gap-4">
+                <button type="button" class="-ms-2 justify-self-start p-2 lg:hidden" data-menu-toggle aria-controls="menu-movil" aria-expanded="false">
                     <x-store.icon name="menu" class="size-6" />
                     <span class="sr-only">Menú</span>
                 </button>
 
-                <a href="{{ route('home') }}" class="shrink-0 font-serif text-[2.35rem] leading-none font-medium tracking-[-0.075em] text-emerald uppercase sm:text-[2.7rem]" aria-label="{{ $settings->store_name }}, ir al inicio">
-                    {{ $settings->store_name }}
+                <a href="{{ route('home') }}" class="absolute left-1/2 flex shrink-0 -translate-x-1/2 items-center gap-2 lg:static lg:translate-x-0" aria-label="{{ $settings->store_name }}, ir al inicio">
+                    @if ($logoUrl = $publicUrl($settings->logo))
+                        <img src="{{ $logoUrl }}" alt="" class="h-11 w-auto lg:h-[4.5rem]">
+                    @else
+                        <x-store.logo :name="$settings->store_name" class="h-11 w-auto lg:h-[4.5rem]" aria-hidden="true" />
+                    @endif
+                    <span class="font-serif text-2xl leading-none font-medium tracking-[-0.04em] text-emerald uppercase lg:hidden">{{ $settings->store_name }}</span>
                 </a>
 
                 <nav class="mx-auto hidden lg:block" aria-label="Principal">
@@ -81,12 +86,16 @@
                     </ul>
                 </nav>
 
-                <div class="ms-auto flex items-center gap-2 sm:gap-3 lg:ms-0">
+                <div class="ms-auto flex shrink-0 items-center lg:ms-0 lg:gap-3">
                     <form action="{{ route('products.index') }}" method="get" role="search" class="hidden h-11 items-center gap-2 rounded-full border border-ink/15 bg-white px-4 transition focus-within:border-emerald/50 md:flex">
                         <x-store.icon name="search" class="size-5 text-ink/70" />
                         <label for="buscar" class="sr-only">Buscar productos</label>
                         <input id="buscar" type="search" name="q" value="{{ request('q') }}" placeholder="Buscar stickers..." class="w-36 bg-transparent text-sm placeholder:text-ink/45 focus:outline-none xl:w-48">
                     </form>
+
+                    <a href="{{ route('products.index') }}" class="p-2 transition hover:text-emerald md:hidden" aria-label="Buscar productos">
+                        <x-store.icon name="search" class="size-5" />
+                    </a>
 
                     <button type="button" class="relative p-2 transition hover:text-emerald" data-cart-open aria-controls="carrito">
                         <x-store.icon name="cart" class="size-6" />
@@ -96,7 +105,7 @@
                 </div>
             </div>
 
-            <nav class="relative z-10 border-t border-ink/5 bg-[#fffdf8]/95 lg:hidden" aria-label="Principal móvil">
+            <nav class="relative z-10 border-t border-ink/5 bg-beige lg:hidden" aria-label="Principal móvil">
                 <ul id="menu-movil" class="store-container hidden flex-col gap-1 py-3 text-[0.95rem]" data-menu>
                     <li class="pb-2 md:hidden">
                         <form action="{{ route('products.index') }}" method="get" role="search" class="flex items-center gap-2 rounded-full border border-ink/15 px-4">
