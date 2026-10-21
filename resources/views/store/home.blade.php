@@ -187,37 +187,39 @@
                 @if ($products->isNotEmpty())
                     @if ($section->type === HomeSectionType::Latest)
                         @once
-                            <section class="relative isolate overflow-hidden bg-blush py-14 sm:py-16 lg:py-20" aria-labelledby="como-funciona-title">
-                                <span aria-hidden="true" class="absolute -top-28 -left-20 -z-10 size-72 rounded-full border border-white/50 bg-white/15"></span>
-                                <span aria-hidden="true" class="absolute -right-24 -bottom-32 -z-10 size-80 rounded-full border border-emerald/10 bg-emerald/5"></span>
-
+                            <section class="bg-blush py-10 sm:py-12 lg:py-14" aria-labelledby="como-funciona-title">
                                 <div class="store-container">
-                                    <div class="mx-auto max-w-2xl text-center">
-                                        <p class="text-[0.55rem] font-semibold tracking-[0.26em] text-emerald uppercase">Tu ritual Hade</p>
-                                        <h2 id="como-funciona-title" class="mt-2 text-balance font-serif text-[clamp(2.25rem,1.5rem+3vw,4rem)] leading-[0.98] font-medium tracking-[-0.04em] text-ink">Así de fácil. Así de Hade.</h2>
-                                        <p class="mx-auto mt-4 max-w-xl text-sm leading-relaxed text-ink/65 sm:text-base">Prepara, pega, lima y cura. Consigue una manicure con acabado impecable desde casa y en pocos minutos.</p>
+                                    <div class="mx-auto max-w-xl text-center">
+                                        <p class="text-[0.5rem] font-semibold tracking-[0.24em] text-emerald uppercase">Tu ritual Hade</p>
+                                        <h2 id="como-funciona-title" class="mt-1 font-serif text-[clamp(1.85rem,1.35rem+2vw,2.75rem)] leading-tight font-medium tracking-[-0.03em] text-ink">Así de fácil. Así de Hade.</h2>
+                                        <p class="mt-2 text-sm text-ink/60">Una manicure con acabado impecable, desde casa y en pocos minutos.</p>
                                     </div>
 
-                                    <ol class="mt-8 grid gap-3 sm:mt-10 sm:grid-cols-2 lg:grid-cols-4">
+                                    <ol class="mx-auto mt-8 grid max-w-5xl grid-cols-2 gap-x-4 gap-y-10 sm:mt-10 sm:gap-x-8 lg:grid-cols-4 lg:gap-x-6 lg:gap-y-0">
                                         @foreach ([
                                             ['number' => '01', 'title' => 'Prepara', 'description' => 'Limpia y seca tus uñas; empuja suavemente las cutículas.'],
                                             ['number' => '02', 'title' => 'Elige y pega', 'description' => 'Escoge el tamaño correcto, colócalo desde la base y alisa hacia los bordes.'],
                                             ['number' => '03', 'title' => 'Recorta y lima', 'description' => 'Retira el excedente y lima hacia abajo siguiendo la forma de tu uña.'],
                                             ['number' => '04', 'title' => 'Cura y disfruta', 'description' => 'Pasa cada uña por la lámpara para fijar el gel. Tu diseño está listo.'],
                                         ] as $step)
-                                            <li class="group relative min-h-52 overflow-hidden rounded-[1.75rem] border border-white/70 bg-cream/95 p-5 shadow-[0_20px_45px_-32px_rgba(23,23,23,0.45)] transition duration-300 hover:-translate-y-1 hover:shadow-[0_24px_48px_-28px_rgba(23,23,23,0.5)] motion-reduce:transition-none motion-reduce:hover:translate-y-0">
-                                                <span aria-hidden="true" class="absolute -top-9 -right-2 font-serif text-[7.5rem] leading-none text-taupe/8 transition-transform duration-500 group-hover:scale-105 motion-reduce:transition-none motion-reduce:group-hover:scale-100">{{ $step['number'] }}</span>
-                                                <span class="relative grid size-11 place-items-center rounded-full bg-emerald text-xs font-bold tracking-[0.08em] text-white shadow-sm">{{ $step['number'] }}</span>
-                                                <h3 class="relative mt-8 font-serif text-xl font-medium text-ink">{{ $step['title'] }}</h3>
-                                                <p class="relative mt-2 text-sm leading-relaxed text-ink/60">{{ $step['description'] }}</p>
+                                            <li @class(['group flex text-center', 'flex-col' => $loop->odd, 'flex-col-reverse' => $loop->even])>
+                                                <div class="mx-auto h-40 w-32 overflow-hidden rounded-t-full rounded-b-[1.5rem] shadow-[0_18px_40px_-24px_rgba(23,23,23,0.45)] sm:h-52 sm:w-42 lg:h-60 lg:w-48">
+                                                    <img src="{{ asset('images/ritual/step-'.$loop->iteration.'.jpg') }}" alt="" loading="lazy" class="size-full object-cover transition duration-700 group-hover:scale-105 motion-reduce:transition-none">
+                                                </div>
+
+                                                <div @class(['min-h-28 sm:min-h-32', 'mt-5' => $loop->odd, 'mb-5' => $loop->even])>
+                                                    <p class="text-[0.5rem] font-semibold tracking-[0.24em] text-emerald uppercase">Paso {{ $step['number'] }}</p>
+                                                    <h3 class="mt-1 font-serif text-lg font-medium text-ink sm:text-xl">{{ $step['title'] }}</h3>
+                                                    <p class="mx-auto mt-1 max-w-[15rem] text-xs leading-relaxed text-ink/60 sm:text-sm">{{ $step['description'] }}</p>
+                                                </div>
                                             </li>
                                         @endforeach
                                     </ol>
 
-                                    <div class="mt-8 flex justify-center">
-                                        <a href="{{ route('products.index') }}" class="group inline-flex min-h-11 items-center justify-center gap-2 rounded-full bg-emerald px-6 text-sm font-semibold text-white shadow-[0_12px_28px_rgba(31,92,69,0.18)] transition duration-300 hover:-translate-y-0.5 hover:bg-[#174f3d] focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-emerald motion-reduce:transition-none motion-reduce:hover:translate-y-0">
+                                    <div class="mt-10 flex justify-center">
+                                        <a href="{{ route('products.index') }}" class="group inline-flex min-h-10 items-center justify-center gap-2 rounded-full bg-emerald px-5 text-xs font-semibold text-white transition duration-300 hover:bg-[#174f3d] focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-emerald sm:text-sm">
                                             Encuentra tu diseño
-                                            <x-store.icon name="chevron-right" class="size-4 transition-transform duration-300 group-hover:translate-x-0.5 motion-reduce:transition-none motion-reduce:group-hover:translate-x-0" />
+                                            <x-store.icon name="chevron-right" class="size-3.5 transition-transform duration-300 group-hover:translate-x-0.5 motion-reduce:transition-none motion-reduce:group-hover:translate-x-0" />
                                         </a>
                                     </div>
                                 </div>
