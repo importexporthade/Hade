@@ -2,6 +2,8 @@
 
 namespace App\Providers\Filament;
 
+use App\Filament\Pages\Auth\Login;
+use App\Filament\Pages\Auth\UnlockAccount;
 use App\Filament\Pages\Dashboard;
 use App\Support\Favicon;
 use Filament\Http\Middleware\Authenticate;
@@ -17,6 +19,7 @@ use Illuminate\Cookie\Middleware\EncryptCookies;
 use Illuminate\Foundation\Http\Middleware\PreventRequestForgery;
 use Illuminate\Routing\Middleware\SubstituteBindings;
 use Illuminate\Session\Middleware\StartSession;
+use Illuminate\Support\Facades\Route;
 use Illuminate\View\Middleware\ShareErrorsFromSession;
 
 class ManagerPanelProvider extends PanelProvider
@@ -67,7 +70,8 @@ class ManagerPanelProvider extends PanelProvider
             ->id('manager')
             ->path('manager')
             ->viteTheme('resources/css/filament/manager/theme.css')
-            ->login()
+            ->login(Login::class)
+            ->routes(fn () => Route::get('desbloquear', UnlockAccount::class)->name('auth.unlock'))
             ->profile()
             // After creating something, go back to its list instead of opening it to edit.
             ->resourceCreatePageRedirect('index')
