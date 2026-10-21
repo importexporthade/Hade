@@ -184,3 +184,8 @@
 .fi-simple-main .hade-brand-name {
     @apply text-3xl;
 }
+
+/* Confirmation under the login heading after the account is unlocked with the emailed code. */
+.hade-unlocked {
+    @apply mt-1 inline-block rounded-lg bg-success-50 px-3 py-2 text-sm font-medium text-success-700 dark:bg-success-500/10 dark:text-success-400;
+}
