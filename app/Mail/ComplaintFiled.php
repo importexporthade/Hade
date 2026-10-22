@@ -30,7 +30,7 @@ class ComplaintFiled extends Mailable
     {
         return new Content(
             markdown: 'mail.complaint-filed',
-            with: ['settings' => StoreSetting::current()],
+            with: ['settings' => StoreSetting::current(), 'pdfUrl' => $this->complaint->receiptUrl()],
         );
     }
 }

@@ -30,8 +30,8 @@ class StoreComplaintRequest extends FormRequest
             'consumer_name' => ['required', 'string', 'max:255'],
             'document_type' => ['required', Rule::enum(IdentityDocument::class)],
             'document_number' => ['required', 'string', 'max:20', $this->matchesDocumentType(...)],
-            'address' => ['required', 'string', 'max:255'],
-            'phone' => ['required', 'string', 'regex:/^\+?[\d\s-]{6,20}$/'],
+            'address' => ['nullable', 'string', 'max:255'],
+            'phone' => ['nullable', 'string', 'regex:/^\+?[\d\s-]{6,20}$/'],
             'email' => ['required', 'email', 'max:255'],
             'is_minor' => ['boolean'],
             'guardian_name' => ['nullable', 'required_if_accepted:is_minor', 'string', 'max:255'],
@@ -40,6 +40,7 @@ class StoreComplaintRequest extends FormRequest
             'item_description' => ['required', 'string', 'max:255'],
             'detail' => ['required', 'string', 'max:3000'],
             'consumer_request' => ['required', 'string', 'max:2000'],
+            'privacy' => ['accepted'],
         ];
     }
 
@@ -53,6 +54,7 @@ class StoreComplaintRequest extends FormRequest
         return [
             'required' => 'Completa :attribute.',
             'required_if_accepted' => 'Completa :attribute.',
+            'privacy.accepted' => 'Marca la declaración para enviar la hoja.',
             'email' => 'Escribe un correo válido.',
             'max' => ':Attribute es demasiado largo.',
             'amount.max' => 'El monto es demasiado alto.',

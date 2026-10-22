@@ -4,12 +4,16 @@ namespace App\Filament\Resources\Complaints\Tables;
 
 use App\Enums\ComplaintType;
 use App\Models\Complaint;
+use App\Support\ComplaintSheetPdf;
+use Filament\Actions\Action;
 use Filament\Actions\ViewAction;
+use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Filters\TernaryFilter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class ComplaintsTable
 {
@@ -69,6 +73,11 @@ class ComplaintsTable
             ])
             ->recordActions([
                 ViewAction::make(),
+                Action::make('downloadPdf')
+                    ->label('PDF')
+                    ->icon(Heroicon::OutlinedArrowDownTray)
+                    ->color('gray')
+                    ->action(fn (Complaint $record): StreamedResponse => ComplaintSheetPdf::download($record)),
             ]);
     }
 }

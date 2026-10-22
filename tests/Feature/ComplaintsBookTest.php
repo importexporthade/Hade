@@ -2,11 +2,13 @@
 
 namespace Tests\Feature;
 
+use App\Enums\ComplaintAlert;
 use App\Enums\ComplaintType;
 use App\Filament\Resources\Complaints\Pages\ListComplaints;
 use App\Filament\Resources\Complaints\Pages\ViewComplaint;
 use App\Mail\ComplaintAnswered;
 use App\Mail\ComplaintFiled;
+use App\Mail\ComplaintNeedsAnswer;
 use App\Models\Complaint;
 use App\Models\StoreSetting;
 use App\Models\User;
@@ -55,7 +57,7 @@ class ComplaintsBookTest extends TestCase
 
         $this->post('/information/complaints', $this->validSheet())
             ->assertRedirect('/information/complaints')
-            ->assertSessionHas('complaint_code', '000001-'.now()->year);
+            ->assertSessionHas('filed_complaint_id');
 
         $complaint = Complaint::query()->sole();
         $this->assertSame(ComplaintType::Claim, $complaint->type);
@@ -67,6 +69,28 @@ class ComplaintsBookTest extends TestCase
         Mail::assertSent(ComplaintFiled::class, fn (ComplaintFiled $mail): bool => $mail->hasTo('maria@example.com')
             && $mail->hasBcc('import.export.hade@gmail.com')
             && $mail->complaint->is($complaint));
+    }
+
+    public function test_the_owner_is_told_a_new_sheet_came_in(): void
+    {
+        StoreSetting::current()->update(['email' => 'import.export.hade@gmail.com']);
+        User::factory()->admin()->create(['email' => 'duena@gmail.com']);
+
+        $this->post('/information/complaints', $this->validSheet());
+
+        Mail::assertSent(ComplaintNeedsAnswer::class, fn (ComplaintNeedsAnswer $mail): bool => $mail->hasTo('duena@gmail.com')
+            && $mail->alert === ComplaintAlert::Filed);
+        $this->assertSame(ComplaintAlert::Filed, Complaint::query()->sole()->last_alert);
+    }
+
+    public function test_the_store_email_that_got_the_copy_gets_no_second_email(): void
+    {
+        StoreSetting::current()->update(['email' => 'import.export.hade@gmail.com']);
+        User::factory()->admin()->create(['email' => 'import.export.hade@gmail.com']);
+
+        $this->post('/information/complaints', $this->validSheet());
+
+        Mail::assertNotSent(ComplaintNeedsAnswer::class);
     }
 
     public function test_the_copy_carries_the_sheet_details_and_the_legal_notice(): void
@@ -117,14 +141,79 @@ class ComplaintsBookTest extends TestCase
                 'email' => 'Completa tu correo.',
                 'detail' => 'Completa el detalle.',
                 'consumer_request' => 'Completa tu pedido.',
+                'privacy' => 'Marca la declaración para enviar la hoja.',
+            ])
+            ->assertSessionDoesntHaveErrors(['phone', 'address', 'amount']);
+    }
+
+    public function test_the_form_follows_the_official_sections_and_asks_for_the_privacy_declaration(): void
+    {
+        $this->get('/information/complaints')
+            ->assertOk()
+            ->assertSeeInOrder([
+                '1. Identificación del proveedor',
+                '2. Identificación del consumidor',
+                '3. Información del reclamo o queja',
+                'Fecha de presentación',
+                now()->format('d/m/Y'),
+                'Declaro que los datos ingresados son correctos',
+                'Ley N° 29733',
             ]);
     }
 
-    public function test_the_deadline_is_fifteen_business_days_after_filing(): void
+    public function test_the_phone_and_address_are_optional(): void
+    {
+        $sheet = $this->validSheet();
+        unset($sheet['phone'], $sheet['address']);
+
+        $this->post('/information/complaints', $sheet)->assertSessionHasNoErrors();
+
+        $complaint = Complaint::query()->sole();
+        $this->assertNull($complaint->phone);
+        $this->assertNull($complaint->address);
+    }
+
+    public function test_the_customer_sees_her_receipt_with_everything_she_sent(): void
+    {
+        $this->followingRedirects()
+            ->post('/information/complaints', $this->validSheet())
+            ->assertOk()
+            ->assertSee('Registramos tu hoja de reclamación N° 000001-'.now()->year)
+            ->assertSee('Esta es tu constancia')
+            ->assertSee('María Pérez Quispe')
+            ->assertSee('La lámpara del kit llegó sin cargar y no enciende.')
+            ->assertSee('Cambio de la lámpara.')
+            ->assertSee('Descargar constancia (PDF)')
+            ->assertDontSee('Enviar hoja de reclamación');
+    }
+
+    public function test_the_receipt_pdf_opens_only_from_its_signed_link(): void
+    {
+        $complaint = Complaint::factory()->create(['sequence' => 4]);
+
+        $this->get($complaint->receiptUrl())
+            ->assertOk()
+            ->assertHeader('content-type', 'application/pdf')
+            ->assertDownload('hoja-de-reclamacion-000004-'.now()->year.'.pdf');
+
+        $this->get(route('complaints.receipt', $complaint))->assertForbidden();
+    }
+
+    public function test_the_copy_email_links_to_the_receipt_pdf(): void
+    {
+        $complaint = Complaint::factory()->create();
+
+        $rendered = (new ComplaintFiled($complaint))->render();
+
+        $this->assertStringContainsString('Descargar constancia (PDF)', $rendered);
+        $this->assertStringContainsString(e($complaint->receiptUrl()), $rendered);
+    }
+
+    public function test_the_deadline_is_fifteen_calendar_days_after_filing_weekends_included(): void
     {
         $complaint = Complaint::factory()->create(['created_at' => '2026-10-15 16:00']);
 
-        $this->assertSame('2026-11-05', $complaint->responseDueDate()->toDateString());
+        $this->assertSame('2026-10-30', $complaint->responseDueDate()->toDateString());
     }
 
     public function test_the_owner_answers_a_sheet_and_the_customer_gets_the_answer(): void
@@ -185,6 +274,7 @@ class ComplaintsBookTest extends TestCase
             'item_description' => 'Kit Hade Recargada',
             'detail' => 'La lámpara del kit llegó sin cargar y no enciende.',
             'consumer_request' => 'Cambio de la lámpara.',
+            'privacy' => '1',
         ];
     }
 }

@@ -3,7 +3,7 @@
 
 Hola {{ $complaint->consumer_name }}, registramos tu {{ strtolower($complaint->type->getLabel()) }} el {{ $complaint->created_at->format('d/m/Y \a \l\a\s h:i a') }}. Esta es tu copia.
 
-Te responderemos a este correo en un plazo máximo de {{ \App\Models\Complaint::RESPONSE_BUSINESS_DAYS }} días hábiles, hasta el {{ $complaint->responseDueDate()->format('d/m/Y') }}.
+Te responderemos a este correo en un plazo máximo de {{ \App\Models\Complaint::RESPONSE_DAYS }} días calendario, hasta el {{ $complaint->responseDueDate()->format('d/m/Y') }}.
 
 ## Proveedor
 
@@ -17,8 +17,12 @@ Te responderemos a este correo en un plazo máximo de {{ \App\Models\Complaint::
 
 - **Nombre:** {{ $complaint->consumer_name }}
 - **Documento:** {{ $complaint->document_type->getLabel() }} {{ $complaint->document_number }}
+@if ($complaint->address)
 - **Domicilio:** {{ $complaint->address }}
+@endif
+@if ($complaint->phone)
 - **Teléfono:** {{ $complaint->phone }}
+@endif
 - **Correo:** {{ $complaint->email }}
 @if ($complaint->is_minor)
 - **Menor de edad, representado por:** {{ $complaint->guardian_name }}
@@ -37,6 +41,10 @@ Te responderemos a este correo en un plazo máximo de {{ \App\Models\Complaint::
 {{ $complaint->detail }}
 
 **Tu pedido:** {{ $complaint->consumer_request }}
+
+<x-mail::button :url="$pdfUrl">
+Descargar constancia (PDF)
+</x-mail::button>
 
 <x-mail::subcopy>
 La formulación del reclamo no impide acudir a otras vías de solución de controversias ni es requisito previo para interponer una denuncia ante el INDECOPI.

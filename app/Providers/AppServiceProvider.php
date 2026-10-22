@@ -5,6 +5,7 @@ namespace App\Providers;
 use Filament\Actions\Action;
 use Filament\Actions\CreateAction;
 use Filament\Actions\EditAction;
+use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\DateTimePicker;
 use Filament\Pages\BasePage;
 use Filament\Schemas\Components\Form;
@@ -81,5 +82,9 @@ class AppServiceProvider extends ServiceProvider
         DateTimePicker::configureUsing(fn (DateTimePicker $picker): DateTimePicker => $picker
             ->native(false)
             ->displayFormat(self::DATE_TIME_FORMAT));
+
+        // A date picker is a date-time picker underneath, so it would otherwise show "12:00 am"
+        DatePicker::configureUsing(fn (DatePicker $picker): DatePicker => $picker
+            ->displayFormat(self::DATE_FORMAT));
     }
 }

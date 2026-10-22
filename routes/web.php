@@ -22,6 +22,9 @@ Route::middleware(IdentifyVisitor::class)->group(function (): void {
     Route::post('/information/complaints', [ComplaintController::class, 'store'])
         ->middleware('throttle:5,1')
         ->name('complaints.store');
+    Route::get('/information/complaints/{complaint}/constancia', [ComplaintController::class, 'receipt'])
+        ->middleware('signed')
+        ->name('complaints.receipt');
     Route::get('/information/{page:slug}', [PageController::class, 'show'])->name('pages.show');
 
     Route::middleware('throttle:120,1')->group(function (): void {

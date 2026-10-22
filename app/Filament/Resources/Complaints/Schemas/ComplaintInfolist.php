@@ -42,8 +42,8 @@ class ComplaintInfolist
                         TextEntry::make('document_number')
                             ->label('Documento')
                             ->formatStateUsing(fn (Complaint $record): string => "{$record->document_type->getLabel()} {$record->document_number}"),
-                        TextEntry::make('address')->label('Domicilio'),
-                        TextEntry::make('phone')->label('Teléfono'),
+                        TextEntry::make('address')->label('Domicilio')->placeholder('No indicado'),
+                        TextEntry::make('phone')->label('Teléfono')->placeholder('No indicado'),
                         TextEntry::make('email')->label('Correo')->copyable(),
                         TextEntry::make('guardian_name')
                             ->label('Menor de edad, representada por')

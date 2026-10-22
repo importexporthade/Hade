@@ -5,6 +5,7 @@ namespace App\Filament\Resources\Complaints\Pages;
 use App\Filament\Resources\Complaints\ComplaintResource;
 use App\Mail\ComplaintAnswered;
 use App\Models\Complaint;
+use App\Support\ComplaintSheetPdf;
 use Filament\Actions\Action;
 use Filament\Forms\Components\Textarea;
 use Filament\Notifications\Notification;
@@ -12,6 +13,7 @@ use Filament\Resources\Pages\ViewRecord;
 use Filament\Support\Icons\Heroicon;
 use Illuminate\Contracts\Support\Htmlable;
 use Illuminate\Support\Facades\Mail;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 use Throwable;
 
 /**
@@ -29,6 +31,11 @@ class ViewComplaint extends ViewRecord
     protected function getHeaderActions(): array
     {
         return [
+            Action::make('downloadPdf')
+                ->label('Descargar PDF')
+                ->icon(Heroicon::OutlinedArrowDownTray)
+                ->color('gray')
+                ->action(fn (): StreamedResponse => ComplaintSheetPdf::download($this->record)),
             Action::make('respond')
                 ->label('Responder')
                 ->icon(Heroicon::OutlinedPaperAirplane)
@@ -56,7 +63,9 @@ class ViewComplaint extends ViewRecord
                         Notification::make()
                             ->warning()
                             ->title('Respuesta guardada, pero el correo no salió')
-                            ->body("Avisa a la clienta por otro medio: {$this->record->phone}.")
+                            ->body($this->record->phone
+                                ? "Avisa a la clienta por otro medio: {$this->record->phone}."
+                                : 'Avisa a la clienta por otro medio; no dejó teléfono.')
                             ->persistent()
                             ->send();
 
