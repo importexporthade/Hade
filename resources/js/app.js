@@ -2,6 +2,7 @@ import { initCarousels } from './carousel';
 import { initCart } from './cart';
 import { initGalleries } from './gallery';
 import { initHeroSliders } from './hero-slider';
+import { initMoodShowcases } from './mood-showcase';
 
 function initMobileMenu() {
     const toggle = document.querySelector('[data-menu-toggle]');
@@ -31,6 +32,7 @@ function initToggles() {
 initMobileMenu();
 initToggles();
 initHeroSliders();
+initMoodShowcases();
 initCarousels();
 initGalleries();
 initCart();

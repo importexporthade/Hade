@@ -1,3 +1,5 @@
+@php($flushFooter = (bool) $attributes->get('flush-footer', false))
+
 <!DOCTYPE html>
 <html lang="es">
     <head>
@@ -132,20 +134,23 @@
             {{ $slot }}
         </main>
 
-        <footer class="mt-16 border-t border-ink/10 bg-white">
+        <footer @class([
+            'bg-taupe text-white',
+            'mt-16 border-t border-white/15' => ! $flushFooter,
+        ])>
             <div class="store-container grid gap-10 py-12 sm:grid-cols-2 lg:grid-cols-4">
                 <div class="lg:col-span-1">
-                    <p class="font-serif text-2xl text-emerald">{{ $settings->store_name }}</p>
+                    <p class="font-serif text-2xl">{{ $settings->store_name }}</p>
                     @if ($settings->footer_text)
-                        <p class="mt-3 text-sm leading-relaxed text-ink/70">{{ $settings->footer_text }}</p>
+                        <p class="mt-3 text-sm leading-relaxed text-white/70">{{ $settings->footer_text }}</p>
                     @endif
                 </div>
 
                 <div>
                     <h2 class="text-sm font-bold">Categorías</h2>
-                    <ul class="mt-3 space-y-2 text-sm text-ink/70">
+                    <ul class="mt-3 space-y-2 text-sm text-white/70">
                         @foreach ($categories as $category)
-                            <li><a href="{{ route('categories.show', $category) }}" class="hover:text-ink">{{ $category->name }}</a></li>
+                            <li><a href="{{ route('categories.show', $category) }}" class="hover:text-white">{{ $category->name }}</a></li>
                         @endforeach
                     </ul>
                 </div>
@@ -153,39 +158,39 @@
                 @php($footerPages = $pages->filter->isInFooter())
                 <div>
                     <h2 class="text-sm font-bold">Información</h2>
-                    <ul class="mt-3 space-y-2 text-sm text-ink/70">
+                    <ul class="mt-3 space-y-2 text-sm text-white/70">
                         @foreach ($footerPages as $page)
-                            <li><a href="{{ route('pages.show', $page) }}" class="hover:text-ink">{{ $page->title }}</a></li>
+                            <li><a href="{{ route('pages.show', $page) }}" class="hover:text-white">{{ $page->title }}</a></li>
                         @endforeach
                     </ul>
                     {{-- Stores in Peru must show the complaints book where customers can see it --}}
-                    <a href="{{ route('complaints.create') }}" class="mt-4 inline-flex items-center gap-2 border border-ink/15 px-3 py-2 text-sm font-medium hover:border-ink/40">
-                        <x-store.icon name="book" class="size-5 text-emerald" />
+                    <a href="{{ route('complaints.create') }}" class="mt-4 inline-flex items-center gap-2 border border-white/25 px-3 py-2 text-sm font-medium hover:border-white/60">
+                        <x-store.icon name="book" class="size-5 text-white/80" />
                         Libro de Reclamaciones
                     </a>
                 </div>
 
                 <div>
                     <h2 class="text-sm font-bold">Contáctanos</h2>
-                    <ul class="mt-3 space-y-2 text-sm text-ink/70">
+                    <ul class="mt-3 space-y-2 text-sm text-white/70">
                         @if ($settings->email)
-                            <li><a href="mailto:{{ $settings->email }}" class="flex items-center gap-2 break-all hover:text-ink"><x-store.icon name="envelope" class="size-4 shrink-0" />{{ $settings->email }}</a></li>
+                            <li><a href="mailto:{{ $settings->email }}" class="flex items-center gap-2 break-all hover:text-white"><x-store.icon name="envelope" class="size-4 shrink-0" />{{ $settings->email }}</a></li>
                         @endif
                         @if ($settings->phone)
-                            <li><a href="tel:{{ preg_replace('/[^\d+]/', '', $settings->phone) }}" class="flex items-center gap-2 hover:text-ink"><x-store.icon name="phone" class="size-4 shrink-0" />{{ $settings->phone }}</a></li>
+                            <li><a href="tel:{{ preg_replace('/[^\d+]/', '', $settings->phone) }}" class="flex items-center gap-2 hover:text-white"><x-store.icon name="phone" class="size-4 shrink-0" />{{ $settings->phone }}</a></li>
                         @endif
                     </ul>
                     @php($socials = array_filter(['Facebook' => $settings->facebook_url, 'Instagram' => $settings->instagram_url, 'TikTok' => $settings->tiktok_url, 'YouTube' => $settings->youtube_url]))
                     @if ($socials !== [])
                         <ul class="mt-4 flex flex-wrap gap-2">
                             @foreach ($socials as $network => $url)
-                                <li><a href="{{ $url }}" target="_blank" rel="noopener" class="inline-block border border-ink/15 px-2.5 py-1 text-xs font-medium hover:border-ink/40">{{ $network }}</a></li>
+                                <li><a href="{{ $url }}" target="_blank" rel="noopener" class="inline-block border border-white/25 px-2.5 py-1 text-xs font-medium hover:border-white/60">{{ $network }}</a></li>
                             @endforeach
                         </ul>
                     @endif
                 </div>
             </div>
-            <p class="border-t border-ink/5 py-4 text-center text-xs text-ink/50">© {{ now()->year }} {{ $settings->store_name }}</p>
+            <p class="border-t border-white/15 py-4 text-center text-xs text-white/60">© {{ now()->year }} {{ $settings->store_name }}</p>
         </footer>
 
         @if ($settings->whatsappUrl())

@@ -3,7 +3,7 @@
     use App\Enums\ImageKind;
 @endphp
 
-<x-store-layout>
+<x-store-layout :flush-footer="true">
     @if ($banners->isNotEmpty())
         <x-store.hero-slider :banners="$banners" />
     @else
@@ -118,7 +118,7 @@
                 @if ($products->isNotEmpty())
                     <section class="bg-emerald py-10 sm:py-12 lg:py-14" aria-labelledby="seccion-{{ $section->id }}">
                         <div class="store-container">
-                            <div class="mx-auto max-w-xl text-center text-white">
+                            <div class="max-w-xl text-left text-white">
                                 <p class="text-[0.5rem] font-semibold tracking-[0.24em] text-sage uppercase">Kits y promociones</p>
                                 <h2 id="seccion-{{ $section->id }}" class="mt-1 font-serif text-[clamp(1.85rem,1.35rem+2vw,2.75rem)] leading-tight font-medium tracking-[-0.03em]">Favoritos que combinan</h2>
                                 @if ($section->subtitle)
@@ -183,7 +183,12 @@
 
             @default
                 @php($products = $section->products())
-                @php($sectionHeading = $section->type === HomeSectionType::Latest ? 'Nuevos hallazgos' : $section->title)
+                @php($isManicureSection = $section->type === HomeSectionType::Category && str_contains(mb_strtolower($section->category?->name ?? ''), 'manicur'))
+                @php($isPedicureSection = $section->type === HomeSectionType::Category && str_contains(mb_strtolower($section->category?->name ?? ''), 'pedicur'))
+                @php($usesEditorialHeadingStyle = $section->type === HomeSectionType::Latest || $isManicureSection || $isPedicureSection)
+                @php($usesFramedCardStyle = $usesEditorialHeadingStyle || $isPedicureSection)
+                @php($sectionLabel = $section->type === HomeSectionType::Latest ? 'Novedades' : ($isManicureSection ? 'Manicura' : ($isPedicureSection ? 'Pedicura' : null)))
+                @php($sectionHeading = $section->type === HomeSectionType::Latest ? 'Nuevos hallazgos' : ($isManicureSection ? 'El arte en tus manos' : ($isPedicureSection ? 'Pies que enamoran' : $section->title)))
                 @if ($products->isNotEmpty())
                     @if ($section->type === HomeSectionType::Latest)
                         @once
@@ -228,41 +233,114 @@
                     @endif
 
                     <section @class([
-                        'pt-12' => $section->type !== HomeSectionType::Latest,
+                        'pt-12' => $section->type !== HomeSectionType::Latest && ! $isManicureSection && ! $isPedicureSection,
                         'scalloped-section z-10 bg-cream py-12' => $section->type === HomeSectionType::Latest,
+                        'pedicure-section scalloped-section z-10 bg-cream py-12' => $isPedicureSection,
+                        'bg-emerald py-10 sm:py-12 lg:py-14' => $isManicureSection,
                     ]) aria-labelledby="seccion-{{ $section->id }}">
                         <div class="store-container">
                             <div class="flex items-end justify-between gap-4">
                                 <div>
-                                    @if ($section->type === HomeSectionType::Latest)
-                                        <p class="text-[0.5rem] font-semibold tracking-[0.24em] text-emerald uppercase">Novedades</p>
+                                    @if ($sectionLabel)
+                                        <p @class([
+                                            'text-[0.5rem] font-semibold tracking-[0.24em] uppercase',
+                                            'text-sage' => $isManicureSection,
+                                            'text-emerald' => ! $isManicureSection,
+                                        ])>{{ $sectionLabel }}</p>
                                     @endif
                                     <h2 id="seccion-{{ $section->id }}" @class([
-                                        'section-heading' => $section->type !== HomeSectionType::Latest,
-                                        'mt-1 font-serif text-[clamp(1.85rem,1.35rem+2vw,2.75rem)] leading-tight font-medium tracking-[-0.03em]' => $section->type === HomeSectionType::Latest,
+                                        'section-heading' => ! $usesEditorialHeadingStyle,
+                                        'mt-1 font-serif text-[clamp(1.85rem,1.35rem+2vw,2.75rem)] leading-tight font-medium tracking-[-0.03em]' => $usesEditorialHeadingStyle,
+                                        'text-white' => $isManicureSection,
                                     ])>{{ $sectionHeading }}</h2>
                                     @if ($section->subtitle)
-                                        <p class="mt-1 text-sm text-ink/60">{{ $section->subtitle }}</p>
+                                        <p @class(['mt-1 text-sm', 'text-white/75' => $isManicureSection, 'text-ink/60' => ! $isManicureSection])>{{ $section->subtitle }}</p>
                                     @endif
                                 </div>
-                                <a href="{{ $section->category ? route('categories.show', $section->category) : route('products.index') }}" class="shrink-0 text-sm text-ink/70 hover:text-ink">Ver más</a>
+                                <a href="{{ $section->category ? route('categories.show', $section->category) : route('products.index') }}" @class([
+                                    'shrink-0 text-sm',
+                                    'text-white/75 hover:text-white' => $isManicureSection,
+                                    'text-ink/70 hover:text-ink' => ! $isManicureSection,
+                                ])>Ver más</a>
                             </div>
                             <x-store.carousel :label="$sectionHeading" class="mt-5">
                                 @foreach ($products as $product)
-                                    <x-store.product-card :product="$product" :size="$section->type === HomeSectionType::Latest ? 'latest' : 'base'" class="w-40 shrink-0 sm:w-48 lg:w-[calc(20%-0.8rem)]" />
+                                    <x-store.product-card :product="$product" :size="$usesFramedCardStyle ? 'latest' : 'base'" class="w-40 shrink-0 sm:w-48 lg:w-[calc(20%-0.8rem)]" />
                                 @endforeach
                             </x-store.carousel>
                         </div>
                     </section>
 
+                    @if ($isManicureSection)
+                        @once
+                            @php($moods = [
+                                ['key' => 'natural', 'label' => 'Natural', 'description' => 'Mano con uñas naturales'],
+                                ['key' => 'minimal', 'label' => 'Minimal', 'description' => 'Mano con manicura francesa minimalista'],
+                                ['key' => 'classic', 'label' => 'Classic', 'description' => 'Mano con uñas clásicas color borgoña'],
+                                ['key' => 'print', 'label' => 'Print', 'description' => 'Mano con uñas de animal print'],
+                                ['key' => 'glow', 'label' => 'Glow', 'description' => 'Mano con uñas azules brillantes'],
+                            ])
+
+<section class="mood-showcase-section scalloped-section relative z-10 overflow-hidden bg-blush pt-12 sm:pt-16 lg:pt-20" aria-labelledby="mood-showcase-title" data-mood-showcase>
+                                <div class="store-container grid items-center gap-8 lg:grid-cols-[0.78fr_1.22fr] lg:gap-10">
+                                    <div class="relative z-20 lg:py-6">
+                                        <p class="text-[0.55rem] font-semibold tracking-[0.3em] text-emerald uppercase">Tu estilo Hade</p>
+                                        <h2 id="mood-showcase-title" class="mt-2 max-w-[9ch] text-balance font-serif text-[clamp(2.75rem,2rem+3.1vw,5rem)] leading-[0.95] font-medium tracking-[-0.045em] text-ink">El detalle está en ti</h2>
+                                        <p class="mt-5 max-w-md text-sm leading-relaxed text-ink/60 sm:text-base">Parte de una base natural y descubre cuatro estilos que hacen única cada manicura.</p>
+
+                                        <div class="mt-6 flex flex-wrap gap-2" role="group" aria-label="Elige el estilo de manicura">
+                                            @foreach (array_slice($moods, 1) as $mood)
+                                                <button
+                                                    type="button"
+                                                    class="min-h-10 rounded-full border border-taupe/25 bg-white/40 px-4 text-xs font-semibold text-ink/70 transition duration-300 hover:border-emerald/50 hover:bg-white/70 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald aria-pressed:border-emerald aria-pressed:bg-emerald aria-pressed:text-white sm:px-5 sm:text-sm"
+                                                    data-mood-option="{{ $mood['key'] }}"
+                                                    aria-pressed="false"
+                                                >{{ $mood['label'] }}</button>
+                                            @endforeach
+                                        </div>
+
+                                        <p class="sr-only" aria-live="polite" data-mood-status>Estilo Natural seleccionado.</p>
+
+                                        <a href="{{ route('categories.show', $section->category) }}" class="group mt-8 inline-flex min-h-12 items-center justify-center gap-3 rounded-full bg-emerald px-6 text-sm font-semibold text-white transition duration-300 hover:bg-[#174f3d] focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-emerald">
+                                            Explora tu estilo
+                                            <x-store.icon name="chevron-right" class="size-4 transition-transform duration-300 group-hover:translate-x-0.5 motion-reduce:transition-none" />
+                                        </a>
+                                    </div>
+
+                                    <div class="relative mx-auto aspect-[8/5] w-full max-w-3xl" aria-label="Vista previa del estilo seleccionado">
+                                        <span class="absolute top-[10%] right-[4%] bottom-[2%] left-[4%] rounded-[50%] bg-white/45 lg:inset-y-[5%] lg:right-[1%] lg:left-[12%]" aria-hidden="true"></span>
+                                        <span class="absolute top-[12%] right-[6%] h-[80%] w-[80%] rounded-full border border-taupe/15 lg:top-[8%] lg:right-[-8%] lg:h-[84%] lg:w-[64%]" aria-hidden="true"></span>
+                                        <span class="absolute right-[6%] bottom-[8%] size-24 rounded-full bg-white/30 blur-2xl sm:size-36" aria-hidden="true"></span>
+
+                                        @foreach ($moods as $mood)
+                                            <img
+                                                id="mood-image-{{ $mood['key'] }}"
+                                                src="{{ asset('images/moods/'.$mood['key'].'.webp') }}?v={{ filemtime(public_path('images/moods/'.$mood['key'].'.webp')) }}"
+                                                width="1920"
+                                                height="1200"
+                                                alt="{{ $mood['description'] }}"
+                                                loading="lazy"
+                                                decoding="async"
+                                                class="absolute inset-0 z-10 size-full object-contain opacity-0 transition-opacity duration-500 ease-out motion-reduce:transition-none data-[active]:opacity-100"
+                                                data-mood-image="{{ $mood['key'] }}"
+                                                aria-hidden="{{ $loop->first ? 'false' : 'true' }}"
+                                                @if ($loop->first) data-active @endif
+                                            >
+                                        @endforeach
+                                    </div>
+                                </div>
+                            </section>
+                        @endonce
+                    @endif
+
                     @if ($section->type === HomeSectionType::Latest)
                         @once
-                            <section class="relative isolate flex min-h-[21.6rem] items-center overflow-hidden text-center text-white sm:min-h-72 lg:min-h-[21.6rem]" aria-labelledby="catalogo-cta">
+                            <section class="relative isolate flex min-h-[19.44rem] items-center overflow-hidden text-center text-white sm:min-h-[16.2rem] lg:min-h-[19.44rem]" aria-labelledby="catalogo-cta">
                                 <img src="{{ asset('images/hero-nail-stickers.jpg') }}" alt="" loading="lazy" class="absolute inset-0 -z-20 size-full object-cover object-center">
                                 <span class="absolute inset-0 -z-10 bg-[#6f5e50]/20" aria-hidden="true"></span>
                                 <span class="absolute inset-0 -z-10 bg-linear-to-b from-[#b9a28f]/55 via-[#8b7360]/65 to-[#514840]/75" aria-hidden="true"></span>
 
-                                <div class="store-container py-12 sm:py-14">
+                                <div class="store-container py-[2.7rem] sm:py-[3.15rem]">
                                     <div class="mx-auto flex max-w-3xl flex-col items-center gap-3.5">
                                         <p class="text-[0.62rem] font-semibold tracking-[0.24em] text-white/85 uppercase">Lista para encontrar tu próximo favorito</p>
                                         <h2 id="catalogo-cta" class="text-balance font-serif text-[clamp(2.25rem,1.6rem+2.4vw,3.5rem)] leading-tight font-medium tracking-[-0.03em]">Pequeños detalles, grandes expresiones.</h2>

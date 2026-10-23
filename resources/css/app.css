@@ -121,6 +121,15 @@
         --scallop-color: var(--color-cream);
     }
 
+    .mood-showcase-section {
+        --scallop-color: var(--color-blush);
+    }
+
+    .pedicure-section::after {
+        bottom: 0;
+        background-color: var(--color-taupe);
+    }
+
     /* Short dashes like the hero's: the current one fills from the left while its page shows */
     .carousel-dot {
         @apply relative h-0.5 w-6 overflow-hidden rounded-full bg-white/30 transition-[background-color,width] duration-300 hover:bg-white/50 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-white;

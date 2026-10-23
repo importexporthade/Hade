@@ -36,7 +36,7 @@ class StorefrontTest extends TestCase
 
         $this->get('/')
             ->assertOk()
-            ->assertSeeInOrder(['Kits y promociones', 'Kit Hade Recargada', 'Stickers Manicure', 'Crepusculo'])
+            ->assertSeeInOrder(['Kits y promociones', 'Kit Hade Recargada', 'Manicura', 'El arte en tus manos', 'Crepusculo'])
             ->assertDontSee('Sección apagada');
     }
 
