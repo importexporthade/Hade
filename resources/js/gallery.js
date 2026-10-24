@@ -13,8 +13,11 @@ export function initGalleries() {
                 main.src = thumb.dataset.galleryThumb;
 
                 thumbs.forEach((other) => {
-                    other.classList.toggle('ring-ink', other === thumb);
-                    other.classList.toggle('ring-transparent', other !== thumb);
+                    const isCurrent = other === thumb;
+
+                    other.classList.toggle('ring-ink', isCurrent);
+                    other.classList.toggle('ring-transparent', !isCurrent);
+                    other.setAttribute('aria-current', String(isCurrent));
                 });
             });
         });

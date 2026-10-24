@@ -29,7 +29,7 @@
         @fonts
         @vite(['resources/css/app.css', 'resources/js/app.js'])
     </head>
-    <body class="flex min-h-dvh flex-col" data-whatsapp-number="{{ preg_replace('/\D+/', '', (string) $settings->whatsapp_number) }}">
+    <body class="flex min-h-dvh flex-col overflow-x-clip" data-whatsapp-number="{{ preg_replace('/\D+/', '', (string) $settings->whatsapp_number) }}">
         <a href="#contenido" class="sr-only focus:not-sr-only focus:absolute focus:z-50 focus:bg-white focus:p-3">Ir al contenido</a>
 
         @if ($settings->announcement)
@@ -38,11 +38,11 @@
             </div>
         @endif
 
-        <header class="brand-nav border-b border-ink/10">
+        <header class="brand-nav relative z-20 border-b border-ink/10">
             @php($kitsCategory = $categories->first(fn ($category) => str_contains(mb_strtolower($category->name), 'kit')))
 
             <div class="store-container relative z-10 flex h-16 items-center justify-between lg:h-24 lg:justify-start lg:gap-4">
-                <button type="button" class="-ms-2 justify-self-start p-2 lg:hidden" data-menu-toggle aria-controls="menu-movil" aria-expanded="false">
+                <button type="button" class="-ms-2 justify-self-start p-2 lg:hidden" data-menu-toggle aria-controls="menu-movil" aria-expanded="false" aria-haspopup="true">
                     <x-store.icon name="menu" class="size-6" />
                     <span class="sr-only">Menú</span>
                 </button>
@@ -107,8 +107,8 @@
                 </div>
             </div>
 
-            <nav class="relative z-10 border-t border-ink/5 bg-cream lg:hidden" aria-label="Principal móvil">
-                <ul id="menu-movil" class="store-container hidden flex-col gap-1 py-3 text-[0.95rem]" data-menu>
+            <nav class="pointer-events-none absolute inset-x-0 top-full z-30 -translate-y-2 border-t border-ink/5 bg-cream/95 opacity-0 shadow-xl backdrop-blur-md transition-[opacity,transform] duration-200 ease-out data-[open=true]:pointer-events-auto data-[open=true]:translate-y-0 data-[open=true]:opacity-100 lg:hidden" aria-label="Principal móvil" aria-hidden="true" data-menu-panel data-open="false" inert>
+                <ul id="menu-movil" class="store-container flex max-h-[calc(100dvh-5rem)] flex-col gap-1 overflow-y-auto py-3 text-[0.95rem]" data-menu>
                     <li class="pb-2 md:hidden">
                         <form action="{{ route('products.index') }}" method="get" role="search" class="flex items-center gap-2 rounded-full border border-ink/15 px-4">
                             <x-store.icon name="search" class="size-5 text-ink/70" />
@@ -130,7 +130,7 @@
             </nav>
         </header>
 
-        <main id="contenido" class="flex-1">
+        <main id="contenido" class="min-w-0 flex-1 overflow-x-clip">
             {{ $slot }}
         </main>
 
