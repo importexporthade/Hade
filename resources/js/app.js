@@ -9,6 +9,9 @@ function initMobileMenu() {
     const menu = document.querySelector('[data-menu]');
     const panel = document.querySelector('[data-menu-panel]');
     const label = toggle?.querySelector('[data-menu-label]');
+    const searchTrigger = document.querySelector('[data-mobile-search-open]');
+    const searchInput = document.querySelector('#buscar-movil');
+    let returnFocus = toggle;
 
     if (!toggle || !menu || !panel) {
         return;
@@ -21,6 +24,7 @@ function initMobileMenu() {
         panel.setAttribute('aria-hidden', String(!open));
         panel.inert = !open;
         toggle.setAttribute('aria-expanded', String(open));
+        searchTrigger?.setAttribute('aria-expanded', String(open));
 
         if (label) {
             label.textContent = open ? 'Cerrar menú' : 'Abrir menú';
@@ -28,7 +32,14 @@ function initMobileMenu() {
     };
 
     toggle.addEventListener('click', () => {
+        returnFocus = toggle;
         setOpen(!isOpen());
+    });
+
+    searchTrigger?.addEventListener('click', () => {
+        returnFocus = searchTrigger;
+        setOpen(true);
+        searchInput?.focus({ preventScroll: true });
     });
 
     menu.addEventListener('click', (event) => {
@@ -38,7 +49,7 @@ function initMobileMenu() {
     });
 
     document.addEventListener('click', (event) => {
-        if (!isOpen() || toggle.contains(event.target) || panel.contains(event.target)) {
+        if (!isOpen() || toggle.contains(event.target) || searchTrigger?.contains(event.target) || panel.contains(event.target)) {
             return;
         }
 
@@ -51,7 +62,7 @@ function initMobileMenu() {
         }
 
         setOpen(false);
-        toggle.focus();
+        returnFocus.focus();
     });
 
     window.matchMedia('(min-width: 64rem)').addEventListener('change', (event) => {

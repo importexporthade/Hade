@@ -234,8 +234,7 @@
 
                     <section @class([
                         'pt-12' => $section->type !== HomeSectionType::Latest && ! $isManicureSection && ! $isPedicureSection,
-                        'scalloped-section z-10 bg-cream py-12' => $section->type === HomeSectionType::Latest,
-                        'scalloped-section z-10 bg-cream py-12' => $isPedicureSection,
+                        'scalloped-section z-10 bg-cream py-12' => $section->type === HomeSectionType::Latest || $isPedicureSection,
                         'bg-forest py-10 sm:py-12 lg:py-14' => $isManicureSection,
                     ]) aria-labelledby="seccion-{{ $section->id }}">
                         <div class="store-container">
@@ -274,7 +273,7 @@
                                 </x-store.carousel>
 
                                 <div class="mt-8 flex justify-center">
-                                    <a href="{{ $section->category ? route('categories.show', $section->category) : route('products.index') }}" aria-label="Ver más de {{ $sectionHeading }}" @class([
+                                    <a href="{{ $section->category ? route('categories.show', $section->category) : route('products.index', ['collection' => 'latest']) }}" aria-label="Ver más de {{ $sectionHeading }}" @class([
                                         'inline-flex min-h-11 items-center justify-center rounded-full px-6 text-sm font-semibold transition duration-300 focus-visible:outline-2 focus-visible:outline-offset-4',
                                         'bg-white text-forest hover:bg-rose-light focus-visible:outline-white' => $isManicureSection,
                                         'bg-burgundy text-white hover:bg-burgundy-dark focus-visible:outline-burgundy' => ! $isManicureSection,

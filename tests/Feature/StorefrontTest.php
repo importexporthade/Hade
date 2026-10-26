@@ -90,7 +90,7 @@ class StorefrontTest extends TestCase
             ->assertSee('data-carousel-interval="5000"', false)
             ->assertSee('lg:grid-cols-5', false)
             ->assertSee('aria-label="Ver más de Nuevos hallazgos"', false)
-            ->assertSee('href="'.route('products.index').'"', false);
+            ->assertSee('href="'.route('products.index', ['collection' => 'latest']).'"', false);
     }
 
     public function test_the_manicure_and_pedicure_sections_show_five_products_in_autoplay_mobile_carousels_and_desktop_grids(): void
@@ -310,6 +310,59 @@ class StorefrontTest extends TestCase
             ->assertOk()
             ->assertSee('Kit Glow Recargable')
             ->assertDontSee('Top Coat');
+    }
+
+    public function test_the_latest_products_page_orders_visible_products_from_newest_to_oldest(): void
+    {
+        Product::factory()->create([
+            'name' => 'Diseño anterior',
+            'created_at' => now()->subDays(2),
+        ]);
+        Product::factory()->create([
+            'name' => 'Diseño reciente',
+            'created_at' => now()->subDay(),
+        ]);
+        Product::factory()->hidden()->create([
+            'name' => 'Diseño oculto',
+            'created_at' => now(),
+        ]);
+
+        $this->get(route('products.index', ['collection' => 'latest']))
+            ->assertOk()
+            ->assertSee('Recién llegados')
+            ->assertSee('Novedades')
+            ->assertSeeInOrder(['Diseño reciente', 'Diseño anterior'])
+            ->assertDontSee('Diseño oculto');
+    }
+
+    public function test_the_navigation_links_to_the_latest_products_page(): void
+    {
+        $latestProductsUrl = route('products.index', ['collection' => 'latest']);
+
+        $this->get('/')
+            ->assertOk()
+            ->assertSee('href="'.$latestProductsUrl.'"', false)
+            ->assertSee('Novedades')
+            ->assertDontSee('Más vendidos');
+    }
+
+    public function test_paginated_product_results_render_the_store_pagination_and_keep_the_search(): void
+    {
+        foreach (range(1, 25) as $position) {
+            Product::factory()->create([
+                'name' => "Glow {$position}",
+                'slug' => "glow-{$position}",
+                'sort_order' => $position,
+            ]);
+        }
+
+        $this->get('/products?q=glow')
+            ->assertOk()
+            ->assertSee('aria-label="Paginación"', false)
+            ->assertSee('aria-current="page"', false)
+            ->assertSee('aria-label="Página anterior"', false)
+            ->assertSee('aria-label="Página siguiente"', false)
+            ->assertSee('q=glow&amp;page=2', false);
     }
 
     public function test_a_search_without_results_says_so(): void

@@ -19,7 +19,7 @@
                     </div>
                     <div aria-hidden="true" class="absolute inset-0 bg-linear-to-r from-blush via-blush/95 to-blush/55 sm:via-blush/95 sm:to-transparent"></div>
                 @else
-                    <div aria-hidden="true" class="absolute inset-y-0 right-0 grid w-[46%] place-items-center overflow-hidden">
+                    <div aria-hidden="true" class="absolute inset-y-0 right-0 hidden w-[46%] place-items-center overflow-hidden sm:grid">
                         <span class="absolute size-48 rounded-full border border-burgundy/10 sm:size-56"></span>
                         <span class="font-serif text-[9rem] leading-none text-burgundy/10 sm:text-[11rem]">{{ mb_substr($category->name, 0, 1) }}</span>
                     </div>

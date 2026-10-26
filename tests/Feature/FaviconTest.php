@@ -49,13 +49,20 @@ class FaviconTest extends TestCase
         Storage::disk('public')->assertExists($newIcon);
     }
 
-    public function test_the_store_and_the_manager_show_the_icon(): void
+    public function test_the_storefront_shows_the_wine_logo_as_its_tab_icon(): void
     {
         $this->withoutVite();
+
+        $this->get('/products')
+            ->assertOk()
+            ->assertSee(asset('images/logos/favicon-vino-32.png'), false);
+    }
+
+    public function test_the_manager_shows_the_uploaded_logo_as_its_tab_icon(): void
+    {
         $this->uploadLogo('logo.png', 300, 300);
         $icon = Favicon::url(32);
 
-        $this->get('/products')->assertOk()->assertSee('<link rel="icon" href="'.$icon.'"', false);
         $this->get('/manager/login')->assertOk()->assertSee($icon, false);
     }
 

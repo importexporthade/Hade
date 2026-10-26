@@ -16,9 +16,9 @@
             <meta name="description" content="{{ $description }}">
             <meta property="og:description" content="{{ $description }}">
         @endif
-        <link rel="icon" href="{{ \App\Support\Favicon::url(32) }}" sizes="32x32">
-        <link rel="icon" href="{{ \App\Support\Favicon::url(192) }}" sizes="192x192">
-        <link rel="apple-touch-icon" href="{{ \App\Support\Favicon::url(180) }}">
+        <link rel="icon" type="image/png" href="{{ asset('images/logos/favicon-vino-32.png') }}" sizes="32x32">
+        <link rel="icon" type="image/png" href="{{ asset('images/logos/favicon-vino-192.png') }}" sizes="192x192">
+        <link rel="apple-touch-icon" href="{{ asset('images/logos/favicon-vino-180.png') }}">
         <meta name="theme-color" content="#6A1E2E">
 
         <meta property="og:title" content="{{ $pageTitle() }}">
@@ -43,7 +43,8 @@
         <header class="brand-nav sticky top-0 z-30 border-b border-ink/10 shadow-[0_1px_0_rgba(23,23,23,0.02)] backdrop-blur-xl">
             @php
                 $kitsCategory = $categories->first(fn ($category) => str_contains(mb_strtolower($category->name), 'kit'));
-                $storeIsActive = request()->routeIs('products.*', 'categories.*');
+                $latestIsActive = request()->routeIs('products.index') && request('collection') === 'latest';
+                $storeIsActive = request()->routeIs('products.show', 'categories.*') || (request()->routeIs('products.index') && ! $latestIsActive);
                 $informationIsActive = request()->routeIs('pages.*');
             @endphp
 
@@ -101,7 +102,11 @@
                             </div>
                         </li>
                         <li>
-                            <a href="{{ route('products.index') }}" class="block rounded-full px-4 py-2.5 font-medium tracking-[0.01em] text-ink/70 transition-colors duration-200 hover:bg-rose-light hover:text-burgundy focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-burgundy">Más vendidos</a>
+                            <a href="{{ route('products.index', ['collection' => 'latest']) }}" @class([
+                                'block rounded-full px-4 py-2.5 font-medium tracking-[0.01em] text-ink/70 transition-colors duration-200 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-burgundy',
+                                'bg-rose-light text-burgundy shadow-sm hover:bg-rose' => $latestIsActive,
+                                'hover:bg-rose-light hover:text-burgundy' => ! $latestIsActive,
+                            ])>Novedades</a>
                         </li>
                         @if ($kitsCategory)
                             <li><a href="{{ route('categories.show', $kitsCategory) }}" @class([
@@ -151,15 +156,15 @@
                 </nav>
 
                 <div class="ms-auto flex shrink-0 items-center lg:ms-0 lg:gap-2">
-                    <form action="{{ route('products.index') }}" method="get" role="search" class="hidden h-11 items-center gap-2 rounded-full border border-ink/10 bg-white/80 px-4 shadow-sm transition focus-within:border-emerald/50 focus-within:ring-2 focus-within:ring-emerald/10 xl:flex">
+                    <form action="{{ route('products.index') }}" method="get" role="search" class="hidden h-11 items-center gap-2 rounded-full border border-ink/10 bg-white/80 px-4 shadow-sm transition focus-within:border-emerald/50 focus-within:ring-2 focus-within:ring-emerald/10 lg:flex">
                         <x-store.icon name="search" class="size-5 text-ink/70" />
                         <label for="buscar" class="sr-only">Buscar productos</label>
-                        <input id="buscar" type="search" name="q" value="{{ request('q') }}" placeholder="Buscar stickers..." class="w-40 bg-transparent text-sm placeholder:text-ink/45 focus:outline-none 2xl:w-48">
+                        <input id="buscar" type="search" name="q" value="{{ request('q') }}" placeholder="Buscar stickers..." class="w-32 bg-transparent text-sm placeholder:text-ink/45 focus:outline-none xl:w-40 2xl:w-48">
                     </form>
 
-                    <a href="{{ route('products.index') }}" class="grid size-10 place-items-center rounded-full transition hover:bg-white hover:text-emerald focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald xl:hidden" aria-label="Buscar productos">
+                    <button type="button" class="grid size-10 place-items-center rounded-full transition hover:bg-white hover:text-emerald focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald lg:hidden" aria-label="Buscar productos" aria-controls="menu-movil" aria-expanded="false" data-mobile-search-open>
                         <x-store.icon name="search" class="size-5" />
-                    </a>
+                    </button>
 
                     <button type="button" class="relative grid size-10 place-items-center rounded-full transition hover:bg-white hover:text-emerald focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald" data-cart-open aria-controls="carrito">
                         <x-store.icon name="cart" class="size-6" />
@@ -208,6 +213,15 @@
                                     </ul>
                                 </div>
                             </div>
+                        </li>
+
+                        <li>
+                            <a href="{{ route('products.index', ['collection' => 'latest']) }}" @class([
+                                'block rounded-xl px-3 py-3 font-medium transition hover:bg-white focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-emerald',
+                                'bg-white text-emerald shadow-sm' => $latestIsActive,
+                            ])>
+                                Novedades
+                            </a>
                         </li>
 
                         @if ($kitsCategory)
@@ -359,54 +373,79 @@
 
         {{-- Cart drawer, filled by resources/js/cart.js from the browser's saved cart --}}
         <div id="carrito" class="fixed inset-0 z-40" hidden data-cart role="dialog" aria-modal="true" aria-labelledby="carrito-titulo">
-            <div class="absolute inset-0 bg-ink/40" data-cart-close></div>
-            <div class="absolute inset-y-0 right-0 flex w-full max-w-md flex-col bg-white shadow-xl">
-                <div class="flex items-center justify-between border-b border-ink/10 px-5 py-4">
-                    <h2 id="carrito-titulo" class="font-serif text-lg">Carrito de compras</h2>
-                    <button type="button" class="p-1" data-cart-close>
-                        <x-store.icon name="x" class="size-6" />
-                        <span class="sr-only">Cerrar carrito</span>
-                    </button>
+            <div class="absolute inset-0 bg-ink/50 backdrop-blur-[2px]" data-cart-close></div>
+            <div class="absolute inset-y-0 right-0 flex w-full max-w-[30rem] flex-col border-l border-rose/30 bg-cream shadow-[-24px_0_60px_rgba(23,23,23,0.2)]">
+                <div class="relative overflow-hidden border-b border-rose/30 bg-blush px-5 py-5 sm:px-6 sm:py-6">
+                    <div class="relative flex items-start justify-between gap-5">
+                        <div>
+                            <p class="text-[0.55rem] font-semibold tracking-[0.24em] text-burgundy/70 uppercase">Tu selección</p>
+                            <div class="mt-1 flex items-center gap-2.5">
+                                <h2 id="carrito-titulo" class="font-serif text-2xl leading-tight font-medium text-burgundy">Carrito de compras</h2>
+                                <span class="grid min-h-6 min-w-6 place-items-center rounded-full bg-burgundy px-1.5 text-[0.65rem] font-bold text-cream" data-cart-count>0</span>
+                            </div>
+                            <p class="mt-1.5 text-xs leading-relaxed text-ink/60">Revisa tus diseños antes de enviar el pedido.</p>
+                        </div>
+
+                        <button type="button" class="grid size-10 shrink-0 place-items-center rounded-full bg-cream/80 text-burgundy transition hover:bg-cream focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-burgundy" data-cart-close>
+                            <x-store.icon name="x" class="size-5" />
+                            <span class="sr-only">Cerrar carrito</span>
+                        </button>
+                    </div>
                 </div>
 
-                <div class="flex-1 overflow-y-auto px-5 py-4">
-                    <div class="py-16 text-center" data-cart-empty>
-                        <x-store.icon name="cart" class="mx-auto size-12 text-ink/20" />
-                        <p class="mt-4 font-serif text-lg font-bold">Tu carrito está vacío</p>
-                        <p class="mt-1 text-sm text-ink/60">Agrega productos para hacer tu pedido por WhatsApp.</p>
+                <div class="flex-1 overflow-y-auto px-4 py-5 sm:px-6">
+                    <div class="grid min-h-full place-items-center py-8 text-center" data-cart-empty>
+                        <div class="w-full rounded-[2rem] border border-dashed border-rose/50 bg-blush/45 px-6 py-12">
+                            <span class="mx-auto grid size-16 place-items-center rounded-full bg-cream text-burgundy shadow-sm ring-1 ring-rose/30">
+                                <x-store.icon name="cart" class="size-7" />
+                            </span>
+                            <p class="mt-5 font-serif text-2xl font-medium text-burgundy">Tu carrito está vacío</p>
+                            <p class="mx-auto mt-2 max-w-xs text-sm leading-relaxed text-ink/60">Descubre un diseño, agrégalo aquí y prepara tu pedido por WhatsApp.</p>
+                            <a href="{{ route('products.index') }}" class="mt-6 inline-flex min-h-11 items-center justify-center rounded-full bg-burgundy px-6 text-sm font-semibold text-cream transition hover:bg-burgundy-dark focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-burgundy" data-cart-close>Explorar productos</a>
+                        </div>
                     </div>
-                    <ul class="divide-y divide-ink/10" data-cart-items></ul>
+                    <ul class="space-y-3" data-cart-items></ul>
                 </div>
 
-                <div class="space-y-3 border-t border-ink/10 px-5 py-4" data-cart-footer hidden>
-                    <div class="flex items-center justify-between">
-                        <span class="text-sm">Total</span>
-                        <span class="font-serif text-xl font-semibold" data-cart-total></span>
+                <div class="border-t border-rose/30 bg-blush/60 px-5 py-5 sm:px-6" data-cart-footer hidden>
+                    <div class="flex items-end justify-between gap-4">
+                        <div>
+                            <p class="text-[0.55rem] font-semibold tracking-[0.2em] text-burgundy/60 uppercase">Resumen del pedido</p>
+                            <span class="mt-1 block text-sm text-ink/60">Total</span>
+                        </div>
+                        <span class="font-serif text-3xl leading-none font-semibold text-burgundy" data-cart-total></span>
                     </div>
-                    {{-- A real link rather than window.open, so phones open the WhatsApp app instead of blocking a pop-up --}}
-                    <a href="#" target="_blank" rel="noopener" class="btn-whatsapp w-full" data-cart-checkout>
-                        <x-store.icon name="whatsapp" class="size-5" />
-                        Comprar por WhatsApp
-                    </a>
-                    <p class="text-center text-xs text-ink/60">Se abre WhatsApp con tu pedido escrito; solo envía el mensaje.</p>
-                    <button type="button" class="w-full text-center text-sm text-ink/60 underline" data-cart-close>Seguir comprando</button>
+
+                    <div class="mt-5 space-y-3">
+                        {{-- A real link rather than window.open, so phones open the WhatsApp app instead of blocking a pop-up --}}
+                        <a href="#" target="_blank" rel="noopener" class="btn-whatsapp min-h-12 w-full rounded-full shadow-[0_12px_28px_-16px_rgba(37,211,102,0.7)]" data-cart-checkout>
+                            <x-store.icon name="whatsapp" class="size-5" />
+                            Comprar por WhatsApp
+                        </a>
+                        <p class="text-center text-xs leading-relaxed text-ink/55">Tu pedido se abrirá listo en WhatsApp; solo tendrás que enviarlo.</p>
+                        <button type="button" class="w-full rounded-full py-2 text-center text-sm font-medium text-burgundy transition hover:bg-cream/70 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-burgundy" data-cart-close>Seguir comprando</button>
+                    </div>
                 </div>
             </div>
         </div>
 
         <template id="cart-item-template">
-            <li class="flex gap-3 py-4">
-                <img alt="" class="size-20 shrink-0 bg-tile object-cover" data-item-image>
+            <li class="flex gap-3 rounded-2xl border border-rose/30 bg-white p-3 shadow-[0_12px_30px_-24px_rgba(23,23,23,0.4)] sm:gap-4">
+                <img alt="" class="size-22 shrink-0 rounded-xl bg-tile object-cover sm:size-24" data-item-image>
                 <div class="flex min-w-0 flex-1 flex-col">
-                    <a class="truncate text-sm font-medium" data-item-name></a>
-                    <span class="mt-0.5 text-sm text-ink/60" data-item-price></span>
-                    <div class="mt-auto flex items-center justify-between">
-                        <div class="flex items-center border border-ink/15">
-                            <button type="button" class="p-1.5" data-item-decrease aria-label="Quitar uno"><x-store.icon name="minus" class="size-4" /></button>
-                            <span class="w-8 text-center text-sm" data-item-quantity></span>
-                            <button type="button" class="p-1.5" data-item-increase aria-label="Agregar uno"><x-store.icon name="plus" class="size-4" /></button>
+                    <div class="flex items-start justify-between gap-2">
+                        <a class="line-clamp-2 text-sm leading-snug font-semibold text-ink transition-colors hover:text-burgundy" data-item-name></a>
+                        <button type="button" class="grid size-8 shrink-0 place-items-center rounded-full text-ink/40 transition hover:bg-rose-light hover:text-sale focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sale" data-item-remove aria-label="Quitar del carrito"><x-store.icon name="trash" class="size-4" /></button>
+                    </div>
+                    <span class="mt-1 font-serif text-base font-semibold text-burgundy" data-item-price></span>
+
+                    <div class="mt-auto flex items-center justify-between gap-3 pt-3">
+                        <div class="flex items-center rounded-full border border-rose/40 bg-cream">
+                            <button type="button" class="grid size-8 place-items-center rounded-full text-burgundy transition hover:bg-rose-light focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-burgundy" data-item-decrease aria-label="Quitar uno"><x-store.icon name="minus" class="size-3.5" /></button>
+                            <span class="w-8 text-center text-sm font-semibold text-ink" data-item-quantity></span>
+                            <button type="button" class="grid size-8 place-items-center rounded-full text-burgundy transition hover:bg-rose-light focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-burgundy" data-item-increase aria-label="Agregar uno"><x-store.icon name="plus" class="size-3.5" /></button>
                         </div>
-                        <button type="button" class="p-1.5 text-ink/50 hover:text-sale" data-item-remove aria-label="Quitar del carrito"><x-store.icon name="trash" class="size-5" /></button>
+                        <span class="text-[0.65rem] font-medium tracking-[0.08em] text-ink/40 uppercase">Cantidad</span>
                     </div>
                 </div>
             </li>

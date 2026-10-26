@@ -17,17 +17,26 @@ class ProductController extends Controller
     public function index(Request $request): View
     {
         $search = trim((string) $request->query('q'));
+        $isLatest = $request->query('collection') === 'latest';
 
-        $products = Product::query()
+        $productsQuery = Product::query()
             ->visible()
-            ->when($search !== '', fn ($query) => $query->whereLike('name', "%{$search}%"))
-            ->orderBy('sort_order')
+            ->when($search !== '', fn ($query) => $query->whereLike('name', "%{$search}%"));
+
+        if ($isLatest) {
+            $productsQuery->latest()->latest('id');
+        } else {
+            $productsQuery->orderBy('sort_order');
+        }
+
+        $products = $productsQuery
             ->paginate(24)
             ->withQueryString();
 
         return view('store.products.index', [
             'products' => $products,
             'search' => $search,
+            'isLatest' => $isLatest,
         ]);
     }
 
