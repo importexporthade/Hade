@@ -116,12 +116,12 @@
         }
 
         &::before {
-            top: -0.875rem;
+            top: calc(-0.875rem + 1px);
             background-image: radial-gradient(ellipse 1.5rem 0.875rem at 50% 100%, var(--scallop-color) 99%, transparent 100%);
         }
 
         &::after {
-            bottom: -0.875rem;
+            bottom: calc(-0.875rem + 1px);
             background-image: radial-gradient(ellipse 1.5rem 0.875rem at 50% 0, var(--scallop-color) 99%, transparent 100%);
         }
     }
@@ -140,11 +140,6 @@
         background-repeat: no-repeat;
         background-position: center;
         background-size: cover;
-    }
-
-    .pedicure-section::after {
-        bottom: 0;
-        background-color: var(--color-forest);
     }
 
     /* Short dashes like the hero's: the current one fills from the left while its page shows */

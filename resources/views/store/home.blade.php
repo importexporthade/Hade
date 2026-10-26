@@ -74,7 +74,7 @@
                     <h2 id="universo-hade-title" class="mt-1 font-serif text-[clamp(1.85rem,1.35rem+2vw,2.75rem)] leading-tight font-medium tracking-[-0.03em] text-ink">Universo Hade</h2>
                 </div>
 
-                <ul class="snap-row mt-4 -mx-4 justify-center-safe gap-2 px-4 sm:mt-5 sm:-mx-6 sm:gap-3 sm:px-6 lg:mx-0 lg:px-0">
+                <ul class="snap-row mt-4 justify-center-safe gap-2 sm:mt-5 sm:gap-3">
                     @foreach ($categories as $category)
                         <li class="w-[34%] shrink-0 sm:w-[20%] lg:w-32">
                             <a
@@ -235,7 +235,7 @@
                     <section @class([
                         'pt-12' => $section->type !== HomeSectionType::Latest && ! $isManicureSection && ! $isPedicureSection,
                         'scalloped-section z-10 bg-cream py-12' => $section->type === HomeSectionType::Latest,
-                        'pedicure-section scalloped-section z-10 bg-cream py-12' => $isPedicureSection,
+                        'scalloped-section z-10 bg-cream py-12' => $isPedicureSection,
                         'bg-forest py-10 sm:py-12 lg:py-14' => $isManicureSection,
                     ]) aria-labelledby="seccion-{{ $section->id }}">
                         <div class="store-container">
@@ -267,13 +267,11 @@
                             </div>
 
                             @if ($usesFiveProductGrid)
-                                <ul class="mt-5 grid grid-cols-2 gap-x-4 gap-y-8 sm:grid-cols-3 lg:grid-cols-5">
+                                <x-store.carousel :label="'Productos de '.$sectionHeading" :autoplay="true" :interval="5000" :merge-last-page="true" :arrows="false" class="mt-5 lg:grid lg:grid-cols-5 lg:gap-x-4 lg:gap-y-8 lg:overflow-visible lg:pb-0">
                                     @foreach ($products as $product)
-                                        <li class="flex">
-                                            <x-store.product-card :product="$product" size="latest" class="w-full" />
-                                        </li>
+                                        <x-store.product-card :product="$product" size="latest" class="w-[76%] shrink-0 sm:w-[calc((100%-1rem)/2)] lg:w-auto" />
                                     @endforeach
-                                </ul>
+                                </x-store.carousel>
 
                                 <div class="mt-8 flex justify-center">
                                     <a href="{{ $section->category ? route('categories.show', $section->category) : route('products.index') }}" aria-label="Ver más de {{ $sectionHeading }}" @class([

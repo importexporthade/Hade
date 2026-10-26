@@ -178,18 +178,6 @@
                     </form>
 
                     <ul class="flex flex-col gap-1 text-[0.95rem]">
-                        <li>
-                            <a href="{{ route('home') }}" @class([
-                                'flex items-center justify-between rounded-xl px-3 py-3 font-medium transition hover:bg-white focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-emerald',
-                                'bg-white text-emerald shadow-sm' => request()->routeIs('home'),
-                            ])>
-                                Inicio
-                                @if (request()->routeIs('home'))
-                                    <span class="size-1.5 rounded-full bg-emerald" aria-hidden="true"></span>
-                                @endif
-                            </a>
-                        </li>
-
                         <li data-mobile-submenu data-open="{{ $storeIsActive ? 'true' : 'false' }}">
                             <button type="button" class="group flex w-full items-center justify-between rounded-xl px-3 py-3 text-left font-medium transition hover:bg-rose-light focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-burgundy" aria-controls="menu-movil-tienda" aria-expanded="{{ $storeIsActive ? 'true' : 'false' }}" data-submenu-trigger>
                                 <span @class(['text-burgundy' => $storeIsActive])>Tienda</span>

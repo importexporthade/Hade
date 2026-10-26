@@ -72,7 +72,7 @@ class StorefrontTest extends TestCase
             ->assertSee('Agregar al carrito');
     }
 
-    public function test_the_latest_section_shows_only_the_five_newest_products_in_a_grid_with_a_link_below(): void
+    public function test_the_latest_section_shows_five_products_in_an_autoplay_mobile_carousel_and_desktop_grid(): void
     {
         foreach (range(1, 6) as $position) {
             Product::factory()->create([
@@ -86,13 +86,14 @@ class StorefrontTest extends TestCase
             ->assertOk()
             ->assertSeeInOrder(['Novedad 6', 'Novedad 5', 'Novedad 4', 'Novedad 3', 'Novedad 2'])
             ->assertDontSee('Novedad 1')
-            ->assertSee('grid-cols-5', false)
-            ->assertDontSee('data-carousel', false)
+            ->assertSee('data-carousel-autoplay', false)
+            ->assertSee('data-carousel-interval="5000"', false)
+            ->assertSee('lg:grid-cols-5', false)
             ->assertSee('aria-label="Ver más de Nuevos hallazgos"', false)
             ->assertSee('href="'.route('products.index').'"', false);
     }
 
-    public function test_the_manicure_and_pedicure_sections_show_only_five_products_in_grids_with_links_below(): void
+    public function test_the_manicure_and_pedicure_sections_show_five_products_in_autoplay_mobile_carousels_and_desktop_grids(): void
     {
         $manicure = Category::factory()->create(['name' => 'Stickers Manicure']);
         $pedicure = Category::factory()->create(['name' => 'Stickers Pedicure']);
@@ -119,8 +120,9 @@ class StorefrontTest extends TestCase
             ->assertSeeInOrder(['Pedicure 1', 'Pedicure 2', 'Pedicure 3', 'Pedicure 4', 'Pedicure 5'])
             ->assertDontSee('Manicure 6')
             ->assertDontSee('Pedicure 6')
-            ->assertSee('grid-cols-5', false)
-            ->assertDontSee('data-carousel', false)
+            ->assertSee('data-carousel-autoplay', false)
+            ->assertSee('data-carousel-interval="5000"', false)
+            ->assertSee('lg:grid-cols-5', false)
             ->assertSee('aria-label="Ver más de El arte en tus manos"', false)
             ->assertSee('aria-label="Ver más de Pies que enamoran"', false)
             ->assertSee('href="'.route('categories.show', $manicure).'"', false)
