@@ -7,7 +7,7 @@
     @if ($banners->isNotEmpty())
         <x-store.hero-slider :banners="$banners" />
     @else
-        <section class="relative isolate overflow-hidden bg-[#f1ece3]" aria-labelledby="hero-title">
+        <section class="relative isolate overflow-hidden bg-ivory" aria-labelledby="hero-title">
             <div class="grid min-h-[clamp(28rem,68svh,36rem)] min-w-0 lg:mx-auto lg:min-h-[32rem] lg:max-w-7xl lg:grid-cols-[0.9fr_1.1fr] xl:max-w-[90rem]">
                 <div class="relative z-10 col-start-1 row-start-1 flex min-w-0 flex-col justify-end gap-4 px-5 pb-[clamp(2.5rem,8svh,5rem)] sm:px-7 lg:justify-center lg:gap-0 lg:px-10 lg:py-14 xl:px-14">
                     <p class="order-2 flex items-center gap-2 text-[0.625rem] font-semibold tracking-[0.24em] text-emerald uppercase sm:text-[0.68rem] lg:order-none lg:gap-2.5">
@@ -18,7 +18,7 @@
                         <span>Tuyas</span>
                     </p>
 
-                    <h1 id="hero-title" class="order-1 max-w-[12ch] text-balance font-serif text-[clamp(2.25rem,calc(1.16rem+5.45vw),2.625rem)] leading-[0.98] font-medium tracking-[-0.045em] text-ink lg:order-none lg:mt-4 lg:max-w-2xl lg:text-[clamp(2.6rem,4.7vw,4.75rem)] lg:leading-[0.95] lg:text-[#174f3d]">
+                    <h1 id="hero-title" class="order-1 max-w-[12ch] text-balance font-serif text-[clamp(2.25rem,calc(1.16rem+5.45vw),2.625rem)] leading-[0.98] font-medium tracking-[-0.045em] text-ink lg:order-none lg:mt-4 lg:max-w-2xl lg:text-[clamp(2.6rem,4.7vw,4.75rem)] lg:leading-[0.95] lg:text-burgundy">
                         Uñas con estilo para cada momento
                     </h1>
 
@@ -27,7 +27,7 @@
                     </p>
 
                     <div class="order-3 lg:order-none lg:mt-6">
-                        <a href="{{ route('products.index') }}" class="group inline-flex min-h-10 items-center justify-center gap-2 rounded-full bg-emerald px-5 text-xs font-semibold text-white shadow-[0_10px_24px_rgba(31,92,69,0.16)] transition hover:-translate-y-0.5 hover:bg-[#174f3d] focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-emerald lg:min-h-12 lg:gap-2.5 lg:px-6 lg:text-sm">
+                        <a href="{{ route('products.index') }}" class="group inline-flex min-h-10 items-center justify-center gap-2 rounded-full bg-burgundy px-5 text-xs font-semibold text-white shadow-[0_10px_24px_rgba(106,30,46,0.18)] transition hover:-translate-y-0.5 hover:bg-burgundy-dark focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-burgundy lg:min-h-12 lg:gap-2.5 lg:px-6 lg:text-sm">
                             Descubre tus stickers
                             <span aria-hidden="true" class="text-lg leading-none transition-transform group-hover:translate-x-1">→</span>
                         </a>
@@ -54,8 +54,8 @@
                         fetchpriority="high"
                         class="absolute inset-0 size-full object-cover object-[60%_center] sm:object-[58%_center] lg:object-center"
                     >
-                    <div aria-hidden="true" class="absolute inset-y-0 left-0 w-[84%] bg-linear-to-r from-[#f1ece3]/95 via-[#f1ece3]/72 to-transparent lg:hidden"></div>
-                    <div aria-hidden="true" class="absolute inset-y-0 left-0 hidden w-20 bg-linear-to-r from-[#f1ece3] to-transparent lg:block"></div>
+                    <div aria-hidden="true" class="absolute inset-y-0 left-0 w-[84%] bg-linear-to-r from-ivory/95 via-ivory/72 to-transparent lg:hidden"></div>
+                    <div aria-hidden="true" class="absolute inset-y-0 left-0 hidden w-20 bg-linear-to-r from-ivory to-transparent lg:block"></div>
 
                     <div class="absolute right-4 bottom-4 hidden size-24 place-items-center rounded-full border border-white/35 bg-emerald/95 p-3 text-center text-[0.55rem] leading-relaxed font-semibold tracking-[0.18em] text-white uppercase shadow-lg backdrop-blur-sm sm:right-6 sm:bottom-6 sm:size-28 lg:grid">
                         Tu estilo<br>en minutos
@@ -66,7 +66,7 @@
     @endif
 
     @if ($categories->isNotEmpty())
-        @php($archTones = ['#1f5c45', '#8b7360', '#7da582', '#a48a73', '#3f6f58'])
+        @php($archTones = ['#6A1E2E', '#D8A3A6', '#2F5D4E', '#C8B6A8', '#8A4855'])
         <section class="categories-section bg-cream py-6 sm:py-8 lg:py-10" aria-labelledby="universo-hade-title">
             <div class="store-container">
                 <div class="mx-auto max-w-xl text-center">
@@ -222,7 +222,7 @@
                                     </ol>
 
                                     <div class="mt-10 flex justify-center">
-                                        <a href="{{ route('products.index') }}" class="group inline-flex min-h-10 items-center justify-center gap-2 rounded-full bg-emerald px-5 text-xs font-semibold text-white transition duration-300 hover:bg-[#174f3d] focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-emerald sm:text-sm">
+                                        <a href="{{ route('products.index') }}" class="group inline-flex min-h-10 items-center justify-center gap-2 rounded-full bg-burgundy px-5 text-xs font-semibold text-white transition duration-300 hover:bg-burgundy-dark focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-burgundy sm:text-sm">
                                             Encuentra tu diseño
                                             <x-store.icon name="chevron-right" class="size-3.5 transition-transform duration-300 group-hover:translate-x-0.5 motion-reduce:transition-none motion-reduce:group-hover:translate-x-0" />
                                         </a>
@@ -236,7 +236,7 @@
                         'pt-12' => $section->type !== HomeSectionType::Latest && ! $isManicureSection && ! $isPedicureSection,
                         'scalloped-section z-10 bg-cream py-12' => $section->type === HomeSectionType::Latest,
                         'pedicure-section scalloped-section z-10 bg-cream py-12' => $isPedicureSection,
-                        'bg-emerald py-10 sm:py-12 lg:py-14' => $isManicureSection,
+                        'bg-forest py-10 sm:py-12 lg:py-14' => $isManicureSection,
                     ]) aria-labelledby="seccion-{{ $section->id }}">
                         <div class="store-container">
                             <div class="flex items-end justify-between gap-4">
@@ -244,7 +244,7 @@
                                     @if ($sectionLabel)
                                         <p @class([
                                             'text-[0.5rem] font-semibold tracking-[0.24em] uppercase',
-                                            'text-sage' => $isManicureSection,
+                                            'text-rose-light' => $isManicureSection,
                                             'text-emerald' => ! $isManicureSection,
                                         ])>{{ $sectionLabel }}</p>
                                     @endif
@@ -281,7 +281,12 @@
                                 ['key' => 'glow', 'label' => 'Glow', 'description' => 'Mano con uñas azules brillantes'],
                             ])
 
-<section class="mood-showcase-section scalloped-section relative z-10 overflow-hidden bg-blush pt-12 sm:pt-16 lg:pt-20" aria-labelledby="mood-showcase-title" data-mood-showcase>
+                            <section
+                                class="mood-showcase-section scalloped-section relative z-10 overflow-hidden bg-blush pt-12 sm:pt-16 lg:pt-20"
+                                style="--mood-pattern-image: url('{{ asset('images/moods/patron-pink.png') }}?v={{ filemtime(public_path('images/moods/patron-pink.png')) }}')"
+                                aria-labelledby="mood-showcase-title"
+                                data-mood-showcase
+                            >
                                 <div class="store-container grid items-center gap-8 lg:grid-cols-[0.78fr_1.22fr] lg:gap-10">
                                     <div class="relative z-20 lg:py-6">
                                         <p class="text-[0.55rem] font-semibold tracking-[0.3em] text-emerald uppercase">Tu estilo Hade</p>
@@ -301,7 +306,7 @@
 
                                         <p class="sr-only" aria-live="polite" data-mood-status>Estilo Natural seleccionado.</p>
 
-                                        <a href="{{ route('categories.show', $section->category) }}" class="group mt-8 inline-flex min-h-12 items-center justify-center gap-3 rounded-full bg-emerald px-6 text-sm font-semibold text-white transition duration-300 hover:bg-[#174f3d] focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-emerald">
+                                        <a href="{{ route('categories.show', $section->category) }}" class="group mt-8 inline-flex min-h-12 items-center justify-center gap-3 rounded-full bg-burgundy px-6 text-sm font-semibold text-white transition duration-300 hover:bg-burgundy-dark focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-burgundy">
                                             Explora tu estilo
                                             <x-store.icon name="chevron-right" class="size-4 transition-transform duration-300 group-hover:translate-x-0.5 motion-reduce:transition-none" />
                                         </a>
@@ -346,7 +351,7 @@
                                         <h2 id="catalogo-cta" class="text-balance font-serif text-[clamp(2.25rem,1.6rem+2.4vw,3.5rem)] leading-tight font-medium tracking-[-0.03em]">Pequeños detalles, grandes expresiones.</h2>
                                         <p class="text-balance text-sm leading-relaxed text-white/80 sm:text-base md:whitespace-nowrap">Descubre el universo Hade y encuentra diseños, kits y esenciales hechos para ti.</p>
                                         <div class="mt-3 flex flex-wrap justify-center gap-3">
-                                            <a href="{{ route('products.index') }}" class="group inline-flex min-h-12 items-center justify-center gap-2 rounded-full bg-white px-7 text-sm font-semibold text-taupe transition duration-300 hover:bg-beige focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-white">
+                                            <a href="{{ route('products.index') }}" class="group inline-flex min-h-12 items-center justify-center gap-2 rounded-full bg-white px-7 text-sm font-semibold text-[#8b7360] transition duration-300 hover:bg-[#f2e8da] focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-white">
                                                 Entrar a la tienda
                                                 <x-store.icon name="chevron-right" class="size-4 transition-transform duration-300 group-hover:translate-x-0.5" />
                                             </a>

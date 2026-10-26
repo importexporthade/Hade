@@ -67,7 +67,7 @@
             @if ($product->is_in_stock)
                 <form @class(['relative z-10 mt-auto w-full', 'pt-5' => $isLarge, 'pt-4' => $isLatest || $isRelated]) data-add-to-cart="{{ json_encode($cartItem) }}">
                     <button type="submit" @class([
-                        'flex w-full items-center justify-center gap-1.5 bg-emerald font-semibold text-white transition-colors duration-300 hover:bg-[#174f3d] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald',
+                        'flex w-full items-center justify-center gap-1.5 bg-burgundy font-semibold text-white transition-colors duration-300 hover:bg-burgundy-dark focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-burgundy',
                         'min-h-11 rounded-xl px-4 text-sm' => $isLarge,
                         'min-h-9 rounded-lg px-2 text-[0.7rem]' => $isLatest,
                         'min-h-11 rounded-xl px-3 text-xs' => $isRelated,

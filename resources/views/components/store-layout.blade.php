@@ -1,4 +1,6 @@
-@php($flushFooter = (bool) $attributes->get('flush-footer', false))
+@php
+    $flushFooter = (bool) $attributes->get('flush-footer', false);
+@endphp
 
 <!DOCTYPE html>
 <html lang="es">
@@ -17,7 +19,7 @@
         <link rel="icon" href="{{ \App\Support\Favicon::url(32) }}" sizes="32x32">
         <link rel="icon" href="{{ \App\Support\Favicon::url(192) }}" sizes="192x192">
         <link rel="apple-touch-icon" href="{{ \App\Support\Favicon::url(180) }}">
-        <meta name="theme-color" content="#1f5c45">
+        <meta name="theme-color" content="#6A1E2E">
 
         <meta property="og:title" content="{{ $pageTitle() }}">
         <meta property="og:site_name" content="{{ $settings->store_name }}">
@@ -33,18 +35,23 @@
         <a href="#contenido" class="sr-only focus:not-sr-only focus:absolute focus:z-50 focus:bg-white focus:p-3">Ir al contenido</a>
 
         @if ($settings->announcement)
-            <div class="bg-emerald px-4 py-2 text-center text-xs font-medium tracking-wide text-cream">
+            <div class="bg-rose px-4 py-2 text-center text-xs font-medium tracking-wide text-burgundy">
                 {{ $settings->announcement }}
             </div>
         @endif
 
-        <header class="brand-nav relative z-20 border-b border-ink/10">
-            @php($kitsCategory = $categories->first(fn ($category) => str_contains(mb_strtolower($category->name), 'kit')))
+        <header class="brand-nav sticky top-0 z-30 border-b border-ink/10 shadow-[0_1px_0_rgba(23,23,23,0.02)] backdrop-blur-xl">
+            @php
+                $kitsCategory = $categories->first(fn ($category) => str_contains(mb_strtolower($category->name), 'kit'));
+                $storeIsActive = request()->routeIs('products.*', 'categories.*');
+                $informationIsActive = request()->routeIs('pages.*');
+            @endphp
 
-            <div class="store-container relative z-10 flex h-16 items-center justify-between lg:h-24 lg:justify-start lg:gap-4">
-                <button type="button" class="-ms-2 justify-self-start p-2 lg:hidden" data-menu-toggle aria-controls="menu-movil" aria-expanded="false" aria-haspopup="true">
-                    <x-store.icon name="menu" class="size-6" />
-                    <span class="sr-only">Menú</span>
+            <div class="store-container relative z-10 flex h-16 items-center justify-between lg:h-24 lg:justify-start lg:gap-5">
+                <button type="button" class="group -ms-2 grid size-11 shrink-0 place-items-center rounded-full transition hover:bg-white/70 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald lg:hidden" data-menu-toggle aria-controls="menu-movil" aria-expanded="false" aria-haspopup="true">
+                    <x-store.icon name="menu" class="size-6 group-aria-expanded:hidden" />
+                    <x-store.icon name="x" class="hidden size-6 group-aria-expanded:block" />
+                    <span class="sr-only" data-menu-label>Abrir menú</span>
                 </button>
 
                 <a href="{{ route('home') }}" class="absolute left-1/2 flex shrink-0 -translate-x-1/2 items-center gap-2 lg:static lg:translate-x-0" aria-label="{{ $settings->store_name }}, ir al inicio">
@@ -57,76 +64,193 @@
                 </a>
 
                 <nav class="mx-auto hidden lg:block" aria-label="Principal">
-                    <ul class="flex items-center gap-7 text-sm xl:gap-10">
-                        <li class="group relative">
-                            <button type="button" class="flex items-center gap-1.5 py-9 transition hover:text-emerald" aria-haspopup="true">
-                                Tienda <x-store.icon name="chevron-down" class="size-3.5" />
+                    <ul class="flex items-center gap-1 rounded-full border border-ink/5 bg-white/45 p-1 text-sm shadow-sm">
+                        <li class="group relative" data-nav-dropdown>
+                            <button type="button" @class([
+                                'flex items-center gap-1.5 rounded-full px-4 py-2.5 font-medium transition focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald',
+                                'bg-sage-light text-emerald' => $storeIsActive,
+                                'hover:bg-white hover:text-emerald' => ! $storeIsActive,
+                            ]) aria-controls="menu-tienda" aria-expanded="false" aria-haspopup="true" data-nav-trigger>
+                                Tienda <x-store.icon name="chevron-down" class="size-3.5 transition-transform duration-200 group-data-[open=true]:rotate-180 motion-reduce:transition-none" />
                             </button>
-                            <ul class="absolute top-full left-1/2 z-30 hidden min-w-60 -translate-x-1/2 bg-white py-2 shadow-xl ring-1 ring-ink/5 group-focus-within:block group-hover:block">
-                                @foreach ($categories as $category)
-                                    <li><a href="{{ route('categories.show', $category) }}" class="block px-5 py-2.5 text-sm transition hover:bg-sage-light hover:text-emerald">{{ $category->name }}</a></li>
-                                @endforeach
-                                <li><a href="{{ route('products.index') }}" class="block border-t border-ink/5 px-5 py-2.5 text-sm font-semibold transition hover:bg-sage-light hover:text-emerald">Ver todos los productos</a></li>
-                            </ul>
+                            <div id="menu-tienda" class="pointer-events-none invisible absolute top-[calc(100%+0.75rem)] left-1/2 z-30 w-72 -translate-x-1/2 translate-y-2 opacity-0 transition-[opacity,transform,visibility] duration-200 ease-out before:absolute before:inset-x-0 before:-top-3 before:h-3 group-data-[open=true]:pointer-events-auto group-data-[open=true]:visible group-data-[open=true]:translate-y-0 group-data-[open=true]:opacity-100 group-focus-within:pointer-events-auto group-focus-within:visible group-focus-within:translate-y-0 group-focus-within:opacity-100 group-hover:pointer-events-auto group-hover:visible group-hover:translate-y-0 group-hover:opacity-100 motion-reduce:transition-none" data-nav-panel data-open="false">
+                                <div class="overflow-hidden rounded-2xl border border-ink/10 bg-white p-2 shadow-[0_18px_45px_rgba(23,23,23,0.14)]">
+                                    <p class="px-3 pt-2 pb-1 text-[0.68rem] font-bold tracking-[0.16em] text-ink/45 uppercase">Explora por categoría</p>
+                                    <ul>
+                                        @foreach ($categories as $category)
+                                            <li>
+                                                <a href="{{ route('categories.show', $category) }}" @class([
+                                                    'group/item flex items-center justify-between gap-3 rounded-xl px-3 py-2.5 text-sm transition focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-emerald',
+                                                    'bg-sage-light font-semibold text-emerald' => request()->routeIs('categories.show') && request()->route('category')?->is($category),
+                                                    'hover:bg-sage-light hover:text-emerald' => ! (request()->routeIs('categories.show') && request()->route('category')?->is($category)),
+                                                ])>
+                                                    <span>{{ $category->name }}</span>
+                                                    <x-store.icon name="chevron-right" class="size-3.5 text-ink/30 transition-transform group-hover/item:translate-x-0.5 motion-reduce:transition-none" />
+                                                </a>
+                                            </li>
+                                        @endforeach
+                                    </ul>
+                                    <a href="{{ route('products.index') }}" class="mt-2 flex items-center justify-between gap-3 rounded-xl bg-emerald px-3 py-2.5 text-sm font-semibold text-white transition hover:bg-emerald/90 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald">
+                                        Ver todos los productos
+                                        <x-store.icon name="chevron-right" class="size-4" />
+                                    </a>
+                                </div>
+                            </div>
                         </li>
-                        <li><a href="{{ route('products.index') }}" class="block py-9 transition hover:text-emerald">Más vendidos</a></li>
+                        <li><a href="{{ route('products.index') }}" class="block rounded-full px-4 py-2.5 font-medium transition hover:bg-white hover:text-emerald focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald">Más vendidos</a></li>
                         @if ($kitsCategory)
-                            <li><a href="{{ route('categories.show', $kitsCategory) }}" class="block py-9 transition hover:text-emerald">Kits</a></li>
+                            <li><a href="{{ route('categories.show', $kitsCategory) }}" @class([
+                                'block rounded-full px-4 py-2.5 font-medium transition focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald',
+                                'bg-sage-light text-emerald' => request()->routeIs('categories.show') && request()->route('category')?->is($kitsCategory),
+                                'hover:bg-white hover:text-emerald' => ! (request()->routeIs('categories.show') && request()->route('category')?->is($kitsCategory)),
+                            ])>Kits</a></li>
                         @endif
                         @if ($pages->isNotEmpty())
-                            <li class="group relative">
-                                <button type="button" class="flex items-center gap-1.5 py-9 transition hover:text-emerald" aria-haspopup="true">
-                                    Información <x-store.icon name="chevron-down" class="size-3.5" />
+                            <li class="group relative" data-nav-dropdown>
+                                <button type="button" @class([
+                                    'flex items-center gap-1.5 rounded-full px-4 py-2.5 font-medium transition focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald',
+                                    'bg-sage-light text-emerald' => $informationIsActive,
+                                    'hover:bg-white hover:text-emerald' => ! $informationIsActive,
+                                ]) aria-controls="menu-informacion" aria-expanded="false" aria-haspopup="true" data-nav-trigger>
+                                    Información <x-store.icon name="chevron-down" class="size-3.5 transition-transform duration-200 group-data-[open=true]:rotate-180 motion-reduce:transition-none" />
                                 </button>
-                                <ul class="absolute top-full left-1/2 z-30 hidden min-w-56 -translate-x-1/2 bg-white py-2 shadow-xl ring-1 ring-ink/5 group-focus-within:block group-hover:block">
-                                    @foreach ($pages as $page)
-                                        <li><a href="{{ route('pages.show', $page) }}" class="block px-5 py-2.5 text-sm transition hover:bg-sage-light hover:text-emerald">{{ $page->title }}</a></li>
-                                    @endforeach
-                                </ul>
+                                <div id="menu-informacion" class="pointer-events-none invisible absolute top-[calc(100%+0.75rem)] left-1/2 z-30 w-64 -translate-x-1/2 translate-y-2 opacity-0 transition-[opacity,transform,visibility] duration-200 ease-out before:absolute before:inset-x-0 before:-top-3 before:h-3 group-data-[open=true]:pointer-events-auto group-data-[open=true]:visible group-data-[open=true]:translate-y-0 group-data-[open=true]:opacity-100 group-focus-within:pointer-events-auto group-focus-within:visible group-focus-within:translate-y-0 group-focus-within:opacity-100 group-hover:pointer-events-auto group-hover:visible group-hover:translate-y-0 group-hover:opacity-100 motion-reduce:transition-none" data-nav-panel data-open="false">
+                                    <div class="overflow-hidden rounded-2xl border border-ink/10 bg-white p-2 shadow-[0_18px_45px_rgba(23,23,23,0.14)]">
+                                        <p class="px-3 pt-2 pb-1 text-[0.68rem] font-bold tracking-[0.16em] text-ink/45 uppercase">Conoce más</p>
+                                        <ul>
+                                            @foreach ($pages as $page)
+                                                <li>
+                                                    <a href="{{ route('pages.show', $page) }}" @class([
+                                                        'group/item flex items-center justify-between gap-3 rounded-xl px-3 py-2.5 text-sm transition focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-emerald',
+                                                        'bg-sage-light font-semibold text-emerald' => request()->routeIs('pages.show') && request()->route('page')?->is($page),
+                                                        'hover:bg-sage-light hover:text-emerald' => ! (request()->routeIs('pages.show') && request()->route('page')?->is($page)),
+                                                    ])>
+                                                        <span>{{ $page->title }}</span>
+                                                        <x-store.icon name="chevron-right" class="size-3.5 text-ink/30 transition-transform group-hover/item:translate-x-0.5 motion-reduce:transition-none" />
+                                                    </a>
+                                                </li>
+                                            @endforeach
+                                        </ul>
+                                    </div>
+                                </div>
                             </li>
                         @endif
                     </ul>
                 </nav>
 
-                <div class="ms-auto flex shrink-0 items-center lg:ms-0 lg:gap-3">
-                    <form action="{{ route('products.index') }}" method="get" role="search" class="hidden h-11 items-center gap-2 rounded-full border border-ink/15 bg-white px-4 transition focus-within:border-emerald/50 md:flex">
+                <div class="ms-auto flex shrink-0 items-center lg:ms-0 lg:gap-2">
+                    <form action="{{ route('products.index') }}" method="get" role="search" class="hidden h-11 items-center gap-2 rounded-full border border-ink/10 bg-white/80 px-4 shadow-sm transition focus-within:border-emerald/50 focus-within:ring-2 focus-within:ring-emerald/10 xl:flex">
                         <x-store.icon name="search" class="size-5 text-ink/70" />
                         <label for="buscar" class="sr-only">Buscar productos</label>
-                        <input id="buscar" type="search" name="q" value="{{ request('q') }}" placeholder="Buscar stickers..." class="w-36 bg-transparent text-sm placeholder:text-ink/45 focus:outline-none xl:w-48">
+                        <input id="buscar" type="search" name="q" value="{{ request('q') }}" placeholder="Buscar stickers..." class="w-40 bg-transparent text-sm placeholder:text-ink/45 focus:outline-none 2xl:w-48">
                     </form>
 
-                    <a href="{{ route('products.index') }}" class="p-2 transition hover:text-emerald md:hidden" aria-label="Buscar productos">
+                    <a href="{{ route('products.index') }}" class="grid size-10 place-items-center rounded-full transition hover:bg-white hover:text-emerald focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald xl:hidden" aria-label="Buscar productos">
                         <x-store.icon name="search" class="size-5" />
                     </a>
 
-                    <button type="button" class="relative p-2 transition hover:text-emerald" data-cart-open aria-controls="carrito">
+                    <button type="button" class="relative grid size-10 place-items-center rounded-full transition hover:bg-white hover:text-emerald focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald" data-cart-open aria-controls="carrito">
                         <x-store.icon name="cart" class="size-6" />
-                        <span class="absolute top-0 right-0 grid min-w-4 place-items-center rounded-full bg-emerald px-1 text-[0.65rem] font-bold text-white" data-cart-count>0</span>
+                        <span class="absolute -top-0.5 -right-0.5 grid min-h-4 min-w-4 place-items-center rounded-full bg-emerald px-1 text-[0.62rem] leading-none font-bold text-white ring-2 ring-cream" data-cart-count>0</span>
                         <span class="sr-only">Abrir carrito</span>
                     </button>
                 </div>
             </div>
 
-            <nav class="pointer-events-none absolute inset-x-0 top-full z-30 -translate-y-2 border-t border-ink/5 bg-cream/95 opacity-0 shadow-xl backdrop-blur-md transition-[opacity,transform] duration-200 ease-out data-[open=true]:pointer-events-auto data-[open=true]:translate-y-0 data-[open=true]:opacity-100 lg:hidden" aria-label="Principal móvil" aria-hidden="true" data-menu-panel data-open="false" inert>
-                <ul id="menu-movil" class="store-container flex max-h-[calc(100dvh-5rem)] flex-col gap-1 overflow-y-auto py-3 text-[0.95rem]" data-menu>
-                    <li class="pb-2 md:hidden">
-                        <form action="{{ route('products.index') }}" method="get" role="search" class="flex items-center gap-2 rounded-full border border-ink/15 px-4">
-                            <x-store.icon name="search" class="size-5 text-ink/70" />
-                            <label for="buscar-movil" class="sr-only">Buscar productos</label>
-                            <input id="buscar-movil" type="search" name="q" value="{{ request('q') }}" placeholder="Buscar stickers..." class="w-full bg-transparent py-2.5 text-sm placeholder:text-ink/45 focus:outline-none">
-                        </form>
-                    </li>
-                    <li><a href="{{ route('home') }}" class="block py-2.5">Inicio</a></li>
-                    <li><a href="{{ route('products.index') }}" class="block py-2.5">Tienda</a></li>
-                    @foreach ($categories as $category)
-                        <li><a href="{{ route('categories.show', $category) }}" class="block py-2.5 ps-4 text-ink/70">{{ $category->name }}</a></li>
-                    @endforeach
-                    @if ($pages->isNotEmpty())
-                        @foreach ($pages as $page)
-                            <li><a href="{{ route('pages.show', $page) }}" class="block py-2.5">{{ $page->title }}</a></li>
-                        @endforeach
-                    @endif
-                </ul>
+            <nav class="pointer-events-none invisible absolute inset-x-0 top-full z-30 -translate-y-2 border-t border-ink/5 bg-cream/98 opacity-0 shadow-[0_20px_45px_rgba(23,23,23,0.16)] backdrop-blur-xl transition-[opacity,transform,visibility] duration-200 ease-out data-[open=true]:pointer-events-auto data-[open=true]:visible data-[open=true]:translate-y-0 data-[open=true]:opacity-100 motion-reduce:transition-none lg:hidden" aria-label="Principal móvil" aria-hidden="true" data-menu-panel data-open="false" inert>
+                <div id="menu-movil" class="store-container max-h-[calc(100dvh-4rem)] overflow-y-auto py-4" data-menu>
+                    <form action="{{ route('products.index') }}" method="get" role="search" class="mb-4 flex items-center gap-2 rounded-2xl border border-ink/10 bg-white px-4 shadow-sm md:hidden">
+                        <x-store.icon name="search" class="size-5 text-ink/60" />
+                        <label for="buscar-movil" class="sr-only">Buscar productos</label>
+                        <input id="buscar-movil" type="search" name="q" value="{{ request('q') }}" placeholder="¿Qué estás buscando?" class="w-full bg-transparent py-3 text-sm placeholder:text-ink/40 focus:outline-none">
+                    </form>
+
+                    <ul class="flex flex-col gap-1 text-[0.95rem]">
+                        <li>
+                            <a href="{{ route('home') }}" @class([
+                                'flex items-center justify-between rounded-xl px-3 py-3 font-medium transition hover:bg-white focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-emerald',
+                                'bg-white text-emerald shadow-sm' => request()->routeIs('home'),
+                            ])>
+                                Inicio
+                                @if (request()->routeIs('home'))
+                                    <span class="size-1.5 rounded-full bg-emerald" aria-hidden="true"></span>
+                                @endif
+                            </a>
+                        </li>
+
+                        <li class="rounded-xl border border-transparent data-[open=true]:border-ink/5 data-[open=true]:bg-white/60" data-mobile-submenu data-open="{{ $storeIsActive ? 'true' : 'false' }}">
+                            <button type="button" class="group flex w-full items-center justify-between rounded-xl px-3 py-3 text-left font-medium transition hover:bg-white focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-emerald" aria-controls="menu-movil-tienda" aria-expanded="{{ $storeIsActive ? 'true' : 'false' }}" data-submenu-trigger>
+                                <span @class(['text-emerald' => $storeIsActive])>Tienda</span>
+                                <span class="grid size-7 place-items-center rounded-full bg-sage-light text-emerald">
+                                    <x-store.icon name="chevron-down" class="size-3.5 transition-transform duration-200 group-aria-expanded:rotate-180 motion-reduce:transition-none" />
+                                </span>
+                            </button>
+                            <div id="menu-movil-tienda" class="grid grid-rows-[0fr] transition-[grid-template-rows] duration-200 ease-out data-[open=true]:grid-rows-[1fr] motion-reduce:transition-none" aria-hidden="{{ $storeIsActive ? 'false' : 'true' }}" data-submenu-panel data-open="{{ $storeIsActive ? 'true' : 'false' }}" @if (! $storeIsActive) inert @endif>
+                                <div class="overflow-hidden">
+                                    <ul class="px-2 pb-2">
+                                        @foreach ($categories as $category)
+                                            <li>
+                                                <a href="{{ route('categories.show', $category) }}" @class([
+                                                    'flex items-center justify-between rounded-lg px-3 py-2.5 text-sm text-ink/70 transition hover:bg-sage-light hover:text-emerald',
+                                                    'bg-sage-light font-semibold text-emerald' => request()->routeIs('categories.show') && request()->route('category')?->is($category),
+                                                ])>
+                                                    {{ $category->name }}
+                                                    <x-store.icon name="chevron-right" class="size-3.5 text-ink/30" />
+                                                </a>
+                                            </li>
+                                        @endforeach
+                                        <li class="mt-1 border-t border-ink/5 pt-1">
+                                            <a href="{{ route('products.index') }}" class="flex items-center justify-between rounded-lg px-3 py-2.5 text-sm font-semibold text-emerald transition hover:bg-sage-light">
+                                                Ver todos los productos
+                                                <x-store.icon name="chevron-right" class="size-3.5" />
+                                            </a>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </li>
+
+                        @if ($kitsCategory)
+                            <li>
+                                <a href="{{ route('categories.show', $kitsCategory) }}" @class([
+                                    'flex items-center justify-between rounded-xl px-3 py-3 font-medium transition hover:bg-white focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-emerald',
+                                    'bg-white text-emerald shadow-sm' => request()->routeIs('categories.show') && request()->route('category')?->is($kitsCategory),
+                                ])>
+                                    Kits
+                                    <x-store.icon name="chevron-right" class="size-4 text-ink/30" />
+                                </a>
+                            </li>
+                        @endif
+
+                        @if ($pages->isNotEmpty())
+                            <li class="rounded-xl border border-transparent data-[open=true]:border-ink/5 data-[open=true]:bg-white/60" data-mobile-submenu data-open="{{ $informationIsActive ? 'true' : 'false' }}">
+                                <button type="button" class="group flex w-full items-center justify-between rounded-xl px-3 py-3 text-left font-medium transition hover:bg-white focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-emerald" aria-controls="menu-movil-informacion" aria-expanded="{{ $informationIsActive ? 'true' : 'false' }}" data-submenu-trigger>
+                                    <span @class(['text-emerald' => $informationIsActive])>Información</span>
+                                    <span class="grid size-7 place-items-center rounded-full bg-sage-light text-emerald">
+                                        <x-store.icon name="chevron-down" class="size-3.5 transition-transform duration-200 group-aria-expanded:rotate-180 motion-reduce:transition-none" />
+                                    </span>
+                                </button>
+                                <div id="menu-movil-informacion" class="grid grid-rows-[0fr] transition-[grid-template-rows] duration-200 ease-out data-[open=true]:grid-rows-[1fr] motion-reduce:transition-none" aria-hidden="{{ $informationIsActive ? 'false' : 'true' }}" data-submenu-panel data-open="{{ $informationIsActive ? 'true' : 'false' }}" @if (! $informationIsActive) inert @endif>
+                                    <div class="overflow-hidden">
+                                        <ul class="px-2 pb-2">
+                                            @foreach ($pages as $page)
+                                                <li>
+                                                    <a href="{{ route('pages.show', $page) }}" @class([
+                                                        'flex items-center justify-between rounded-lg px-3 py-2.5 text-sm text-ink/70 transition hover:bg-sage-light hover:text-emerald',
+                                                        'bg-sage-light font-semibold text-emerald' => request()->routeIs('pages.show') && request()->route('page')?->is($page),
+                                                    ])>
+                                                        {{ $page->title }}
+                                                        <x-store.icon name="chevron-right" class="size-3.5 text-ink/30" />
+                                                    </a>
+                                                </li>
+                                            @endforeach
+                                        </ul>
+                                    </div>
+                                </div>
+                            </li>
+                        @endif
+                    </ul>
+                </div>
             </nav>
         </header>
 
@@ -135,10 +259,10 @@
         </main>
 
         <footer @class([
-            'bg-taupe text-white',
+            'bg-forest text-white',
             'mt-16 border-t border-white/15' => ! $flushFooter,
         ])>
-            <div class="store-container grid gap-10 py-12 sm:grid-cols-2 lg:grid-cols-4">
+            <div class="store-container grid gap-10 py-12 sm:grid-cols-2 lg:grid-cols-5 lg:gap-8">
                 <div class="lg:col-span-1">
                     <p class="font-serif text-2xl">{{ $settings->store_name }}</p>
                     @if ($settings->footer_text)
@@ -155,7 +279,15 @@
                     </ul>
                 </div>
 
-                @php($footerPages = $pages->filter->isInFooter())
+                @php
+                    $legalLinks = [
+                        ['label' => 'Política de privacidad', 'slug' => 'politica-de-privacidad'],
+                        ['label' => 'Términos y condiciones', 'slug' => 'terminos-y-condiciones'],
+                        ['label' => 'Cambios y devoluciones', 'slug' => 'cambios-y-devoluciones'],
+                    ];
+                    $legalPageSlugs = collect($legalLinks)->pluck('slug');
+                    $footerPages = $pages->filter->isInFooter()->whereNotIn('slug', $legalPageSlugs);
+                @endphp
                 <div>
                     <h2 class="text-sm font-bold">Información</h2>
                     <ul class="mt-3 space-y-2 text-sm text-white/70">
@@ -163,11 +295,35 @@
                             <li><a href="{{ route('pages.show', $page) }}" class="hover:text-white">{{ $page->title }}</a></li>
                         @endforeach
                     </ul>
-                    {{-- Stores in Peru must show the complaints book where customers can see it --}}
-                    <a href="{{ route('complaints.create') }}" class="mt-4 inline-flex items-center gap-2 border border-white/25 px-3 py-2 text-sm font-medium hover:border-white/60">
-                        <x-store.icon name="book" class="size-5 text-white/80" />
-                        Libro de Reclamaciones
-                    </a>
+                </div>
+
+                <div>
+                    <h2 class="text-sm font-bold">Legal</h2>
+                    <ul class="mt-3 space-y-2 text-sm text-white/70">
+                        @foreach ($legalLinks as $legalLink)
+                            @php($legalPage = $pages->firstWhere('slug', $legalLink['slug']))
+                            <li>
+                                @if ($legalPage)
+                                    <a href="{{ route('pages.show', $legalPage) }}" class="hover:text-white">{{ $legalLink['label'] }}</a>
+                                @else
+                                    <span class="cursor-not-allowed text-white/45" title="Contenido próximamente" aria-disabled="true">{{ $legalLink['label'] }}</span>
+                                @endif
+                            </li>
+                        @endforeach
+                        {{-- Stores in Peru must show the complaints book where customers can see it --}}
+                        <li>
+                            <a href="{{ route('complaints.create') }}" class="flex items-start gap-2 hover:text-white">
+                                <x-store.icon name="book" class="mt-0.5 size-4 shrink-0" />
+                                Libro de Reclamaciones
+                            </a>
+                        </li>
+                        @if ($settings->legal_name)
+                            <li>{{ $settings->legal_name }}</li>
+                        @endif
+                        @if ($settings->ruc)
+                            <li>RUC {{ $settings->ruc }}</li>
+                        @endif
+                    </ul>
                 </div>
 
                 <div>

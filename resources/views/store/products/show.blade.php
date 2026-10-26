@@ -89,7 +89,7 @@
                             </div>
                         </div>
 
-                        <button type="submit" class="inline-flex min-h-12 w-full items-center justify-center rounded-full bg-emerald px-6 py-3.5 text-sm font-semibold text-white shadow-sm transition hover:bg-[#174f3d] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald">Agregar al carrito</button>
+                        <button type="submit" class="inline-flex min-h-12 w-full items-center justify-center rounded-full bg-burgundy px-6 py-3.5 text-sm font-semibold text-white shadow-sm transition hover:bg-burgundy-dark focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-burgundy">Agregar al carrito</button>
                         @if ($whatsappUrl)
                             <a href="{{ $whatsappUrl }}" target="_blank" rel="noopener" class="btn-whatsapp min-h-12 w-full rounded-full py-3.5">
                                 <x-store.icon name="whatsapp" class="size-5" />

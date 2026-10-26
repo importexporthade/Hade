@@ -3,26 +3,35 @@
 @source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
 @source '../../storage/framework/views/*.php';
 
-/*
- * The storefront keeps the look of the store on hade.tiendada.com: cream paper, Albert Sans
- * text with Playfair Display accents, light gray product tiles and square corners.
- */
+/* Hade's storefront brand system: burgundy leads, forest supports, and rose softens ivory surfaces. */
 @theme {
-    --font-sans: var(--font-albert-sans), ui-sans-serif, system-ui, sans-serif;
-    --font-serif: var(--font-playfair-display), Georgia, serif;
+    --font-sans: var(--font-montserrat), ui-sans-serif, system-ui, sans-serif;
+    --font-serif: var(--font-cormorant-garamond), Georgia, serif;
 
-    --color-cream: #f8f6f2;
-    --color-beige: #f2e8da;
-    --color-tile: #f4f4f6;
-    --color-ink: #171717;
-    --color-sage: #95b998;
-    --color-sage-dark: #7da582;
-    --color-sage-light: #eef3ee;
-    --color-emerald: #1f5c45;
-    --color-taupe: #8b7360;
-    --color-blush: #f1e3e1;
-    --color-sale: #b91c1c;
+    --color-burgundy: #6a1e2e;
+    --color-burgundy-dark: #501522;
+    --color-rose: #d8a3a6;
+    --color-rose-dark: #b9787f;
+    --color-rose-light: #f2dfe0;
+    --color-forest: #2f5d4e;
+    --color-forest-dark: #23483c;
+    --color-ivory: #f6efe7;
+    --color-taupe: #c8b6a8;
+    --color-taupe-light: #eadfd6;
+    --color-surface: #fbf7f2;
+    --color-ink: #2b2022;
+    --color-sale: #9d2942;
     --color-whatsapp: #25d366;
+
+    /* Compatibility aliases keep existing storefront components on the new brand palette. */
+    --color-cream: var(--color-ivory);
+    --color-beige: var(--color-taupe-light);
+    --color-tile: var(--color-surface);
+    --color-sage: var(--color-rose);
+    --color-sage-dark: var(--color-rose-dark);
+    --color-sage-light: var(--color-rose-light);
+    --color-emerald: var(--color-burgundy);
+    --color-blush: var(--color-rose-light);
 }
 
 @layer base {
@@ -42,11 +51,11 @@
     }
 
     .brand-nav {
-        background-color: var(--color-cream);
+        background-color: color-mix(in srgb, var(--color-ivory) 94%, transparent);
     }
 
     .btn-sage {
-        @apply inline-flex items-center justify-center gap-2 bg-sage px-6 py-3 text-sm font-semibold text-white transition hover:bg-sage-dark focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald disabled:cursor-not-allowed disabled:opacity-50;
+        @apply inline-flex items-center justify-center gap-2 bg-burgundy px-6 py-3 text-sm font-semibold text-white transition hover:bg-burgundy-dark focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-burgundy disabled:cursor-not-allowed disabled:opacity-50;
     }
 
     .btn-outline {
@@ -70,7 +79,7 @@
     }
 
     .section-heading {
-        @apply text-xl font-bold text-ink;
+        @apply font-serif text-2xl font-semibold text-burgundy;
     }
 
     /* Horizontal product rows that snap card by card, like the storefront carousels */
@@ -123,11 +132,19 @@
 
     .mood-showcase-section {
         --scallop-color: var(--color-blush);
+
+        background-color: var(--color-blush);
+        background-image:
+            linear-gradient(rgb(242 223 224 / 93%), rgb(242 223 224 / 93%)),
+            var(--mood-pattern-image);
+        background-repeat: no-repeat;
+        background-position: center;
+        background-size: cover;
     }
 
     .pedicure-section::after {
         bottom: 0;
-        background-color: var(--color-taupe);
+        background-color: var(--color-forest);
     }
 
     /* Short dashes like the hero's: the current one fills from the left while its page shows */
