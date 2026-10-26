@@ -93,18 +93,28 @@ function initDesktopDropdowns() {
         });
     };
 
+    const closeTimers = new Map();
+
+    const cancelClose = (dropdown) => {
+        clearTimeout(closeTimers.get(dropdown));
+        closeTimers.delete(dropdown);
+    };
+
     dropdowns.forEach((dropdown) => {
         const trigger = dropdown.querySelector('[data-nav-trigger]');
 
         trigger.addEventListener('click', () => {
-            const willOpen = dropdown.dataset.open !== 'true';
+            const isHovered = desktop.matches && dropdown.matches(':hover');
+            const willOpen = isHovered || dropdown.dataset.open !== 'true';
 
+            cancelClose(dropdown);
             closeOthers(dropdown);
             setOpen(dropdown, willOpen);
         });
 
         dropdown.addEventListener('mouseenter', () => {
             if (desktop.matches) {
+                cancelClose(dropdown);
                 closeOthers(dropdown);
                 setOpen(dropdown, true);
             }
@@ -112,7 +122,8 @@ function initDesktopDropdowns() {
 
         dropdown.addEventListener('mouseleave', () => {
             if (desktop.matches) {
-                setOpen(dropdown, false);
+                cancelClose(dropdown);
+                closeTimers.set(dropdown, setTimeout(() => setOpen(dropdown, false), 200));
             }
         });
 

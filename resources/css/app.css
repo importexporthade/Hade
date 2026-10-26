@@ -278,6 +278,31 @@
             @apply font-semibold text-ink;
         }
     }
+
+    /* Soft organic frame for the ritual steps that slowly morphs between petal-like shapes */
+    .ritual-shape {
+        border-radius: 58% 42% 52% 48% / 46% 54% 46% 54%;
+        animation: ritual-morph 14s ease-in-out infinite alternate;
+        animation-delay: var(--ritual-delay, 0s);
+
+        @media (prefers-reduced-motion: reduce) {
+            animation: none;
+        }
+    }
+}
+
+@keyframes ritual-morph {
+    33% {
+        border-radius: 44% 56% 40% 60% / 58% 42% 58% 42%;
+    }
+
+    66% {
+        border-radius: 52% 48% 62% 38% / 40% 60% 44% 56%;
+    }
+
+    100% {
+        border-radius: 40% 60% 48% 52% / 54% 46% 60% 40%;
+    }
 }
 
 @keyframes hero-progress {
