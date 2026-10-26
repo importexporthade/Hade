@@ -182,12 +182,12 @@
                 @break
 
             @default
-                @php($products = $section->products())
                 @php($isManicureSection = $section->type === HomeSectionType::Category && str_contains(mb_strtolower($section->category?->name ?? ''), 'manicur'))
                 @php($isPedicureSection = $section->type === HomeSectionType::Category && str_contains(mb_strtolower($section->category?->name ?? ''), 'pedicur'))
-                @php($usesEditorialHeadingStyle = $section->type === HomeSectionType::Latest || $isManicureSection || $isPedicureSection)
-                @php($usesFramedCardStyle = $usesEditorialHeadingStyle || $isPedicureSection)
-                @php($sectionLabel = $section->type === HomeSectionType::Latest ? 'Novedades' : ($isManicureSection ? 'Manicura' : ($isPedicureSection ? 'Pedicura' : null)))
+                @php($usesFiveProductGrid = $section->type === HomeSectionType::Latest || $isManicureSection || $isPedicureSection)
+                @php($products = $section->products($usesFiveProductGrid ? 5 : null))
+                @php($usesEditorialHeadingStyle = $usesFiveProductGrid)
+                @php($sectionLabel = $section->type === HomeSectionType::Latest ? 'Novedades' : ($isManicureSection ? 'Stickers manicure' : ($isPedicureSection ? 'Stickers pedicure' : null)))
                 @php($sectionHeading = $section->type === HomeSectionType::Latest ? 'Nuevos hallazgos' : ($isManicureSection ? 'El arte en tus manos' : ($isPedicureSection ? 'Pies que enamoran' : $section->title)))
                 @if ($products->isNotEmpty())
                     @if ($section->type === HomeSectionType::Latest)
@@ -257,17 +257,38 @@
                                         <p @class(['mt-1 text-sm', 'text-white/75' => $isManicureSection, 'text-ink/60' => ! $isManicureSection])>{{ $section->subtitle }}</p>
                                     @endif
                                 </div>
-                                <a href="{{ $section->category ? route('categories.show', $section->category) : route('products.index') }}" @class([
-                                    'shrink-0 text-sm',
-                                    'text-white/75 hover:text-white' => $isManicureSection,
-                                    'text-ink/70 hover:text-ink' => ! $isManicureSection,
-                                ])>Ver más</a>
+                                @unless ($usesFiveProductGrid)
+                                    <a href="{{ $section->category ? route('categories.show', $section->category) : route('products.index') }}" @class([
+                                        'shrink-0 text-sm',
+                                        'text-white/75 hover:text-white' => $isManicureSection,
+                                        'text-ink/70 hover:text-ink' => ! $isManicureSection,
+                                    ])>Ver más</a>
+                                @endunless
                             </div>
-                            <x-store.carousel :label="$sectionHeading" class="mt-5">
-                                @foreach ($products as $product)
-                                    <x-store.product-card :product="$product" :size="$usesFramedCardStyle ? 'latest' : 'base'" class="w-40 shrink-0 sm:w-48 lg:w-[calc(20%-0.8rem)]" />
-                                @endforeach
-                            </x-store.carousel>
+
+                            @if ($usesFiveProductGrid)
+                                <ul class="mt-5 grid grid-cols-2 gap-x-4 gap-y-8 sm:grid-cols-3 lg:grid-cols-5">
+                                    @foreach ($products as $product)
+                                        <li class="flex">
+                                            <x-store.product-card :product="$product" size="latest" class="w-full" />
+                                        </li>
+                                    @endforeach
+                                </ul>
+
+                                <div class="mt-8 flex justify-center">
+                                    <a href="{{ $section->category ? route('categories.show', $section->category) : route('products.index') }}" aria-label="Ver más de {{ $sectionHeading }}" @class([
+                                        'inline-flex min-h-11 items-center justify-center rounded-full px-6 text-sm font-semibold transition duration-300 focus-visible:outline-2 focus-visible:outline-offset-4',
+                                        'bg-white text-forest hover:bg-rose-light focus-visible:outline-white' => $isManicureSection,
+                                        'bg-burgundy text-white hover:bg-burgundy-dark focus-visible:outline-burgundy' => ! $isManicureSection,
+                                    ])>Ver más</a>
+                                </div>
+                            @else
+                                <x-store.carousel :label="$sectionHeading" class="mt-5">
+                                    @foreach ($products as $product)
+                                        <x-store.product-card :product="$product" class="w-40 shrink-0 sm:w-48 lg:w-[calc(20%-0.8rem)]" />
+                                    @endforeach
+                                </x-store.carousel>
+                            @endif
                         </div>
                     </section>
 

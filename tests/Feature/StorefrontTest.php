@@ -36,7 +36,7 @@ class StorefrontTest extends TestCase
 
         $this->get('/')
             ->assertOk()
-            ->assertSeeInOrder(['Kits y promociones', 'Kit Hade Recargada', 'Manicura', 'El arte en tus manos', 'Crepusculo'])
+            ->assertSeeInOrder(['Kits y promociones', 'Kit Hade Recargada', 'Stickers manicure', 'El arte en tus manos', 'Crepusculo'])
             ->assertDontSee('Sección apagada');
     }
 
@@ -70,6 +70,61 @@ class StorefrontTest extends TestCase
             ->assertSee('Ver novedades')
             ->assertSee('data-add-to-cart', false)
             ->assertSee('Agregar al carrito');
+    }
+
+    public function test_the_latest_section_shows_only_the_five_newest_products_in_a_grid_with_a_link_below(): void
+    {
+        foreach (range(1, 6) as $position) {
+            Product::factory()->create([
+                'name' => "Novedad {$position}",
+                'slug' => "novedad-{$position}",
+            ]);
+        }
+        HomeSection::factory()->ofType(HomeSectionType::Latest)->create(['products_limit' => 8]);
+
+        $this->get('/')
+            ->assertOk()
+            ->assertSeeInOrder(['Novedad 6', 'Novedad 5', 'Novedad 4', 'Novedad 3', 'Novedad 2'])
+            ->assertDontSee('Novedad 1')
+            ->assertSee('grid-cols-5', false)
+            ->assertDontSee('data-carousel', false)
+            ->assertSee('aria-label="Ver más de Nuevos hallazgos"', false)
+            ->assertSee('href="'.route('products.index').'"', false);
+    }
+
+    public function test_the_manicure_and_pedicure_sections_show_only_five_products_in_grids_with_links_below(): void
+    {
+        $manicure = Category::factory()->create(['name' => 'Stickers Manicure']);
+        $pedicure = Category::factory()->create(['name' => 'Stickers Pedicure']);
+
+        foreach (range(1, 6) as $position) {
+            Product::factory()->for($manicure)->create([
+                'name' => "Manicure {$position}",
+                'slug' => "manicure-{$position}",
+                'sort_order' => $position,
+            ]);
+            Product::factory()->for($pedicure)->create([
+                'name' => "Pedicure {$position}",
+                'slug' => "pedicure-{$position}",
+                'sort_order' => $position,
+            ]);
+        }
+
+        HomeSection::factory()->forCategory($manicure)->create(['products_limit' => 8]);
+        HomeSection::factory()->forCategory($pedicure)->create(['products_limit' => 8]);
+
+        $this->get('/')
+            ->assertOk()
+            ->assertSeeInOrder(['Manicure 1', 'Manicure 2', 'Manicure 3', 'Manicure 4', 'Manicure 5'])
+            ->assertSeeInOrder(['Pedicure 1', 'Pedicure 2', 'Pedicure 3', 'Pedicure 4', 'Pedicure 5'])
+            ->assertDontSee('Manicure 6')
+            ->assertDontSee('Pedicure 6')
+            ->assertSee('grid-cols-5', false)
+            ->assertDontSee('data-carousel', false)
+            ->assertSee('aria-label="Ver más de El arte en tus manos"', false)
+            ->assertSee('aria-label="Ver más de Pies que enamoran"', false)
+            ->assertSee('href="'.route('categories.show', $manicure).'"', false)
+            ->assertSee('href="'.route('categories.show', $pedicure).'"', false);
     }
 
     public function test_the_offers_section_offers_in_stock_products_to_add_to_the_cart(): void

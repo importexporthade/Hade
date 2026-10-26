@@ -55,78 +55,90 @@
                 </button>
 
                 <a href="{{ route('home') }}" class="absolute left-1/2 flex shrink-0 -translate-x-1/2 items-center gap-2 lg:static lg:translate-x-0" aria-label="{{ $settings->store_name }}, ir al inicio">
-                    @if ($logoUrl = $publicUrl($settings->logo))
-                        <img src="{{ $logoUrl }}" alt="" class="h-11 w-auto lg:h-[4.5rem]">
-                    @else
-                        <x-store.logo :name="$settings->store_name" class="h-11 w-auto lg:h-[4.5rem]" aria-hidden="true" />
-                    @endif
+                    <img src="{{ asset('images/logos/logo-vino-transparente.png') }}" alt="" class="h-11 w-auto lg:h-[4.5rem]">
                     <span class="font-serif text-2xl leading-none font-medium tracking-[-0.04em] text-emerald uppercase lg:hidden">{{ $settings->store_name }}</span>
                 </a>
 
                 <nav class="mx-auto hidden lg:block" aria-label="Principal">
-                    <ul class="flex items-center gap-1 rounded-full border border-ink/5 bg-white/45 p-1 text-sm shadow-sm">
-                        <li class="group relative" data-nav-dropdown>
+                    <ul class="flex items-center gap-1.5 text-sm xl:gap-2">
+                        <li class="group static" data-nav-dropdown>
                             <button type="button" @class([
-                                'flex items-center gap-1.5 rounded-full px-4 py-2.5 font-medium transition focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald',
-                                'bg-sage-light text-emerald' => $storeIsActive,
-                                'hover:bg-white hover:text-emerald' => ! $storeIsActive,
+                                'flex items-center gap-1.5 rounded-full px-4 py-2.5 font-medium tracking-[0.01em] text-ink/70 transition-colors duration-200 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-burgundy',
+                                'bg-rose-light text-burgundy shadow-sm hover:bg-rose' => $storeIsActive,
+                                'hover:bg-rose-light hover:text-burgundy' => ! $storeIsActive,
                             ]) aria-controls="menu-tienda" aria-expanded="false" aria-haspopup="true" data-nav-trigger>
-                                Tienda <x-store.icon name="chevron-down" class="size-3.5 transition-transform duration-200 group-data-[open=true]:rotate-180 motion-reduce:transition-none" />
+                                Tienda
+                                <x-store.icon name="chevron-down" @class([
+                                    'size-3.5 transition-transform duration-200 group-data-[open=true]:rotate-180 motion-reduce:transition-none',
+                                    'text-burgundy/80' => $storeIsActive,
+                                    'text-burgundy/70' => ! $storeIsActive,
+                                ]) />
                             </button>
-                            <div id="menu-tienda" class="pointer-events-none invisible absolute top-[calc(100%+0.75rem)] left-1/2 z-30 w-72 -translate-x-1/2 translate-y-2 opacity-0 transition-[opacity,transform,visibility] duration-200 ease-out before:absolute before:inset-x-0 before:-top-3 before:h-3 group-data-[open=true]:pointer-events-auto group-data-[open=true]:visible group-data-[open=true]:translate-y-0 group-data-[open=true]:opacity-100 group-focus-within:pointer-events-auto group-focus-within:visible group-focus-within:translate-y-0 group-focus-within:opacity-100 group-hover:pointer-events-auto group-hover:visible group-hover:translate-y-0 group-hover:opacity-100 motion-reduce:transition-none" data-nav-panel data-open="false">
-                                <div class="overflow-hidden rounded-2xl border border-ink/10 bg-white p-2 shadow-[0_18px_45px_rgba(23,23,23,0.14)]">
-                                    <p class="px-3 pt-2 pb-1 text-[0.68rem] font-bold tracking-[0.16em] text-ink/45 uppercase">Explora por categoría</p>
-                                    <ul>
+                            <div id="menu-tienda" class="pointer-events-none invisible absolute inset-x-0 top-full z-30 translate-y-2 pt-3 opacity-0 transition-[opacity,transform,visibility] duration-200 ease-out group-data-[open=true]:pointer-events-auto group-data-[open=true]:visible group-data-[open=true]:translate-y-0 group-data-[open=true]:opacity-100 group-focus-within:pointer-events-auto group-focus-within:visible group-focus-within:translate-y-0 group-focus-within:opacity-100 group-hover:pointer-events-auto group-hover:visible group-hover:translate-y-0 group-hover:opacity-100 motion-reduce:transition-none" data-nav-panel data-open="false">
+                                <div class="grid min-h-40 grid-cols-[0.85fr_2fr_auto] overflow-hidden rounded-3xl border border-rose/30 bg-cream shadow-[0_22px_55px_rgba(23,23,23,0.16)]">
+                                    <div class="flex flex-col justify-center border-r border-rose/40 bg-rose-light px-6 py-5">
+                                        <p class="text-[0.62rem] font-bold tracking-[0.2em] text-burgundy/70 uppercase">Tienda Hade</p>
+                                        <p class="mt-2 max-w-52 font-serif text-xl leading-tight font-medium text-burgundy">Encuentra tu próximo diseño.</p>
+                                    </div>
+
+                                    <ul class="grid grid-cols-2 content-center gap-1 px-5 py-4 xl:grid-cols-3">
                                         @foreach ($categories as $category)
                                             <li>
                                                 <a href="{{ route('categories.show', $category) }}" @class([
-                                                    'group/item flex items-center justify-between gap-3 rounded-xl px-3 py-2.5 text-sm transition focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-emerald',
-                                                    'bg-sage-light font-semibold text-emerald' => request()->routeIs('categories.show') && request()->route('category')?->is($category),
-                                                    'hover:bg-sage-light hover:text-emerald' => ! (request()->routeIs('categories.show') && request()->route('category')?->is($category)),
+                                                    'block rounded-xl px-4 py-3 text-sm text-ink/70 transition-colors duration-200 hover:bg-rose-light hover:text-burgundy focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-burgundy',
+                                                    'bg-rose font-semibold text-burgundy' => request()->routeIs('categories.show') && request()->route('category')?->is($category),
                                                 ])>
-                                                    <span>{{ $category->name }}</span>
-                                                    <x-store.icon name="chevron-right" class="size-3.5 text-ink/30 transition-transform group-hover/item:translate-x-0.5 motion-reduce:transition-none" />
+                                                    {{ $category->name }}
                                                 </a>
                                             </li>
                                         @endforeach
                                     </ul>
-                                    <a href="{{ route('products.index') }}" class="mt-2 flex items-center justify-between gap-3 rounded-xl bg-emerald px-3 py-2.5 text-sm font-semibold text-white transition hover:bg-emerald/90 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald">
-                                        Ver todos los productos
-                                        <x-store.icon name="chevron-right" class="size-4" />
-                                    </a>
+
+                                    <div class="flex items-center border-l border-rose/30 px-6 py-5">
+                                        <a href="{{ route('products.index') }}" class="inline-flex min-h-11 items-center justify-center rounded-full bg-forest px-5 text-sm font-semibold whitespace-nowrap text-cream transition-colors duration-200 hover:bg-forest-dark focus-visible:outline-2 focus-visible:outline-offset-3 focus-visible:outline-forest">Ver todo el catálogo</a>
+                                    </div>
                                 </div>
                             </div>
                         </li>
-                        <li><a href="{{ route('products.index') }}" class="block rounded-full px-4 py-2.5 font-medium transition hover:bg-white hover:text-emerald focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald">Más vendidos</a></li>
+                        <li>
+                            <a href="{{ route('products.index') }}" class="block rounded-full px-4 py-2.5 font-medium tracking-[0.01em] text-ink/70 transition-colors duration-200 hover:bg-rose-light hover:text-burgundy focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-burgundy">Más vendidos</a>
+                        </li>
                         @if ($kitsCategory)
                             <li><a href="{{ route('categories.show', $kitsCategory) }}" @class([
-                                'block rounded-full px-4 py-2.5 font-medium transition focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald',
-                                'bg-sage-light text-emerald' => request()->routeIs('categories.show') && request()->route('category')?->is($kitsCategory),
-                                'hover:bg-white hover:text-emerald' => ! (request()->routeIs('categories.show') && request()->route('category')?->is($kitsCategory)),
+                                'block rounded-full px-4 py-2.5 font-medium tracking-[0.01em] text-ink/70 transition-colors duration-200 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-burgundy',
+                                'bg-rose-light text-burgundy shadow-sm hover:bg-rose' => request()->routeIs('categories.show') && request()->route('category')?->is($kitsCategory),
+                                'hover:bg-rose-light hover:text-burgundy' => ! (request()->routeIs('categories.show') && request()->route('category')?->is($kitsCategory)),
                             ])>Kits</a></li>
                         @endif
                         @if ($pages->isNotEmpty())
-                            <li class="group relative" data-nav-dropdown>
+                            <li class="group static" data-nav-dropdown>
                                 <button type="button" @class([
-                                    'flex items-center gap-1.5 rounded-full px-4 py-2.5 font-medium transition focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald',
-                                    'bg-sage-light text-emerald' => $informationIsActive,
-                                    'hover:bg-white hover:text-emerald' => ! $informationIsActive,
+                                    'flex items-center gap-1.5 rounded-full px-4 py-2.5 font-medium tracking-[0.01em] text-ink/70 transition-colors duration-200 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-burgundy',
+                                    'bg-rose-light text-burgundy shadow-sm hover:bg-rose' => $informationIsActive,
+                                    'hover:bg-rose-light hover:text-burgundy' => ! $informationIsActive,
                                 ]) aria-controls="menu-informacion" aria-expanded="false" aria-haspopup="true" data-nav-trigger>
-                                    Información <x-store.icon name="chevron-down" class="size-3.5 transition-transform duration-200 group-data-[open=true]:rotate-180 motion-reduce:transition-none" />
+                                    Información
+                                    <x-store.icon name="chevron-down" @class([
+                                        'size-3.5 transition-transform duration-200 group-data-[open=true]:rotate-180 motion-reduce:transition-none',
+                                        'text-burgundy/80' => $informationIsActive,
+                                        'text-burgundy/70' => ! $informationIsActive,
+                                    ]) />
                                 </button>
-                                <div id="menu-informacion" class="pointer-events-none invisible absolute top-[calc(100%+0.75rem)] left-1/2 z-30 w-64 -translate-x-1/2 translate-y-2 opacity-0 transition-[opacity,transform,visibility] duration-200 ease-out before:absolute before:inset-x-0 before:-top-3 before:h-3 group-data-[open=true]:pointer-events-auto group-data-[open=true]:visible group-data-[open=true]:translate-y-0 group-data-[open=true]:opacity-100 group-focus-within:pointer-events-auto group-focus-within:visible group-focus-within:translate-y-0 group-focus-within:opacity-100 group-hover:pointer-events-auto group-hover:visible group-hover:translate-y-0 group-hover:opacity-100 motion-reduce:transition-none" data-nav-panel data-open="false">
-                                    <div class="overflow-hidden rounded-2xl border border-ink/10 bg-white p-2 shadow-[0_18px_45px_rgba(23,23,23,0.14)]">
-                                        <p class="px-3 pt-2 pb-1 text-[0.68rem] font-bold tracking-[0.16em] text-ink/45 uppercase">Conoce más</p>
-                                        <ul>
+                                <div id="menu-informacion" class="pointer-events-none invisible absolute inset-x-0 top-full z-30 translate-y-2 pt-3 opacity-0 transition-[opacity,transform,visibility] duration-200 ease-out group-data-[open=true]:pointer-events-auto group-data-[open=true]:visible group-data-[open=true]:translate-y-0 group-data-[open=true]:opacity-100 group-focus-within:pointer-events-auto group-focus-within:visible group-focus-within:translate-y-0 group-focus-within:opacity-100 group-hover:pointer-events-auto group-hover:visible group-hover:translate-y-0 group-hover:opacity-100 motion-reduce:transition-none" data-nav-panel data-open="false">
+                                    <div class="grid min-h-40 grid-cols-[0.85fr_2.4fr] overflow-hidden rounded-3xl border border-rose/30 bg-cream shadow-[0_22px_55px_rgba(23,23,23,0.16)]">
+                                        <div class="flex flex-col justify-center border-r border-rose/40 bg-rose-light px-6 py-5">
+                                            <p class="text-[0.62rem] font-bold tracking-[0.2em] text-burgundy/70 uppercase">Información</p>
+                                            <p class="mt-2 max-w-52 font-serif text-xl leading-tight font-medium text-burgundy">Todo lo que necesitas saber.</p>
+                                        </div>
+
+                                        <ul class="grid grid-cols-2 content-center gap-1 px-6 py-4 xl:grid-cols-3">
                                             @foreach ($pages as $page)
                                                 <li>
                                                     <a href="{{ route('pages.show', $page) }}" @class([
-                                                        'group/item flex items-center justify-between gap-3 rounded-xl px-3 py-2.5 text-sm transition focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-emerald',
-                                                        'bg-sage-light font-semibold text-emerald' => request()->routeIs('pages.show') && request()->route('page')?->is($page),
-                                                        'hover:bg-sage-light hover:text-emerald' => ! (request()->routeIs('pages.show') && request()->route('page')?->is($page)),
+                                                        'block rounded-xl px-4 py-3 text-sm text-ink/70 transition-colors duration-200 hover:bg-rose-light hover:text-burgundy focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-burgundy',
+                                                        'bg-rose font-semibold text-burgundy' => request()->routeIs('pages.show') && request()->route('page')?->is($page),
                                                     ])>
-                                                        <span>{{ $page->title }}</span>
-                                                        <x-store.icon name="chevron-right" class="size-3.5 text-ink/30 transition-transform group-hover/item:translate-x-0.5 motion-reduce:transition-none" />
+                                                        {{ $page->title }}
                                                     </a>
                                                 </li>
                                             @endforeach
@@ -178,32 +190,32 @@
                             </a>
                         </li>
 
-                        <li class="rounded-xl border border-transparent data-[open=true]:border-ink/5 data-[open=true]:bg-white/60" data-mobile-submenu data-open="{{ $storeIsActive ? 'true' : 'false' }}">
-                            <button type="button" class="group flex w-full items-center justify-between rounded-xl px-3 py-3 text-left font-medium transition hover:bg-white focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-emerald" aria-controls="menu-movil-tienda" aria-expanded="{{ $storeIsActive ? 'true' : 'false' }}" data-submenu-trigger>
-                                <span @class(['text-emerald' => $storeIsActive])>Tienda</span>
-                                <span class="grid size-7 place-items-center rounded-full bg-sage-light text-emerald">
+                        <li data-mobile-submenu data-open="{{ $storeIsActive ? 'true' : 'false' }}">
+                            <button type="button" class="group flex w-full items-center justify-between rounded-xl px-3 py-3 text-left font-medium transition hover:bg-rose-light focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-burgundy" aria-controls="menu-movil-tienda" aria-expanded="{{ $storeIsActive ? 'true' : 'false' }}" data-submenu-trigger>
+                                <span @class(['text-burgundy' => $storeIsActive])>Tienda</span>
+                                <span class="grid size-7 place-items-center rounded-full bg-rose-light text-burgundy">
                                     <x-store.icon name="chevron-down" class="size-3.5 transition-transform duration-200 group-aria-expanded:rotate-180 motion-reduce:transition-none" />
                                 </span>
                             </button>
                             <div id="menu-movil-tienda" class="grid grid-rows-[0fr] transition-[grid-template-rows] duration-200 ease-out data-[open=true]:grid-rows-[1fr] motion-reduce:transition-none" aria-hidden="{{ $storeIsActive ? 'false' : 'true' }}" data-submenu-panel data-open="{{ $storeIsActive ? 'true' : 'false' }}" @if (! $storeIsActive) inert @endif>
                                 <div class="overflow-hidden">
-                                    <ul class="px-2 pb-2">
+                                    <ul class="mx-3 mb-2 border-l border-rose/40 pl-3">
                                         @foreach ($categories as $category)
                                             <li>
                                                 <a href="{{ route('categories.show', $category) }}" @class([
-                                                    'flex items-center justify-between rounded-lg px-3 py-2.5 text-sm text-ink/70 transition hover:bg-sage-light hover:text-emerald',
-                                                    'bg-sage-light font-semibold text-emerald' => request()->routeIs('categories.show') && request()->route('category')?->is($category),
+                                                    'flex items-center gap-2.5 rounded-lg px-3 py-2.5 text-sm text-ink/65 transition-colors hover:bg-rose-light hover:text-burgundy',
+                                                    'font-semibold text-burgundy' => request()->routeIs('categories.show') && request()->route('category')?->is($category),
                                                 ])>
-                                                    {{ $category->name }}
-                                                    <x-store.icon name="chevron-right" class="size-3.5 text-ink/30" />
+                                                    <span @class([
+                                                        'size-1.5 shrink-0 rounded-full bg-rose-dark',
+                                                        'invisible' => ! (request()->routeIs('categories.show') && request()->route('category')?->is($category)),
+                                                    ]) aria-hidden="true"></span>
+                                                    <span>{{ $category->name }}</span>
                                                 </a>
                                             </li>
                                         @endforeach
-                                        <li class="mt-1 border-t border-ink/5 pt-1">
-                                            <a href="{{ route('products.index') }}" class="flex items-center justify-between rounded-lg px-3 py-2.5 text-sm font-semibold text-emerald transition hover:bg-sage-light">
-                                                Ver todos los productos
-                                                <x-store.icon name="chevron-right" class="size-3.5" />
-                                            </a>
+                                        <li class="border-t border-ink/8 pt-1">
+                                            <a href="{{ route('products.index') }}" class="block rounded-lg px-3 py-2.5 text-sm font-semibold text-burgundy transition-colors hover:bg-rose-light">Ver todos los productos</a>
                                         </li>
                                     </ul>
                                 </div>
@@ -213,34 +225,36 @@
                         @if ($kitsCategory)
                             <li>
                                 <a href="{{ route('categories.show', $kitsCategory) }}" @class([
-                                    'flex items-center justify-between rounded-xl px-3 py-3 font-medium transition hover:bg-white focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-emerald',
+                                    'block rounded-xl px-3 py-3 font-medium transition hover:bg-white focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-emerald',
                                     'bg-white text-emerald shadow-sm' => request()->routeIs('categories.show') && request()->route('category')?->is($kitsCategory),
                                 ])>
                                     Kits
-                                    <x-store.icon name="chevron-right" class="size-4 text-ink/30" />
                                 </a>
                             </li>
                         @endif
 
                         @if ($pages->isNotEmpty())
-                            <li class="rounded-xl border border-transparent data-[open=true]:border-ink/5 data-[open=true]:bg-white/60" data-mobile-submenu data-open="{{ $informationIsActive ? 'true' : 'false' }}">
-                                <button type="button" class="group flex w-full items-center justify-between rounded-xl px-3 py-3 text-left font-medium transition hover:bg-white focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-emerald" aria-controls="menu-movil-informacion" aria-expanded="{{ $informationIsActive ? 'true' : 'false' }}" data-submenu-trigger>
-                                    <span @class(['text-emerald' => $informationIsActive])>Información</span>
-                                    <span class="grid size-7 place-items-center rounded-full bg-sage-light text-emerald">
+                            <li data-mobile-submenu data-open="{{ $informationIsActive ? 'true' : 'false' }}">
+                                <button type="button" class="group flex w-full items-center justify-between rounded-xl px-3 py-3 text-left font-medium transition hover:bg-rose-light focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-burgundy" aria-controls="menu-movil-informacion" aria-expanded="{{ $informationIsActive ? 'true' : 'false' }}" data-submenu-trigger>
+                                    <span @class(['text-burgundy' => $informationIsActive])>Información</span>
+                                    <span class="grid size-7 place-items-center rounded-full bg-rose-light text-burgundy">
                                         <x-store.icon name="chevron-down" class="size-3.5 transition-transform duration-200 group-aria-expanded:rotate-180 motion-reduce:transition-none" />
                                     </span>
                                 </button>
                                 <div id="menu-movil-informacion" class="grid grid-rows-[0fr] transition-[grid-template-rows] duration-200 ease-out data-[open=true]:grid-rows-[1fr] motion-reduce:transition-none" aria-hidden="{{ $informationIsActive ? 'false' : 'true' }}" data-submenu-panel data-open="{{ $informationIsActive ? 'true' : 'false' }}" @if (! $informationIsActive) inert @endif>
                                     <div class="overflow-hidden">
-                                        <ul class="px-2 pb-2">
+                                        <ul class="mx-3 mb-2 border-l border-rose/40 pl-3">
                                             @foreach ($pages as $page)
                                                 <li>
                                                     <a href="{{ route('pages.show', $page) }}" @class([
-                                                        'flex items-center justify-between rounded-lg px-3 py-2.5 text-sm text-ink/70 transition hover:bg-sage-light hover:text-emerald',
-                                                        'bg-sage-light font-semibold text-emerald' => request()->routeIs('pages.show') && request()->route('page')?->is($page),
+                                                        'flex items-center gap-2.5 rounded-lg px-3 py-2.5 text-sm text-ink/65 transition-colors hover:bg-rose-light hover:text-burgundy',
+                                                        'font-semibold text-burgundy' => request()->routeIs('pages.show') && request()->route('page')?->is($page),
                                                     ])>
-                                                        {{ $page->title }}
-                                                        <x-store.icon name="chevron-right" class="size-3.5 text-ink/30" />
+                                                        <span @class([
+                                                            'size-1.5 shrink-0 rounded-full bg-rose-dark',
+                                                            'invisible' => ! (request()->routeIs('pages.show') && request()->route('page')?->is($page)),
+                                                        ]) aria-hidden="true"></span>
+                                                        <span>{{ $page->title }}</span>
                                                     </a>
                                                 </li>
                                             @endforeach
