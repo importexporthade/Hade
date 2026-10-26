@@ -74,12 +74,12 @@
                     <h2 id="universo-hade-title" class="mt-1 font-serif text-[clamp(1.85rem,1.35rem+2vw,2.75rem)] leading-tight font-medium tracking-[-0.03em] text-ink">Universo Hade</h2>
                 </div>
 
-                <ul class="snap-row mt-4 justify-center-safe gap-2 sm:mt-5 sm:gap-3">
+                <ul class="snap-row mt-4 -mb-8 justify-center-safe gap-2 pt-2 pb-10 sm:mt-3 sm:gap-3">
                     @foreach ($categories as $category)
                         <li class="w-[34%] shrink-0 sm:w-[20%] lg:w-32">
                             <a
                                 href="{{ route('categories.show', $category) }}"
-                                class="group relative isolate flex aspect-[5/7] flex-col items-center justify-end overflow-hidden rounded-full px-2 pb-[18%] text-center text-white shadow-[0_12px_28px_-17px_rgba(23,23,23,0.45)] focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-emerald"
+                                class="group relative isolate flex aspect-[5/7] flex-col items-center justify-end overflow-hidden rounded-full px-2 pb-[18%] text-center text-white shadow-[0_14px_32px_-18px_rgba(74,30,40,0.35)] focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-emerald"
                                 style="background-color: {{ $archTones[$loop->index % count($archTones)] }}"
                             >
                                 @if ($category->image)
@@ -192,7 +192,10 @@
                 @if ($products->isNotEmpty())
                     @if ($section->type === HomeSectionType::Latest)
                         @once
-                            <section class="bg-blush py-10 sm:py-12 lg:py-14" aria-labelledby="como-funciona-title">
+                            <section class="relative isolate overflow-hidden bg-blush py-10 sm:py-12 lg:py-14" aria-labelledby="como-funciona-title">
+                                <img src="{{ asset('images/moods/flower-corner.webp') }}" alt="" aria-hidden="true" width="720" height="900" class="pointer-events-none absolute -top-10 -left-10 -z-10 h-56 w-auto rotate-180 opacity-50 select-none sm:h-80 lg:-top-16 lg:h-96 lg:opacity-70">
+                                <img src="{{ asset('images/moods/flower-corner.webp') }}" alt="" aria-hidden="true" width="720" height="900" class="pointer-events-none absolute -right-10 -bottom-10 -z-10 h-64 w-auto opacity-50 select-none sm:h-96 lg:-bottom-16 lg:h-[30rem] lg:opacity-70">
+
                                 <div class="store-container">
                                     <div class="mx-auto max-w-xl text-center">
                                         <p class="text-[0.5rem] font-semibold tracking-[0.24em] text-emerald uppercase">Tu ritual Hade</p>

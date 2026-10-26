@@ -43,6 +43,21 @@
     [hidden] {
         display: none !important;
     }
+
+    /* Keep the browser's blue autofill fill and cancel cross out of the storefront search boxes */
+    input[type='search'] {
+        &:-webkit-autofill,
+        &:-webkit-autofill:hover,
+        &:-webkit-autofill:focus {
+            -webkit-text-fill-color: var(--color-ink);
+            box-shadow: 0 0 0 100px white inset;
+            transition: background-color 9999s ease-out;
+        }
+
+        &::-webkit-search-cancel-button {
+            appearance: none;
+        }
+    }
 }
 
 @layer components {

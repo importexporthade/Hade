@@ -40,6 +40,7 @@ function initMobileMenu() {
         returnFocus = searchTrigger;
         setOpen(true);
         searchInput?.focus({ preventScroll: true });
+        searchInput?.select();
     });
 
     menu.addEventListener('click', (event) => {

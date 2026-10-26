@@ -19,10 +19,7 @@
                     </div>
                     <div aria-hidden="true" class="absolute inset-0 bg-linear-to-r from-blush via-blush/95 to-blush/55 sm:via-blush/95 sm:to-transparent"></div>
                 @else
-                    <div aria-hidden="true" class="absolute inset-y-0 right-0 hidden w-[46%] place-items-center overflow-hidden sm:grid">
-                        <span class="absolute size-48 rounded-full border border-burgundy/10 sm:size-56"></span>
-                        <span class="font-serif text-[9rem] leading-none text-burgundy/10 sm:text-[11rem]">{{ mb_substr($category->name, 0, 1) }}</span>
-                    </div>
+                    <img src="{{ asset('images/moods/flower-corner.webp') }}" alt="" aria-hidden="true" width="720" height="900" class="pointer-events-none absolute -right-8 -bottom-10 h-[85%] w-auto opacity-60 select-none sm:-right-4 sm:-bottom-16 sm:h-[135%] sm:opacity-100">
                 @endif
 
                 <div class="relative z-10 flex min-h-56 max-w-2xl flex-col justify-center px-5 py-8 sm:min-h-64 sm:px-9 sm:py-10 lg:px-12">

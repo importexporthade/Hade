@@ -179,7 +179,7 @@
                     <form action="{{ route('products.index') }}" method="get" role="search" class="hidden h-11 items-center gap-2 rounded-full border border-ink/10 bg-white/80 px-4 shadow-sm transition focus-within:border-emerald/50 focus-within:ring-2 focus-within:ring-emerald/10 lg:flex">
                         <x-store.icon name="search" class="size-5 text-ink/70" />
                         <label for="buscar" class="sr-only">Buscar productos</label>
-                        <input id="buscar" type="search" name="q" value="{{ request('q') }}" placeholder="Buscar stickers..." class="w-32 bg-transparent text-sm placeholder:text-ink/45 focus:outline-none xl:w-40 2xl:w-48">
+                        <input id="buscar" type="search" name="q" autocomplete="off" value="{{ request('q') }}" placeholder="Buscar stickers..." class="w-32 bg-transparent text-sm placeholder:text-ink/45 focus:outline-none xl:w-40 2xl:w-48">
                     </form>
 
                     <button type="button" class="grid size-10 place-items-center rounded-full transition hover:bg-white hover:text-emerald focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald lg:hidden" aria-label="Buscar productos" aria-controls="menu-movil" aria-expanded="false" data-mobile-search-open>
@@ -194,12 +194,12 @@
                 </div>
             </div>
 
-            <nav class="pointer-events-none invisible absolute inset-x-0 top-full z-30 -translate-y-2 border-t border-ink/5 bg-cream/98 opacity-0 shadow-[0_20px_45px_rgba(23,23,23,0.16)] backdrop-blur-xl transition-[opacity,transform,visibility] duration-200 ease-out data-[open=true]:pointer-events-auto data-[open=true]:visible data-[open=true]:translate-y-0 data-[open=true]:opacity-100 motion-reduce:transition-none lg:hidden" aria-label="Principal móvil" aria-hidden="true" data-menu-panel data-open="false" inert>
+            <nav class="pointer-events-none invisible absolute inset-x-0 top-full z-30 -translate-y-2 border-t border-ink/5 bg-cream/98 opacity-0 shadow-[0_20px_45px_rgba(23,23,23,0.16)] backdrop-blur-xl transition-[opacity,transform,visibility] duration-200 ease-out data-[open=true]:pointer-events-auto data-[open=true]:visible data-[open=true]:translate-y-0 data-[open=true]:opacity-100 data-[open=true]:transition-[opacity,transform] motion-reduce:transition-none lg:hidden" aria-label="Principal móvil" aria-hidden="true" data-menu-panel data-open="false" inert>
                 <div id="menu-movil" class="store-container max-h-[calc(100dvh-4rem)] overflow-y-auto py-4" data-menu>
-                    <form action="{{ route('products.index') }}" method="get" role="search" class="mb-4 flex items-center gap-2 rounded-2xl border border-ink/10 bg-white px-4 shadow-sm md:hidden">
-                        <x-store.icon name="search" class="size-5 text-ink/60" />
+                    <form action="{{ route('products.index') }}" method="get" role="search" class="group/search mb-4 flex items-center gap-2 rounded-2xl border border-ink/10 bg-white px-4 shadow-sm transition focus-within:border-emerald/50 focus-within:ring-4 focus-within:ring-emerald/15">
+                        <x-store.icon name="search" class="size-5 text-ink/60 transition-colors group-focus-within/search:text-emerald" />
                         <label for="buscar-movil" class="sr-only">Buscar productos</label>
-                        <input id="buscar-movil" type="search" name="q" value="{{ request('q') }}" placeholder="¿Qué estás buscando?" class="w-full bg-transparent py-3 text-sm placeholder:text-ink/40 focus:outline-none">
+                        <input id="buscar-movil" type="search" name="q" autocomplete="off" value="{{ request('q') }}" placeholder="¿Qué estás buscando?" enterkeyhint="search" class="w-full bg-transparent py-3 text-base placeholder:text-ink/40 focus:outline-none">
                     </form>
 
                     <ul class="flex flex-col gap-1 text-[0.95rem]">
@@ -309,7 +309,9 @@
         ])>
             <div class="store-container grid gap-10 py-12 sm:grid-cols-2 lg:grid-cols-5 lg:gap-8">
                 <div class="lg:col-span-1">
-                    <p class="font-serif text-2xl">{{ $settings->store_name }}</p>
+                    <a href="{{ route('home') }}" class="inline-block rounded-lg focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-rose">
+                        <img src="{{ asset('images/logos/logo-rosa-transparente.webp') }}" alt="{{ $settings->store_name }}" width="281" height="360" loading="lazy" class="h-20 w-auto">
+                    </a>
                     @if ($settings->footer_text)
                         <p class="mt-3 text-sm leading-relaxed text-white/70">{{ $settings->footer_text }}</p>
                     @endif
