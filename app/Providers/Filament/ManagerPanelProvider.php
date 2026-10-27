@@ -80,8 +80,8 @@ class ManagerPanelProvider extends PanelProvider
             ->brandLogo(fn (): View => view('filament.brand'))
             ->brandLogoHeight('2.75rem')
             ->favicon(fn (): string => Favicon::url(32))
-            ->font('Albert Sans')
-            ->serifFont('Playfair Display')
+            ->font('Montserrat')
+            ->serifFont('Cormorant Garamond')
             ->colors([
                 'primary' => self::PRIMARY,
                 'gray' => self::GRAY,
