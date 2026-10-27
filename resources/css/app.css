@@ -89,6 +89,14 @@
         @apply mt-1.5 block w-full rounded-2xl border border-ink/12 bg-white px-4 py-3 text-base text-ink shadow-[0_1px_2px_rgba(43,32,34,0.04)] transition placeholder:text-ink/35 focus:border-burgundy/50 focus:ring-4 focus:ring-burgundy/10 focus:outline-none aria-invalid:border-sale aria-invalid:ring-4 aria-invalid:ring-sale/10 sm:text-sm;
     }
 
+    /* Draw our own chevron so it keeps the same inner spacing as the text */
+    select.form-input {
+        @apply cursor-pointer appearance-none bg-no-repeat pe-11;
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%236a1e2e' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+        background-position: right 1rem center;
+        background-size: 1rem;
+    }
+
     .form-error {
         @apply mt-1 text-sm text-sale;
     }
