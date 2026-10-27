@@ -108,5 +108,7 @@ class StoreSeeder extends Seeder
             'tiktok_url' => 'https://www.tiktok.com/@hade.pe',
             'youtube_url' => 'https://www.youtube.com/@Hade_pe',
         ]);
+
+        $this->call(InformationPagesSeeder::class);
     }
 }
