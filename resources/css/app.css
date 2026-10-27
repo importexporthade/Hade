@@ -70,11 +70,11 @@
     }
 
     .btn-sage {
-        @apply inline-flex items-center justify-center gap-2 bg-burgundy px-6 py-3 text-sm font-semibold text-white transition hover:bg-burgundy-dark focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-burgundy disabled:cursor-not-allowed disabled:opacity-50;
+        @apply inline-flex items-center justify-center gap-2 rounded-full bg-burgundy px-6 py-3 text-sm font-semibold text-white transition hover:bg-burgundy-dark focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-burgundy disabled:cursor-not-allowed disabled:opacity-50;
     }
 
     .btn-outline {
-        @apply inline-flex items-center justify-center gap-2 border border-ink/15 bg-white px-6 py-3 text-sm font-semibold text-ink transition hover:border-ink/40 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald;
+        @apply inline-flex items-center justify-center gap-2 rounded-full border border-ink/15 bg-white px-6 py-3 text-sm font-semibold text-ink transition hover:border-ink/40 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald;
     }
 
     .btn-whatsapp {
@@ -86,7 +86,7 @@
     }
 
     .form-input {
-        @apply mt-1.5 block w-full border border-ink/20 bg-white px-3 py-2.5 text-sm text-ink placeholder:text-ink/40 focus:border-emerald focus:ring-2 focus:ring-emerald/20 focus:outline-none aria-invalid:border-sale;
+        @apply mt-1.5 block w-full rounded-2xl border border-ink/12 bg-white px-4 py-3 text-base text-ink shadow-[0_1px_2px_rgba(43,32,34,0.04)] transition placeholder:text-ink/35 focus:border-burgundy/50 focus:ring-4 focus:ring-burgundy/10 focus:outline-none aria-invalid:border-sale aria-invalid:ring-4 aria-invalid:ring-sale/10 sm:text-sm;
     }
 
     .form-error {
