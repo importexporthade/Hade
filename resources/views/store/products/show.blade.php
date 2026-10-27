@@ -6,7 +6,9 @@
     $gallery = $product->galleryPaths();
     $settings = \App\Models\StoreSetting::current();
     $whatsappUrl = $settings->whatsappUrl("Hola, quiero pedir: {$product->name} (".Price::format($product->price).")\n".route('products.show', $product));
-    $plainDescription = str(strip_tags((string) $product->description))->squish()->limit(155)->toString();
+    $shareDescription = filled(strip_tags((string) $product->description))
+        ? $product->description
+        : $product->name.' a '.Price::format($product->price).'. '.$settings->footer_text;
     $cartItem = [
         'id' => $product->id,
         'name' => $product->name,
@@ -16,7 +18,7 @@
     ];
 @endphp
 
-<x-store-layout :title="$product->name" :description="$plainDescription ?: null" :image="$product->coverUrl()" :flush-footer="$related->isNotEmpty()">
+<x-store-layout :title="$product->name" :description="$shareDescription" :image="$product->coverUrl()" :price="$product->price" :flush-footer="$related->isNotEmpty()">
     <div class="store-container min-w-0 pt-4 sm:pt-8">
         <nav class="flex min-w-0 items-center text-xs text-ink/60" aria-label="Ruta">
             <a href="{{ route('home') }}" class="shrink-0 hover:text-ink">Inicio</a>

@@ -28,6 +28,8 @@ class StoreLayout extends Component
         public ?string $title = null,
         public ?string $description = null,
         public ?string $image = null,
+        public ?string $price = null,
+        public bool $indexable = true,
     ) {
         $this->settings = StoreSetting::current();
         $this->categories = Category::query()->visible()->orderBy('sort_order')->get();
@@ -37,6 +39,31 @@ class StoreLayout extends Component
     public function pageTitle(): string
     {
         return $this->title ? "{$this->title} - {$this->settings->store_name}" : $this->settings->store_name;
+    }
+
+    /**
+     * The summary search engines and chats show under the link, falling back to the store's
+     * own description from the footer. Rich text arrives as HTML, so each tag becomes a space
+     * to keep "Incluye</p><ul><li>1 blister" from running together as "Incluye1 blister".
+     */
+    public function metaDescription(): ?string
+    {
+        $description = html_entity_decode(strip_tags(str_replace('<', ' <', (string) ($this->description ?: $this->settings->footer_text))));
+
+        return filled($description) ? str($description)->squish()->limit(155)->toString() : null;
+    }
+
+    /**
+     * The picture WhatsApp, Facebook and Instagram show for a shared link, as a full address.
+     * They cannot show SVG, so the product placeholder gives way to the logo or the hero photo.
+     */
+    public function shareImage(): string
+    {
+        $image = $this->image && ! str_ends_with($this->image, '.svg')
+            ? $this->image
+            : ($this->publicUrl($this->settings->logo) ?? asset('images/hero-nail-stickers.jpg'));
+
+        return url($image);
     }
 
     public function publicUrl(?string $path): ?string

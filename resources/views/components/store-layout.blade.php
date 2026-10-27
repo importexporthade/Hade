@@ -12,20 +12,31 @@
         <meta name="metrics-checkout" content="{{ route('metrics.checkout') }}">
 
         <title>{{ $pageTitle() }}</title>
-        @if ($description)
-            <meta name="description" content="{{ $description }}">
-            <meta property="og:description" content="{{ $description }}">
+        @if ($metaDescription = $metaDescription())
+            <meta name="description" content="{{ $metaDescription }}">
+            <meta property="og:description" content="{{ $metaDescription }}">
+        @endif
+        @if ($indexable)
+            <link rel="canonical" href="{{ url()->current() }}">
+        @else
+            <meta name="robots" content="noindex, follow">
         @endif
         <link rel="icon" type="image/png" href="{{ asset('images/logos/favicon-vino-32.png') }}?v=2" sizes="32x32">
         <link rel="icon" type="image/png" href="{{ asset('images/logos/favicon-vino-192.png') }}?v=2" sizes="192x192">
         <link rel="apple-touch-icon" href="{{ asset('images/logos/favicon-vino-180.png') }}?v=2">
         <meta name="theme-color" content="#6A1E2E">
 
+        {{-- What WhatsApp, Facebook and Instagram show when someone shares the link --}}
+        <meta property="og:type" content="{{ $price ? 'product' : 'website' }}">
+        <meta property="og:url" content="{{ url()->current() }}">
         <meta property="og:title" content="{{ $pageTitle() }}">
         <meta property="og:site_name" content="{{ $settings->store_name }}">
-        @if ($shareImage = $image ?? $publicUrl($settings->logo))
-            {{-- Social networks need a full address, not the relative one the page uses --}}
-            <meta property="og:image" content="{{ url($shareImage) }}">
+        <meta property="og:locale" content="es_PE">
+        <meta property="og:image" content="{{ $shareImage() }}">
+        <meta name="twitter:card" content="summary_large_image">
+        @if ($price)
+            <meta property="product:price:amount" content="{{ $price }}">
+            <meta property="product:price:currency" content="PEN">
         @endif
 
         @fonts

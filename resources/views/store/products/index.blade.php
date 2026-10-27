@@ -1,4 +1,4 @@
-<x-store-layout :title="$search !== '' ? 'Buscar: '.$search : ($isLatest ? 'Novedades' : 'Productos')">
+<x-store-layout :title="$search !== '' ? 'Buscar: '.$search : ($isLatest ? 'Novedades' : 'Productos')" :indexable="$search === ''">
     <section class="bg-cream pt-5 sm:pt-7" aria-labelledby="products-title">
         <div class="store-container">
             <div class="relative isolate min-h-56 overflow-hidden rounded-[2rem] bg-blush shadow-[0_18px_45px_-32px_rgba(23,23,23,0.4)] sm:min-h-64">
