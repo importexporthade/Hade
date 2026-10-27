@@ -4,21 +4,21 @@
 @source '../../../../resources/views/filament/**/*';
 
 /*
- * Hade's look, taken from the storefront: cream paper, the emerald of the logo, sage
- * accents, Playfair Display headings over Albert Sans, and nearly square corners.
- * The cream-to-forest gray palette lives in ManagerPanelProvider, so light mode reads
- * as paper and dark mode as deep green instead of neutral gray.
+ * Hade's look, taken from the storefront: ivory paper, burgundy for the brand, rose accents,
+ * Playfair Display headings over Albert Sans, and nearly square corners. The ivory-to-ink
+ * gray palette lives in ManagerPanelProvider, so light mode reads as paper and dark mode
+ * stays warm instead of neutral gray.
  */
 @theme {
     --font-heading: var(--serif-font-family), Georgia, serif;
     --radius-md: 0.25rem;
     --radius-lg: 0.3rem;
     --radius-xl: 0.4rem;
-    --color-hade-sage: #95b998;
-    --color-hade-sage-light: #eef3ee;
-    --color-hade-emerald: #1f5c45;
-    --color-hade-taupe: #8b7360;
-    --color-hade-cream: #f8f6f2;
+    --color-hade-burgundy: #6a1e2e;
+    --color-hade-burgundy-dark: #501522;
+    --color-hade-rose: #d8a3a6;
+    --color-hade-rose-light: #f2dfe0;
+    --color-hade-ivory: #f6efe7;
 }
 
 /* Headings in the storefront's serif */
@@ -35,7 +35,7 @@
 
 .fi-header-heading,
 .fi-simple-header-heading {
-    @apply font-semibold text-hade-emerald dark:text-hade-sage-light;
+    @apply font-semibold text-hade-burgundy dark:text-hade-rose-light;
 }
 
 .fi-section-header-heading {
@@ -43,21 +43,21 @@
 }
 
 .fi-wi-stats-overview-stat-value {
-    @apply font-semibold text-hade-emerald lining-nums dark:text-hade-sage;
+    @apply font-semibold text-hade-burgundy lining-nums dark:text-hade-rose;
 }
 
-/* Brand mark: the logo, or an emerald monogram until one is uploaded */
+/* Brand mark: the logo, or a burgundy monogram until one is uploaded */
 .hade-brand {
     @apply flex items-center gap-x-2.5;
 }
 
 .hade-brand-mark {
-    @apply grid size-9 shrink-0 place-items-center rounded-full bg-hade-emerald text-lg font-semibold text-hade-cream ring-2 ring-hade-sage/60 ring-offset-2 ring-offset-gray-50 dark:ring-offset-gray-950;
+    @apply grid size-9 shrink-0 place-items-center rounded-full bg-hade-burgundy text-lg font-semibold text-hade-ivory ring-2 ring-hade-rose/60 ring-offset-2 ring-offset-gray-50 dark:ring-offset-gray-950;
     font-family: var(--font-heading);
 }
 
 .hade-brand-mark-image {
-    @apply bg-hade-cream object-cover;
+    @apply bg-hade-ivory object-cover;
 }
 
 .hade-brand-text {
@@ -65,12 +65,12 @@
 }
 
 .hade-brand-name {
-    @apply text-xl font-semibold text-hade-emerald dark:text-hade-sage-light;
+    @apply text-xl font-semibold text-hade-burgundy dark:text-hade-rose-light;
     font-family: var(--font-heading);
 }
 
 .hade-brand-tagline {
-    @apply mt-1 text-[0.65rem] font-semibold tracking-[0.25em] text-hade-taupe uppercase dark:text-hade-sage;
+    @apply mt-1 text-[0.65rem] font-semibold tracking-[0.25em] text-hade-burgundy/70 uppercase dark:text-hade-rose;
 }
 
 /* Sidebar and topbar sit on the paper instead of white cards */
@@ -85,14 +85,14 @@
 }
 
 .fi-sidebar-group-label {
-    @apply text-[0.7rem] font-semibold tracking-[0.15em] text-hade-taupe uppercase dark:text-hade-sage/80;
+    @apply text-[0.7rem] font-semibold tracking-[0.15em] text-hade-burgundy/70 uppercase dark:text-hade-rose/80;
 }
 
 .fi-sidebar-item.fi-active > .fi-sidebar-item-btn {
-    @apply bg-hade-sage-light shadow-[inset_3px_0_0_var(--color-hade-emerald)] dark:bg-hade-sage/10 dark:shadow-[inset_3px_0_0_var(--color-hade-sage)];
+    @apply bg-hade-rose-light shadow-[inset_3px_0_0_var(--color-hade-burgundy)] dark:bg-hade-rose/10 dark:shadow-[inset_3px_0_0_var(--color-hade-rose)];
 }
 
-/* Cards: white paper with a warm hairline in light mode, forest green in dark mode */
+/* Cards: white paper with a warm hairline in light mode, warm ink in dark mode */
 .fi-section:not(.fi-section-not-contained),
 .fi-ta-ctn,
 .fi-wi-stats-overview-stat {
@@ -100,10 +100,10 @@
 }
 
 .fi-wi-stats-overview-stat {
-    @apply border-t-2 border-hade-sage;
+    @apply border-t-2 border-hade-rose;
 }
 
-/* Calendar: the chosen day in the brand's emerald, today ringed in sage */
+/* Calendar: the chosen day in the brand's burgundy, today ringed in rose */
 .fi-fo-date-time-picker-calendar-day {
     @apply rounded-md transition;
 }
@@ -136,11 +136,11 @@
 }
 
 .hade-band {
-    @apply absolute inset-x-0 top-0 -z-10 h-64 bg-hade-taupe;
+    @apply absolute inset-x-0 top-0 -z-10 h-64 bg-hade-burgundy;
     background-image:
         radial-gradient(circle at 20% 30%, rgb(255 255 255 / 0.12) 0 2px, transparent 3px),
         radial-gradient(circle at 70% 60%, rgb(255 255 255 / 0.1) 0 1.5px, transparent 2.5px),
-        linear-gradient(135deg, var(--color-hade-taupe), #6f5a4a);
+        linear-gradient(135deg, var(--color-hade-burgundy), var(--color-hade-burgundy-dark));
     background-size:
         28px 28px,
         36px 36px,
@@ -162,7 +162,7 @@
 }
 
 .fi-simple-main {
-    @apply border-t-4 border-hade-emerald shadow-lg shadow-gray-950/5 ring-gray-200 dark:border-hade-sage dark:ring-white/5;
+    @apply border-t-4 border-hade-burgundy shadow-lg shadow-gray-950/5 ring-gray-200 dark:border-hade-rose dark:ring-white/5;
 }
 
 .fi-simple-main .fi-logo {

@@ -25,42 +25,43 @@ use Illuminate\View\Middleware\ShareErrorsFromSession;
 class ManagerPanelProvider extends PanelProvider
 {
     /**
-     * Sage from the storefront buttons in the light shades, the logo's emerald in the dark ones.
+     * The storefront's rose in the light shades and its burgundy in the dark ones, so buttons,
+     * links and the active menu item wear the same wine color as the store.
      *
      * @var array<int, string>
      */
     private const array PRIMARY = [
-        50 => '#eef3ee',
-        100 => '#dde8de',
-        200 => '#c2d6c4',
-        300 => '#a6c4a9',
-        400 => '#95b998',
-        500 => '#4f8a6c',
-        600 => '#2e6b55',
-        700 => '#1f5c45',
-        800 => '#194a38',
-        900 => '#133a2c',
-        950 => '#0b241b',
+        50 => '#fbf3f3',
+        100 => '#f2dfe0',
+        200 => '#e8c6c8',
+        300 => '#d8a3a6',
+        400 => '#b9787f',
+        500 => '#8e3a4a',
+        600 => '#6a1e2e',
+        700 => '#501522',
+        800 => '#40111c',
+        900 => '#310d15',
+        950 => '#1f080d',
     ];
 
     /**
-     * Grays that run from the storefront's cream paper to deep forest green, so light mode
-     * feels like the store and dark mode stays green instead of neutral.
+     * Grays that run from the storefront's ivory paper through its taupe to its warm ink, so
+     * light mode feels like the store and dark mode stays warm instead of neutral.
      *
      * @var array<int, string>
      */
     private const array GRAY = [
-        50 => '#f8f6f2',
-        100 => '#f0ece5',
-        200 => '#e3ddd3',
-        300 => '#cdc6ba',
-        400 => '#a19c92',
-        500 => '#7a776f',
-        600 => '#5b5f59',
-        700 => '#3f4743',
-        800 => '#28312d',
-        900 => '#19221e',
-        950 => '#0f1714',
+        50 => '#f6efe7',
+        100 => '#eadfd6',
+        200 => '#ddcfc3',
+        300 => '#c8b6a8',
+        400 => '#a39185',
+        500 => '#7d6d66',
+        600 => '#5d4f4c',
+        700 => '#443838',
+        800 => '#2b2022',
+        900 => '#1f1718',
+        950 => '#150f10',
     ];
 
     public function panel(Panel $panel): Panel
