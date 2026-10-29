@@ -5,11 +5,15 @@ namespace App\Filament\Resources\Products\Schemas;
 use App\Enums\ImageKind;
 use App\Filament\Resources\Categories\CategoryResource;
 use App\Filament\Support\PhotoUpload;
+use App\Models\Category;
 use App\Support\Price;
+use Filament\Actions\Action;
 use Filament\Forms\Components\RichEditor;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
+use Filament\Notifications\Notification;
+use Filament\Schemas\Components\Callout;
 use Filament\Schemas\Components\Group;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Components\Utilities\Get;
@@ -51,6 +55,7 @@ class ProductForm
                                 ->searchable()
                                 ->preload()
                                 ->required()
+                                ->live()
                                 ->createOptionForm(fn (Schema $schema) => CategoryResource::form($schema)),
                             TextInput::make('sku')
                                 ->label('Código (SKU)')
@@ -110,7 +115,26 @@ class ProductForm
                         ->schema([
                             Toggle::make('is_visible')
                                 ->label('Visible en la tienda')
-                                ->default(true),
+                                ->default(true)
+                                ->live(),
+                            Callout::make('Su categoría está oculta')
+                                ->key('hiddenCategoryNotice')
+                                ->description(fn (Get $get): string => 'La categoría «'.self::hiddenCategory($get('category_id'))?->name.'» no se ve en la tienda, así que este producto tampoco aparecerá hasta que la muestres.')
+                                ->warning()
+                                ->visible(fn (Get $get): bool => $get('is_visible') && self::hiddenCategory($get('category_id')) !== null)
+                                ->actions([
+                                    Action::make('showCategory')
+                                        ->label('Mostrar la categoría')
+                                        ->requiresConfirmation()
+                                        ->modalHeading('¿Mostrar la categoría en la tienda?')
+                                        ->modalDescription('También aparecerán los demás productos visibles de esta categoría.')
+                                        ->modalSubmitActionLabel('Sí, mostrarla')
+                                        ->action(function (Get $get): void {
+                                            self::hiddenCategory($get('category_id'))?->update(['is_visible' => true]);
+
+                                            Notification::make()->title('La categoría ya se ve en la tienda')->success()->send();
+                                        }),
+                                ]),
                             Toggle::make('is_in_stock')
                                 ->label('Hay stock')
                                 ->default(true),
@@ -120,6 +144,15 @@ class ProductForm
                         ]),
                 ])->columnSpan(['lg' => 1]),
             ]);
+    }
+
+    /**
+     * The chosen category when the owner hid it, since its products stay out of the store
+     * even while they are switched on.
+     */
+    private static function hiddenCategory(mixed $categoryId): ?Category
+    {
+        return filled($categoryId) ? Category::query()->whereKey($categoryId)->where('is_visible', false)->first() : null;
     }
 
     private static function discountHint(mixed $price, mixed $compareAtPrice): string

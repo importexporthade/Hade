@@ -2,9 +2,11 @@
 
 namespace App\Filament\Resources\Products\Tables;
 
+use App\Filament\Resources\Categories\CategoryResource;
 use App\Models\Product;
 use App\Support\ImageOptimizer;
 use App\Support\Price;
+use Filament\Actions\Action;
 use Filament\Actions\BulkAction;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteBulkAction;
@@ -40,7 +42,9 @@ class ProductsTable
                     ->square(),
                 TextColumn::make('name')
                     ->label('Producto')
-                    ->description(fn (Product $record): ?string => $record->category?->name)
+                    ->description(fn (Product $record): ?string => $record->category
+                        ? $record->category->name.($record->category->is_visible ? '' : ' · categoría oculta')
+                        : null)
                     ->searchable()
                     ->sortable(),
                 TextColumn::make('price')
@@ -57,7 +61,24 @@ class ProductsTable
                         'case when compare_at_price > price then (compare_at_price - price) * 1.0 / compare_at_price else 0 end '.($direction === 'desc' ? 'desc' : 'asc'),
                     )),
                 ToggleColumn::make('is_visible')
-                    ->label('Visible'),
+                    ->label('Visible')
+                    ->afterStateUpdated(function (Product $record, bool $state): void {
+                        if (! $state || ! $record->category || $record->category->is_visible) {
+                            return;
+                        }
+
+                        Notification::make()
+                            ->title('Su categoría está oculta')
+                            ->body("«{$record->name}» está encendido, pero no aparecerá en la tienda hasta que muestres la categoría «{$record->category->name}».")
+                            ->warning()
+                            ->persistent()
+                            ->actions([
+                                Action::make('categories')
+                                    ->label('Ir a Categorías')
+                                    ->url(CategoryResource::getUrl('index')),
+                            ])
+                            ->send();
+                    }),
                 ToggleColumn::make('is_in_stock')
                     ->label('Stock'),
                 ToggleColumn::make('is_featured')

@@ -9,6 +9,7 @@ use App\Filament\Resources\Products\ProductResource;
 use App\Models\Category;
 use App\Models\Product;
 use App\Models\User;
+use Filament\Actions\Testing\TestAction;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Livewire\Livewire;
 use Tests\TestCase;
@@ -169,5 +170,58 @@ class ProductResourceTest extends TestCase
             ->assertNotNotified();
 
         $this->assertFalse($product->refresh()->is_in_stock);
+    }
+
+    public function test_switching_on_a_product_in_a_hidden_category_reminds_the_owner_in_the_form(): void
+    {
+        $product = Product::factory()
+            ->for(Category::factory()->hidden()->create(['name' => 'Lámparas']))
+            ->create(['is_visible' => false]);
+
+        Livewire::test(EditProduct::class, ['record' => $product->getRouteKey()])
+            ->assertSchemaComponentHidden('hiddenCategoryNotice')
+            ->fillForm(['is_visible' => true])
+            ->assertSchemaComponentVisible('hiddenCategoryNotice')
+            ->assertSee('La categoría «Lámparas» no se ve en la tienda');
+    }
+
+    public function test_the_reminder_can_show_the_category_right_away(): void
+    {
+        $category = Category::factory()->hidden()->create();
+        $product = Product::factory()->for($category)->create();
+
+        Livewire::test(EditProduct::class, ['record' => $product->getRouteKey()])
+            ->callAction(TestAction::make('showCategory')->schemaComponent('hiddenCategoryNotice'))
+            ->assertNotified('La categoría ya se ve en la tienda')
+            ->assertSchemaComponentHidden('hiddenCategoryNotice');
+
+        $this->assertTrue($category->refresh()->is_visible);
+    }
+
+    public function test_products_in_visible_categories_get_no_reminder(): void
+    {
+        $product = Product::factory()->create(['is_visible' => false]);
+
+        Livewire::test(EditProduct::class, ['record' => $product->getRouteKey()])
+            ->fillForm(['is_visible' => true])
+            ->assertSchemaComponentHidden('hiddenCategoryNotice');
+
+        Livewire::test(ListProducts::class)
+            ->call('updateTableColumnState', 'is_visible', (string) $product->id, true)
+            ->assertNotNotified();
+    }
+
+    public function test_switching_on_a_product_in_the_list_warns_when_its_category_is_hidden(): void
+    {
+        $product = Product::factory()
+            ->for(Category::factory()->hidden()->create(['name' => 'Lámparas']))
+            ->create(['name' => 'Lámpara Recargable', 'is_visible' => false]);
+
+        Livewire::test(ListProducts::class)
+            ->assertSee('Lámparas · categoría oculta')
+            ->call('updateTableColumnState', 'is_visible', (string) $product->id, true)
+            ->assertNotified('Su categoría está oculta');
+
+        $this->assertTrue($product->refresh()->is_visible);
     }
 }
