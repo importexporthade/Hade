@@ -5,7 +5,6 @@ namespace App\Providers\Filament;
 use App\Filament\Pages\Auth\Login;
 use App\Filament\Pages\Auth\UnlockAccount;
 use App\Filament\Pages\Dashboard;
-use App\Support\Favicon;
 use Filament\Http\Middleware\Authenticate;
 use Filament\Http\Middleware\AuthenticateSession;
 use Filament\Http\Middleware\DisableBladeIconComponents;
@@ -79,7 +78,7 @@ class ManagerPanelProvider extends PanelProvider
             ->brandName('Hade Manager')
             ->brandLogo(fn (): View => view('filament.brand'))
             ->brandLogoHeight('2.75rem')
-            ->favicon(fn (): string => Favicon::url(32))
+            ->favicon(asset('images/logos/favicon-vino-32.png').'?v=2')
             ->font('Montserrat')
             ->serifFont('Cormorant Garamond')
             ->colors([
