@@ -46,18 +46,21 @@
     @apply font-semibold text-hade-burgundy lining-nums dark:text-hade-rose;
 }
 
-/* Brand mark: the logo, or a burgundy monogram until one is uploaded */
+/* Brand mark: the storefront's gem logo, wine in light mode and rose in dark mode */
 .hade-brand {
     @apply flex items-center gap-x-2.5;
 }
 
 .hade-brand-mark {
-    @apply grid size-9 shrink-0 place-items-center rounded-full bg-hade-burgundy text-lg font-semibold text-hade-ivory ring-2 ring-hade-rose/60 ring-offset-2 ring-offset-gray-50 dark:ring-offset-gray-950;
-    font-family: var(--font-heading);
+    @apply h-10 w-auto shrink-0;
 }
 
-.hade-brand-mark-image {
-    @apply bg-hade-ivory object-cover;
+.hade-brand-mark-light {
+    @apply dark:hidden;
+}
+
+.hade-brand-mark-dark {
+    @apply hidden dark:block;
 }
 
 .hade-brand-text {
@@ -174,7 +177,7 @@
 }
 
 .fi-simple-main .hade-brand-mark {
-    @apply size-16 text-3xl;
+    @apply h-20;
 }
 
 .fi-simple-main .hade-brand-text {
