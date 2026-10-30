@@ -3,6 +3,12 @@
  * written out, the same way orders reach the store today.
  */
 const STORAGE_KEY = 'hade-cart';
+const CUSTOMER_KEY = 'hade-customer';
+
+const SHIPPING = {
+    lima: { label: 'Lima', place: 'Distrito' },
+    provincia: { label: 'Provincia (fuera de Lima)', place: 'Ciudad / provincia' },
+};
 
 export function formatPrice(amount) {
     return `S/ ${amount.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
@@ -28,6 +34,54 @@ function writeCart(items) {
 
 let items = readCart();
 
+/** Which half of the drawer is showing: the products, or the shipping details. */
+let step = 'items';
+
+/**
+ * The shipping details the customer typed, remembered so a returning customer does not
+ * have to write them again.
+ */
+function readCustomer() {
+    try {
+        const customer = JSON.parse(localStorage.getItem(CUSTOMER_KEY) ?? '{}');
+
+        return customer && typeof customer === 'object' ? customer : {};
+    } catch {
+        return {};
+    }
+}
+
+function writeCustomer(customer) {
+    try {
+        localStorage.setItem(CUSTOMER_KEY, JSON.stringify(customer));
+    } catch {
+        // Without storage the details simply are not remembered.
+    }
+}
+
+function customerForm() {
+    return document.querySelector('[data-cart-customer]');
+}
+
+function customerFromForm() {
+    const form = customerForm();
+
+    if (!form) {
+        return null;
+    }
+
+    const data = new FormData(form);
+    const value = (name) => String(data.get(name) ?? '').trim();
+
+    return {
+        first_name: value('first_name'),
+        last_name: value('last_name'),
+        shipping: SHIPPING[value('shipping')] ? value('shipping') : 'lima',
+        place: value('place'),
+        note: value('note'),
+    };
+}
+
 function setItems(nextItems) {
     items = nextItems.filter((item) => item.quantity > 0);
     writeCart(items);
@@ -36,9 +90,9 @@ function setItems(nextItems) {
 
 /**
  * The order as the store receives it: each product with its quantity, subtotal and link,
- * so the owner sees the photo of exactly what was chosen, then the total.
+ * so the owner sees the photo of exactly what was chosen, then the total and who it ships to.
  */
-export function orderMessage(cartItems) {
+export function orderMessage(cartItems, customer = null) {
     const lines = cartItems.flatMap((item) => [
         `• ${item.quantity} x ${item.name} — ${formatPrice(item.price * item.quantity)}`,
         `  ${item.url}`,
@@ -52,13 +106,83 @@ export function orderMessage(cartItems) {
         ...lines,
         '',
         `Total: ${formatPrice(total)} (${count} ${count === 1 ? 'producto' : 'productos'})`,
+        ...customerLines(customer),
     ].join('\n');
+}
+
+function customerLines(customer) {
+    if (!customer) {
+        return [];
+    }
+
+    const shipping = SHIPPING[customer.shipping] ?? SHIPPING.lima;
+    const name = [customer.first_name, customer.last_name].filter(Boolean).join(' ');
+
+    return [
+        '',
+        'Mis datos:',
+        ...(name ? [`Nombre: ${name}`] : []),
+        `Envío: ${shipping.label}`,
+        ...(customer.place ? [`${shipping.place}: ${customer.place}`] : []),
+        ...(customer.note ? [`Nota: ${customer.note}`] : []),
+    ];
 }
 
 function checkoutUrl(cartItems) {
     const number = document.body.dataset.whatsappNumber;
 
-    return number ? `https://wa.me/${number}?text=${encodeURIComponent(orderMessage(cartItems))}` : null;
+    return number ? `https://wa.me/${number}?text=${encodeURIComponent(orderMessage(cartItems, customerFromForm()))}` : null;
+}
+
+/**
+ * The checkout link is a plain link, so the details are checked when it is tapped: a
+ * missing field keeps WhatsApp closed and points the customer at what is left to fill.
+ */
+function customerIsComplete() {
+    const form = customerForm();
+
+    if (!form) {
+        return true;
+    }
+
+    const missing = [...form.querySelectorAll('[required]')].filter((input) => input.value.trim() === '');
+
+    missing.forEach((input) => input.setAttribute('aria-invalid', 'true'));
+    missing[0]?.focus();
+
+    return missing.length === 0;
+}
+
+function updatePlaceLabel() {
+    const label = document.querySelector('[data-cart-place-label]');
+
+    if (label) {
+        label.textContent = SHIPPING[customerFromForm().shipping].place;
+    }
+}
+
+function initCustomerForm() {
+    const form = customerForm();
+
+    if (!form) {
+        return;
+    }
+
+    const customer = readCustomer();
+
+    ['first_name', 'last_name', 'place', 'note'].forEach((name) => {
+        form.elements[name].value = typeof customer[name] === 'string' ? customer[name] : '';
+    });
+    form.querySelector(`[name="shipping"][value="${SHIPPING[customer.shipping] ? customer.shipping : 'lima'}"]`).checked = true;
+    updatePlaceLabel();
+
+    form.addEventListener('input', (event) => {
+        event.target.removeAttribute('aria-invalid');
+        writeCustomer(customerFromForm());
+        updatePlaceLabel();
+        render();
+    });
+    form.addEventListener('submit', (event) => event.preventDefault());
 }
 
 function render() {
@@ -95,6 +219,14 @@ function render() {
 
     document.querySelector('[data-cart-empty]').hidden = items.length > 0;
     document.querySelector('[data-cart-footer]').hidden = items.length === 0;
+
+    if (items.length === 0) {
+        step = 'items';
+    }
+
+    document.querySelectorAll('[data-cart-step]').forEach((element) => {
+        element.hidden = element.dataset.cartStep !== step;
+    });
     document.querySelector('[data-cart-total]').textContent = formatPrice(total);
 
     // The checkout link always carries the current cart, so tapping it opens WhatsApp at once
@@ -159,8 +291,26 @@ function addItem(product, quantity) {
     }
 }
 
+function showStep(nextStep) {
+    step = nextStep;
+    render();
+
+    document.querySelector('[data-cart-body]').scrollTop = 0;
+
+    if (step === 'details') {
+        const form = customerForm();
+
+        ([...form.querySelectorAll('[required]')].find((input) => input.value.trim() === '') ?? form.elements.first_name).focus();
+    } else {
+        document.querySelector('[data-cart-next]').focus();
+    }
+}
+
 function openCart() {
     const drawer = document.querySelector('[data-cart]');
+
+    step = 'items';
+    render();
 
     drawer.hidden = false;
     document.body.style.overflow = 'hidden';
@@ -177,10 +327,13 @@ export function initCart() {
         return;
     }
 
+    initCustomerForm();
     render();
 
     document.querySelectorAll('[data-cart-open]').forEach((button) => button.addEventListener('click', openCart));
     document.querySelectorAll('[data-cart-close]').forEach((button) => button.addEventListener('click', closeCart));
+    document.querySelector('[data-cart-next]').addEventListener('click', () => showStep('details'));
+    document.querySelector('[data-cart-back]').addEventListener('click', () => showStep('items'));
     document.addEventListener('keydown', (event) => {
         if (event.key === 'Escape') {
             closeCart();
@@ -206,8 +359,14 @@ export function initCart() {
         });
     });
 
-    // The link opens WhatsApp on its own; this only records the order on the way out
-    document.querySelector('[data-cart-checkout]').addEventListener('click', () => {
+    // The link opens WhatsApp on its own; this only checks the details and records the order on the way out
+    document.querySelector('[data-cart-checkout]').addEventListener('click', (event) => {
+        if (!customerIsComplete()) {
+            event.preventDefault();
+
+            return;
+        }
+
         sendMetric('checkout', { items: items.map((item) => ({ id: item.id, quantity: item.quantity })) });
     });
 }

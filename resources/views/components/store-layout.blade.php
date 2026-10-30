@@ -425,7 +425,8 @@
                                 <h2 id="carrito-titulo" class="font-serif text-2xl leading-tight font-medium text-burgundy">Carrito de compras</h2>
                                 <span class="grid min-h-6 min-w-6 place-items-center rounded-full bg-burgundy px-1.5 text-[0.65rem] font-bold text-cream" data-cart-count>0</span>
                             </div>
-                            <p class="mt-1.5 text-xs leading-relaxed text-ink/60">Revisa tus diseños antes de enviar el pedido.</p>
+                            <p class="mt-1.5 text-xs leading-relaxed text-ink/60" data-cart-step="items">Revisa tus diseños antes de enviar el pedido.</p>
+                            <p class="mt-1.5 text-xs leading-relaxed text-ink/60" data-cart-step="details" hidden>Último paso: cuéntanos a dónde enviamos tu pedido.</p>
                         </div>
 
                         <button type="button" class="grid size-10 shrink-0 place-items-center rounded-full bg-cream/80 text-burgundy transition hover:bg-cream focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-burgundy" data-cart-close>
@@ -435,7 +436,7 @@
                     </div>
                 </div>
 
-                <div class="flex-1 overflow-y-auto px-4 py-5 sm:px-6">
+                <div class="flex-1 overflow-y-auto px-4 py-5 sm:px-6" data-cart-body>
                     <div class="grid min-h-full place-items-center py-8 text-center" data-cart-empty>
                         <div class="w-full px-6">
                             <span class="mx-auto grid size-16 place-items-center rounded-full bg-cream text-burgundy shadow-sm ring-1 ring-rose/30">
@@ -446,7 +447,50 @@
                             <a href="{{ route('products.index') }}" class="mt-6 inline-flex min-h-11 items-center justify-center rounded-full bg-burgundy px-6 text-sm font-semibold text-cream transition hover:bg-burgundy-dark focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-burgundy" data-cart-close>Explorar productos</a>
                         </div>
                     </div>
-                    <ul class="space-y-3" data-cart-items></ul>
+                    <ul class="space-y-3" data-cart-items data-cart-step="items"></ul>
+
+                    {{-- Second step, so a long cart never pushes the form out of sight. The details travel inside the WhatsApp message, so the store can quote the shipping right away --}}
+                    <form class="space-y-4 rounded-2xl border border-rose/30 bg-white p-4 sm:p-5" data-cart-customer data-cart-step="details" hidden novalidate>
+                        <div>
+                            <p class="text-[0.55rem] font-semibold tracking-[0.2em] text-burgundy/60 uppercase">Datos para tu envío</p>
+                            <p class="mt-1 text-xs leading-relaxed text-ink/60">Así preparamos tu pedido más rápido.</p>
+                        </div>
+
+                        <div class="grid grid-cols-2 gap-3">
+                            <div>
+                                <label for="cart-first-name" class="form-label">Nombre</label>
+                                <input id="cart-first-name" name="first_name" type="text" autocomplete="given-name" class="form-input" required>
+                            </div>
+                            <div>
+                                <label for="cart-last-name" class="form-label">Apellido</label>
+                                <input id="cart-last-name" name="last_name" type="text" autocomplete="family-name" class="form-input" required>
+                            </div>
+                        </div>
+
+                        <div>
+                            <p class="form-label">Tipo de envío</p>
+                            <div class="mt-1.5 grid grid-cols-2 gap-1 rounded-2xl bg-cream/80 p-1">
+                                <label class="flex cursor-pointer items-center justify-center rounded-xl px-3 py-2.5 text-center text-sm font-medium text-ink/60 transition has-checked:bg-white has-checked:text-burgundy has-checked:shadow-sm has-focus-visible:ring-2 has-focus-visible:ring-burgundy/30">
+                                    <input type="radio" name="shipping" value="lima" class="sr-only" checked>
+                                    Lima
+                                </label>
+                                <label class="flex cursor-pointer items-center justify-center rounded-xl px-3 py-2.5 text-center text-sm font-medium text-ink/60 transition has-checked:bg-white has-checked:text-burgundy has-checked:shadow-sm has-focus-visible:ring-2 has-focus-visible:ring-burgundy/30">
+                                    <input type="radio" name="shipping" value="provincia" class="sr-only">
+                                    Provincia
+                                </label>
+                            </div>
+                        </div>
+
+                        <div>
+                            <label for="cart-place" class="form-label" data-cart-place-label>Distrito</label>
+                            <input id="cart-place" name="place" type="text" autocomplete="address-level3" class="form-input" required>
+                        </div>
+
+                        <div>
+                            <label for="cart-note" class="form-label">Nota <span class="font-normal text-ink/45">(opcional)</span></label>
+                            <input id="cart-note" name="note" type="text" class="form-input" placeholder="Ej.: es para regalo, dedicatoria…">
+                        </div>
+                    </form>
                 </div>
 
                 <div class="border-t border-rose/30 bg-blush/60 px-5 py-5 sm:px-6" data-cart-footer hidden>
@@ -458,14 +502,19 @@
                         <span class="font-serif text-3xl leading-none font-semibold text-burgundy" data-cart-total></span>
                     </div>
 
-                    <div class="mt-5 space-y-3">
+                    <div class="mt-5 space-y-3" data-cart-step="items">
+                        <button type="button" class="inline-flex min-h-12 w-full items-center justify-center rounded-full bg-burgundy px-6 text-sm font-semibold text-cream transition hover:bg-burgundy-dark focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-burgundy" data-cart-next>Continuar con mi pedido</button>
+                        <button type="button" class="w-full rounded-full py-2 text-center text-sm font-medium text-burgundy transition hover:bg-cream/70 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-burgundy" data-cart-close>Seguir comprando</button>
+                    </div>
+
+                    <div class="mt-5 space-y-3" data-cart-step="details" hidden>
                         {{-- A real link rather than window.open, so phones open the WhatsApp app instead of blocking a pop-up --}}
                         <a href="#" target="_blank" rel="noopener" class="btn-whatsapp min-h-12 w-full rounded-full shadow-[0_12px_28px_-16px_rgba(37,211,102,0.7)]" data-cart-checkout>
                             <x-store.icon name="whatsapp" class="size-5" />
                             Comprar por WhatsApp
                         </a>
                         <p class="text-center text-xs leading-relaxed text-ink/55">Tu pedido se abrirá listo en WhatsApp; solo tendrás que enviarlo.</p>
-                        <button type="button" class="w-full rounded-full py-2 text-center text-sm font-medium text-burgundy transition hover:bg-cream/70 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-burgundy" data-cart-close>Seguir comprando</button>
+                        <button type="button" class="w-full rounded-full py-2 text-center text-sm font-medium text-burgundy transition hover:bg-cream/70 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-burgundy" data-cart-back>Volver al carrito</button>
                     </div>
                 </div>
             </div>
