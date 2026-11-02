@@ -1,0 +1,94 @@
+{
+  "_cormorant-garamond-400-normal-B-1hWBU7.woff2": {
+    "file": "assets/cormorant-garamond-400-normal-B-1hWBU7.woff2",
+    "src": "_cormorant-garamond-400-normal-B-1hWBU7.woff2"
+  },
+  "_cormorant-garamond-400-normal-B7YtguxJ.woff": {
+    "file": "assets/cormorant-garamond-400-normal-B7YtguxJ.woff",
+    "src": "_cormorant-garamond-400-normal-B7YtguxJ.woff"
+  },
+  "_cormorant-garamond-500-normal-BsRWmXhO.woff2": {
+    "file": "assets/cormorant-garamond-500-normal-BsRWmXhO.woff2",
+    "src": "_cormorant-garamond-500-normal-BsRWmXhO.woff2"
+  },
+  "_cormorant-garamond-500-normal-zIXX3Q-H.woff": {
+    "file": "assets/cormorant-garamond-500-normal-zIXX3Q-H.woff",
+    "src": "_cormorant-garamond-500-normal-zIXX3Q-H.woff"
+  },
+  "_cormorant-garamond-600-normal-2CBVLo0M.woff": {
+    "file": "assets/cormorant-garamond-600-normal-2CBVLo0M.woff",
+    "src": "_cormorant-garamond-600-normal-2CBVLo0M.woff"
+  },
+  "_cormorant-garamond-600-normal-Co1r35X9.woff2": {
+    "file": "assets/cormorant-garamond-600-normal-Co1r35X9.woff2",
+    "src": "_cormorant-garamond-600-normal-Co1r35X9.woff2"
+  },
+  "_cormorant-garamond-700-normal-DajfzrDU.woff2": {
+    "file": "assets/cormorant-garamond-700-normal-DajfzrDU.woff2",
+    "src": "_cormorant-garamond-700-normal-DajfzrDU.woff2"
+  },
+  "_cormorant-garamond-700-normal-O25Qpphb.woff": {
+    "file": "assets/cormorant-garamond-700-normal-O25Qpphb.woff",
+    "src": "_cormorant-garamond-700-normal-O25Qpphb.woff"
+  },
+  "_fonts-IRWgd_UU.css": {
+    "file": "assets/fonts-IRWgd_UU.css",
+    "src": "_fonts-IRWgd_UU.css"
+  },
+  "_montserrat-400-normal-BLhwKU8k.woff2": {
+    "file": "assets/montserrat-400-normal-BLhwKU8k.woff2",
+    "src": "_montserrat-400-normal-BLhwKU8k.woff2"
+  },
+  "_montserrat-400-normal-xItZbAXg.woff": {
+    "file": "assets/montserrat-400-normal-xItZbAXg.woff",
+    "src": "_montserrat-400-normal-xItZbAXg.woff"
+  },
+  "_montserrat-500-normal-DRFEGfly.woff2": {
+    "file": "assets/montserrat-500-normal-DRFEGfly.woff2",
+    "src": "_montserrat-500-normal-DRFEGfly.woff2"
+  },
+  "_montserrat-500-normal-Dok2oTci.woff": {
+    "file": "assets/montserrat-500-normal-Dok2oTci.woff",
+    "src": "_montserrat-500-normal-Dok2oTci.woff"
+  },
+  "_montserrat-600-normal-CdhFl4lI.woff": {
+    "file": "assets/montserrat-600-normal-CdhFl4lI.woff",
+    "src": "_montserrat-600-normal-CdhFl4lI.woff"
+  },
+  "_montserrat-600-normal-UVxSCcoG.woff2": {
+    "file": "assets/montserrat-600-normal-UVxSCcoG.woff2",
+    "src": "_montserrat-600-normal-UVxSCcoG.woff2"
+  },
+  "_montserrat-700-normal-BWkrl476.woff": {
+    "file": "assets/montserrat-700-normal-BWkrl476.woff",
+    "src": "_montserrat-700-normal-BWkrl476.woff"
+  },
+  "_montserrat-700-normal-BdjcYUrC.woff2": {
+    "file": "assets/montserrat-700-normal-BdjcYUrC.woff2",
+    "src": "_montserrat-700-normal-BdjcYUrC.woff2"
+  },
+  "resources/css/app.css": {
+    "file": "assets/app-BwsgyNp1.css",
+    "name": "app",
+    "names": [
+      "app.css"
+    ],
+    "src": "resources/css/app.css",
+    "isEntry": true
+  },
+  "resources/css/filament/manager/theme.css": {
+    "file": "assets/theme-p4A7KjFS.css",
+    "name": "theme",
+    "names": [
+      "theme.css"
+    ],
+    "src": "resources/css/filament/manager/theme.css",
+    "isEntry": true
+  },
+  "resources/js/app.js": {
+    "file": "assets/app-BPaqwzYp.js",
+    "name": "app",
+    "src": "resources/js/app.js",
+    "isEntry": true
+  }
+}
