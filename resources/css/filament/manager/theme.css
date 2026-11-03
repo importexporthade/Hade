@@ -133,6 +133,11 @@
     display: none !important;
 }
 
+/* Rows that open their edit window on a click and move on a drag */
+.hade-click-to-edit [x-sortable-item] {
+    @apply cursor-pointer transition-colors hover:bg-gray-950/[0.02] dark:hover:bg-white/[0.03];
+}
+
 /* Login and the other simple pages: the storefront's photo band behind the card */
 .fi-simple-layout {
     @apply relative isolate;

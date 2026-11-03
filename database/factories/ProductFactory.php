@@ -47,7 +47,7 @@ class ProductFactory extends Factory
         ]);
     }
 
-    public function featured(): static
+    public function markedAsNew(): static
     {
         return $this->state(fn (array $attributes) => [
             'is_featured' => true,

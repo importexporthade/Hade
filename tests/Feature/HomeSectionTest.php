@@ -9,6 +9,7 @@ use App\Models\HomeSection;
 use App\Models\Product;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\DB;
 use Livewire\Livewire;
 use Tests\TestCase;
 
@@ -38,26 +39,40 @@ class HomeSectionTest extends TestCase
         $this->assertSame(3, $section->products_limit);
     }
 
-    public function test_a_featured_section_shows_featured_products(): void
+    public function test_a_novedades_section_shows_the_products_marked_as_new_from_newest_up_to_its_limit(): void
     {
-        $featured = Product::factory()->featured()->create();
-        Product::factory()->create();
-
-        $section = HomeSection::factory()->ofType(HomeSectionType::Featured)->create();
-
-        $this->assertEquals([$featured->id], $section->products()->modelKeys());
-    }
-
-    public function test_a_latest_section_shows_the_newest_products_up_to_its_limit(): void
-    {
-        $this->travelTo(now()->subDays(2));
-        Product::factory()->create();
-        $this->travelBack();
-        $newer = Product::factory()->count(2)->create();
+        $oldest = Product::factory()->markedAsNew()->create(['created_at' => now()->subDays(3)]);
+        $older = Product::factory()->markedAsNew()->create(['created_at' => now()->subDays(2)]);
+        $newest = Product::factory()->markedAsNew()->create(['created_at' => now()->subDay()]);
+        Product::factory()->create(['is_featured' => false, 'created_at' => now()]);
 
         $section = HomeSection::factory()->ofType(HomeSectionType::Latest)->create(['products_limit' => 2]);
 
-        $this->assertEqualsCanonicalizing($newer->modelKeys(), $section->products()->modelKeys());
+        $this->assertEquals([$newest->id, $older->id], $section->products()->modelKeys());
+        $this->assertNotContains($oldest->id, $section->products()->modelKeys());
+    }
+
+    public function test_a_featured_section_becomes_the_novedades_section_when_there_is_none(): void
+    {
+        DB::table('home_sections')->insert([
+            ['title' => 'Destacados', 'type' => 'featured', 'products_limit' => 8, 'is_active' => true, 'sort_order' => 1],
+            ['title' => 'Más destacados', 'type' => 'featured', 'products_limit' => 8, 'is_active' => true, 'sort_order' => 2],
+        ]);
+
+        $this->runFeaturedToNovedadesMigration();
+
+        $this->assertSame(['Destacados'], HomeSection::query()->pluck('title')->all());
+        $this->assertSame(HomeSectionType::Latest, HomeSection::query()->sole()->type);
+    }
+
+    public function test_a_featured_section_is_removed_when_the_home_page_already_has_novedades(): void
+    {
+        $novedades = HomeSection::factory()->ofType(HomeSectionType::Latest)->create();
+        DB::table('home_sections')->insert(['title' => 'Destacados', 'type' => 'featured', 'products_limit' => 8, 'is_active' => true, 'sort_order' => 2]);
+
+        $this->runFeaturedToNovedadesMigration();
+
+        $this->assertSame([$novedades->id], HomeSection::query()->pluck('id')->all());
     }
 
     public function test_a_category_section_shows_products_of_that_category_in_the_owner_order(): void
@@ -141,5 +156,10 @@ class HomeSectionTest extends TestCase
             ->assertHasNoTableActionErrors();
 
         $this->assertSame('Lo nuevo de Hade', $section->refresh()->title);
+    }
+
+    private function runFeaturedToNovedadesMigration(): void
+    {
+        (require database_path('migrations/2026_11_03_082647_move_featured_home_sections_to_novedades.php'))->up();
     }
 }

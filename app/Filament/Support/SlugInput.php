@@ -36,9 +36,10 @@ class SlugInput
         JS;
 
     /**
-     * @param  string  $example  The address a sample record would get, shown in the tooltip.
+     * @param  string  $routeName  The storefront route the link opens, such as "products.show".
+     * @param  string  $sampleSlug  Shown in the tooltip until the field has a link of its own.
      */
-    public static function make(string $example): TextInput
+    public static function make(string $routeName, string $sampleSlug): TextInput
     {
         return TextInput::make('slug')
             ->label('Enlace')
@@ -47,7 +48,7 @@ class SlugInput
             ->regex(self::PATTERN)
             ->validationMessages(['regex' => 'Usa solo letras minúsculas sin tildes, números y guiones (-), sin espacios.'])
             ->unique(ignoreRecord: true)
-            ->hintIcon(Heroicon::OutlinedQuestionMarkCircle, tooltip: self::tooltip($example))
+            ->hintIcon(Heroicon::OutlinedQuestionMarkCircle, tooltip: fn (?string $state): string => self::tooltip($routeName, $sampleSlug, $state))
             ->extraInputAttributes(['x-on:input' => self::CLEAN_WHILE_TYPING], merge: true)
             ->live(onBlur: true)
             ->afterStateUpdated(function (Set $set, ?string $state): void {
@@ -81,9 +82,23 @@ class SlugInput
         return Str::slug((string) $value, '-', 'es', []);
     }
 
-    private static function tooltip(string $example): string
+    /**
+     * The address the record will have with the link as it stands, so the owner sees what
+     * they are sharing before saving.
+     */
+    private static function address(string $routeName, string $slug): string
     {
-        return "Es la última parte de la dirección web, por ejemplo: {$example}. "
+        return preg_replace('#^https?://(www\.)?#', '', route($routeName, $slug));
+    }
+
+    private static function tooltip(string $routeName, string $sampleSlug, ?string $slug): string
+    {
+        $address = filled($slug)
+            ? 'Así quedará la dirección: '.self::address($routeName, $slug).'. '
+            : 'Por ejemplo: '.self::address($routeName, $sampleSlug).'. ';
+
+        return 'Es la última parte de la dirección web de esta página, la que copias para compartirla por WhatsApp o redes. '
+            .$address
             .'Se escribe sola a partir del nombre y puedes cambiarla. '
             .'Solo admite minúsculas sin tildes, números y guiones: los espacios se cambian por guiones y los símbolos se quitan. '
             .'No puede repetirse. Si la cambias cuando ya está publicada, los enlaces que compartiste dejarán de funcionar.';

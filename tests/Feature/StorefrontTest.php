@@ -57,7 +57,7 @@ class StorefrontTest extends TestCase
 
     public function test_the_latest_section_offers_in_stock_products_to_add_to_the_cart(): void
     {
-        Product::factory()->create(['name' => 'Stickers Aurora', 'slug' => 'stickers-aurora']);
+        Product::factory()->markedAsNew()->create(['name' => 'Stickers Aurora', 'slug' => 'stickers-aurora']);
         HomeSection::factory()->ofType(HomeSectionType::Latest)->create(['title' => 'Novedades']);
 
         $this->get('/')
@@ -75,9 +75,10 @@ class StorefrontTest extends TestCase
     public function test_the_latest_section_shows_five_products_in_an_autoplay_mobile_carousel_and_desktop_grid(): void
     {
         foreach (range(1, 6) as $position) {
-            Product::factory()->create([
+            Product::factory()->markedAsNew()->create([
                 'name' => "Novedad {$position}",
                 'slug' => "novedad-{$position}",
+                'created_at' => now()->subDays(10 - $position),
             ]);
         }
         HomeSection::factory()->ofType(HomeSectionType::Latest)->create(['products_limit' => 8]);
@@ -168,7 +169,7 @@ class StorefrontTest extends TestCase
 
     public function test_the_how_it_works_section_renders_between_offers_and_latest_products(): void
     {
-        Product::factory()->onSale()->create(['name' => 'Kit Primavera', 'slug' => 'kit-primavera']);
+        Product::factory()->onSale()->markedAsNew()->create(['name' => 'Kit Primavera', 'slug' => 'kit-primavera']);
         HomeSection::factory()->ofType(HomeSectionType::Offers)->create(['sort_order' => 1]);
         HomeSection::factory()->ofType(HomeSectionType::Latest)->create(['sort_order' => 2]);
 
@@ -181,7 +182,7 @@ class StorefrontTest extends TestCase
 
     public function test_the_latest_section_does_not_offer_out_of_stock_products_to_add_to_the_cart(): void
     {
-        Product::factory()->create([
+        Product::factory()->markedAsNew()->create([
             'name' => 'Stickers Eclipse',
             'slug' => 'stickers-eclipse',
             'is_in_stock' => false,
@@ -312,18 +313,23 @@ class StorefrontTest extends TestCase
             ->assertDontSee('Top Coat');
     }
 
-    public function test_the_latest_products_page_orders_visible_products_from_newest_to_oldest(): void
+    public function test_the_novedades_page_lists_visible_products_marked_as_new_from_newest_to_oldest(): void
     {
-        Product::factory()->create([
+        Product::factory()->markedAsNew()->create([
             'name' => 'Diseño anterior',
             'created_at' => now()->subDays(2),
         ]);
-        Product::factory()->create([
+        Product::factory()->markedAsNew()->create([
             'name' => 'Diseño reciente',
             'created_at' => now()->subDay(),
         ]);
-        Product::factory()->hidden()->create([
+        Product::factory()->markedAsNew()->hidden()->create([
             'name' => 'Diseño oculto',
+            'created_at' => now(),
+        ]);
+        Product::factory()->create([
+            'name' => 'Diseño de siempre',
+            'is_featured' => false,
             'created_at' => now(),
         ]);
 
@@ -332,7 +338,8 @@ class StorefrontTest extends TestCase
             ->assertSee('Recién llegados')
             ->assertSee('Novedades')
             ->assertSeeInOrder(['Diseño reciente', 'Diseño anterior'])
-            ->assertDontSee('Diseño oculto');
+            ->assertDontSee('Diseño oculto')
+            ->assertDontSee('Diseño de siempre');
     }
 
     public function test_the_navigation_links_to_the_latest_products_page(): void

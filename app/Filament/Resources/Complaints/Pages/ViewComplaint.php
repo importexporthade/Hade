@@ -46,6 +46,7 @@ class ViewComplaint extends ViewRecord
                 ->schema([
                     Textarea::make('response')
                         ->label('Respuesta')
+                        ->hintIcon(Heroicon::OutlinedQuestionMarkCircle, tooltip: 'Tu respuesta oficial a la clienta. Se le envía por correo, queda guardada en el libro y se imprime en el PDF de la hoja. Después de enviarla ya no se puede cambiar.')
                         ->helperText('Explica qué hará la tienda: cambio, devolución, disculpa u otra solución.')
                         ->required()
                         ->minLength(20)

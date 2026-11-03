@@ -40,6 +40,7 @@ class AppServiceProvider extends ServiceProvider
         $this->keepSaveButtonsInView();
         $this->showValidationInsideTheForm();
         $this->useTwelveHourClock();
+        $this->stackTablesOnMobile();
     }
 
     /**
@@ -86,5 +87,14 @@ class AppServiceProvider extends ServiceProvider
         // A date picker is a date-time picker underneath, so it would otherwise show "12:00 am"
         DatePicker::configureUsing(fn (DatePicker $picker): DatePicker => $picker
             ->displayFormat(self::DATE_FORMAT));
+    }
+
+    /**
+     * On a phone the owner had to scroll every table sideways; each row now reads as a card
+     * with the column name above its value, and desktop keeps the usual table.
+     */
+    private function stackTablesOnMobile(): void
+    {
+        Table::configureUsing(fn (Table $table): Table => $table->stackedOnMobile());
     }
 }

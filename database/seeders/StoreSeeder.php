@@ -68,7 +68,7 @@ class StoreSeeder extends Seeder
                     'slug' => Str::slug($product[0]),
                     'price' => $product[1],
                     'compare_at_price' => $product[2] ?? null,
-                    'is_featured' => isset($product[2]),
+                    'is_featured' => true,
                     'images' => [],
                     'sort_order' => ++$position,
                 ]);

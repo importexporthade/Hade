@@ -45,20 +45,24 @@ class CategoryResource extends Resource
             ->components([
                 TextInput::make('name')
                     ->label('Nombre')
+                    ->hintIcon(Heroicon::OutlinedQuestionMarkCircle, tooltip: 'El nombre de la categoría tal como se ve en el menú de la tienda, en el pie de página, en la grilla de categorías de la portada y como título de su página. De él sale también el enlace.')
                     ->required()
                     ->maxLength(255)
                     ->live(debounce: 500)
                     ->afterStateUpdated(SlugInput::fillFromName()),
-                SlugInput::make('hadetienda.com/category/lamparas'),
+                SlugInput::make('categories.show', 'lamparas'),
                 Textarea::make('description')
                     ->label('Descripción')
+                    ->hintIcon(Heroicon::OutlinedQuestionMarkCircle, tooltip: 'Un texto corto que aparece debajo del nombre, en la página de la categoría, antes de sus productos. También se ve al compartir el enlace y lo lee Google. Es opcional.')
                     ->rows(3)
                     ->columnSpanFull(),
                 PhotoUpload::make('image', ImageKind::Category)
                     ->label('Foto')
+                    ->hintIcon(Heroicon::OutlinedQuestionMarkCircle, tooltip: 'La foto que representa a la categoría en la grilla de categorías de la portada. Usa una foto clara del tipo de producto; se optimiza sola.')
                     ->columnSpanFull(),
                 Toggle::make('is_visible')
                     ->label('Visible en la tienda')
+                    ->hintIcon(Heroicon::OutlinedQuestionMarkCircle, tooltip: 'Apagada, la categoría y todos sus productos dejan de verse en la tienda, aunque cada producto esté encendido. No se borra nada.')
                     ->default(true),
             ]);
     }

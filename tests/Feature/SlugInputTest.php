@@ -33,6 +33,15 @@ class SlugInputTest extends TestCase
             ->assertSchemaStateSet(['slug' => 'lampara-nandu-glitter']);
     }
 
+    public function test_the_link_tooltip_shows_the_address_the_name_will_have(): void
+    {
+        Livewire::test(CreateProduct::class)
+            ->assertSee('product/kit-hade-recargada')
+            ->fillForm(['name' => 'Lámpara Ñandú'])
+            ->assertSee('product/lampara-nandu')
+            ->assertDontSee('product/kit-hade-recargada');
+    }
+
     public function test_a_typed_link_turns_spaces_into_dashes_and_loses_special_characters(): void
     {
         Livewire::test(CreateProduct::class)

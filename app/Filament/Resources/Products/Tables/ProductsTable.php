@@ -82,7 +82,7 @@ class ProductsTable
                 ToggleColumn::make('is_in_stock')
                     ->label('Stock'),
                 ToggleColumn::make('is_featured')
-                    ->label('Destacado'),
+                    ->label('Novedad'),
                 TextColumn::make('updated_at')
                     ->label('Actualizado')
                     ->since()
@@ -114,6 +114,7 @@ class ProductsTable
                         ->schema([
                             TextInput::make('percentage')
                                 ->label('Descuento')
+                                ->hintIcon(Heroicon::OutlinedQuestionMarkCircle, tooltip: 'Cuánto se descuenta del precio normal. Por ejemplo, con 20 un producto de S/ 50.00 pasa a S/ 40.00 y muestra S/ 50.00 tachado.')
                                 ->helperText('Se calcula sobre el precio normal de cada producto.')
                                 ->required()
                                 ->integer()

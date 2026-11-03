@@ -50,8 +50,7 @@ class HomeSection extends Model
 
         match ($this->type) {
             HomeSectionType::Offers => $query->onSale()->orderBy('sort_order'),
-            HomeSectionType::Featured => $query->where('is_featured', true)->orderBy('sort_order'),
-            HomeSectionType::Latest => $query->latest()->latest('id'),
+            HomeSectionType::Latest => $query->markedAsNew(),
             HomeSectionType::Category => $query->where('category_id', $this->category_id)->orderBy('sort_order'),
         };
 

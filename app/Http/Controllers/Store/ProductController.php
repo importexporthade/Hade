@@ -12,7 +12,8 @@ use Illuminate\Http\Request;
 class ProductController extends Controller
 {
     /**
-     * Every visible product, or the ones whose name matches the search box.
+     * Every visible product, the ones whose name matches the search box, or the ones the
+     * owner marked as new for the "Novedades" page.
      */
     public function index(Request $request): View
     {
@@ -24,7 +25,7 @@ class ProductController extends Controller
             ->when($search !== '', fn ($query) => $query->whereLike('name', "%{$search}%"));
 
         if ($isLatest) {
-            $productsQuery->latest()->latest('id');
+            $productsQuery->markedAsNew();
         } else {
             $productsQuery->orderBy('sort_order');
         }

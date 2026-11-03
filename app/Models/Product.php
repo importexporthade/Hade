@@ -168,6 +168,16 @@ class Product extends Model
     /**
      * @param  Builder<Product>  $query
      */
+    /**
+     * The products the owner switched on as "Novedad", newest first. The switch is stored in
+     * the is_featured column, its name from before it was renamed in the manager.
+     */
+    #[Scope]
+    protected function markedAsNew(Builder $query): void
+    {
+        $query->where('is_featured', true)->latest()->latest('id');
+    }
+
     #[Scope]
     protected function onSale(Builder $query): void
     {

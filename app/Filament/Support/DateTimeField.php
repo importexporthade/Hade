@@ -28,8 +28,9 @@ class DateTimeField
 
     /**
      * @param  string|null  $after  Name of another DateTimeField this one must come after.
+     * @param  string|null  $tooltip  What the date means for the owner, shown beside the label.
      */
-    public static function make(string $name, string $label, string $defaultTime, ?string $placeholder = null, ?string $after = null): Group
+    public static function make(string $name, string $label, string $defaultTime, ?string $placeholder = null, ?string $after = null, ?string $tooltip = null): Group
     {
         $date = self::dateField($name);
         $time = self::timeField($name);
@@ -38,6 +39,7 @@ class DateTimeField
             Grid::make(['default' => 3])->schema([
                 DatePicker::make($date)
                     ->label($label)
+                    ->when($tooltip !== null, fn (DatePicker $picker): DatePicker => $picker->hintIcon(Heroicon::OutlinedQuestionMarkCircle, tooltip: $tooltip))
                     ->placeholder($placeholder)
                     ->native(false)
                     ->displayFormat('d/m/Y')

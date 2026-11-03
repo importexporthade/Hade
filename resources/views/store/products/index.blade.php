@@ -32,7 +32,7 @@
             <x-store.product-grid :products="$products" card-size="latest">
                 <x-slot:empty>
                     <div class="py-16 text-center">
-                        <p class="font-serif text-xl">{{ $search !== '' ? 'No encontramos productos con ese nombre.' : 'Aún no hay productos disponibles.' }}</p>
+                        <p class="font-serif text-xl">{{ $search !== '' ? 'No encontramos productos con ese nombre.' : ($isLatest ? 'Pronto habrá novedades.' : 'Aún no hay productos disponibles.') }}</p>
                         <a href="{{ route('products.index') }}" class="group mt-6 inline-flex min-h-11 items-center justify-center gap-2 rounded-full bg-burgundy px-6 text-sm font-semibold text-cream shadow-[0_10px_24px_-14px_rgba(106,30,46,0.65)] transition duration-300 hover:-translate-y-0.5 hover:bg-burgundy-dark focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-burgundy">
                             Ver todos los productos
                             <x-store.icon name="chevron-right" class="size-3.5 transition-transform duration-300 group-hover:translate-x-0.5 motion-reduce:transition-none motion-reduce:group-hover:translate-x-0" />
