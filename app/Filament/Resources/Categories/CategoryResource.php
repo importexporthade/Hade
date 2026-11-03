@@ -45,7 +45,7 @@ class CategoryResource extends Resource
             ->components([
                 TextInput::make('name')
                     ->label('Nombre')
-                    ->hintIcon(Heroicon::OutlinedQuestionMarkCircle, tooltip: 'El nombre de la categoría tal como se ve en el menú de la tienda, en el pie de página, en «Universo Hade» de la portada y como título de su página. De él sale también el enlace.')
+                    ->hintIcon(Heroicon::OutlinedQuestionMarkCircle, tooltip: 'Nombre de la categoría en el menú y la portada. Ej: Lámparas.')
                     ->required()
                     ->maxLength(255)
                     ->live(debounce: 500)
@@ -53,16 +53,16 @@ class CategoryResource extends Resource
                 SlugInput::make('categories.show', 'lamparas'),
                 Textarea::make('description')
                     ->label('Descripción')
-                    ->hintIcon(Heroicon::OutlinedQuestionMarkCircle, tooltip: 'Un texto corto que aparece debajo del nombre, en la página de la categoría, antes de sus productos. También se ve al compartir el enlace y lo lee Google. Es opcional.')
+                    ->hintIcon(Heroicon::OutlinedQuestionMarkCircle, tooltip: 'Texto bajo el nombre en la página de la categoría. Ej: Secado rápido para tus diseños.')
                     ->rows(3)
                     ->columnSpanFull(),
                 PhotoUpload::make('image', ImageKind::Category)
                     ->label('Foto')
-                    ->hintIcon(Heroicon::OutlinedQuestionMarkCircle, tooltip: 'La foto que representa a la categoría en «Universo Hade», la fila de categorías de la portada. Usa una foto clara del tipo de producto; se optimiza sola.')
+                    ->hintIcon(Heroicon::OutlinedQuestionMarkCircle, tooltip: 'Foto de la categoría en «Universo Hade» de la portada.')
                     ->columnSpanFull(),
                 Toggle::make('is_visible')
                     ->label('Visible en la tienda')
-                    ->hintIcon(Heroicon::OutlinedQuestionMarkCircle, tooltip: 'Apagada, la categoría y todos sus productos dejan de verse en la tienda, aunque cada producto esté encendido. No se borra nada.')
+                    ->hintIcon(Heroicon::OutlinedQuestionMarkCircle, tooltip: 'Apágala para ocultar la categoría y sus productos sin borrarlos.')
                     ->default(true),
             ]);
     }

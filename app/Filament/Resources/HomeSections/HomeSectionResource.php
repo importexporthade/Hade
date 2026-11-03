@@ -72,23 +72,23 @@ class HomeSectionResource extends Resource
             ->components([
                 TextInput::make('title')
                     ->label('Título')
-                    ->hintIcon(Heroicon::OutlinedQuestionMarkCircle, tooltip: 'El título grande de la sección en la portada, encima de sus productos, por ejemplo «Stickers Manicure». Algunas secciones con diseño especial, como Ofertas y Novedades, usan un título fijo.')
+                    ->hintIcon(Heroicon::OutlinedQuestionMarkCircle, tooltip: 'Título de la sección en la portada. Ej: Stickers Manicure.')
                     ->placeholder('Stickers Manicure')
                     ->required()
                     ->maxLength(255),
                 TextInput::make('subtitle')
                     ->label('Subtítulo')
-                    ->hintIcon(Heroicon::OutlinedQuestionMarkCircle, tooltip: 'Una frase corta en letra más pequeña debajo del título, por ejemplo «Diseños nuevos cada semana». Es opcional.')
+                    ->hintIcon(Heroicon::OutlinedQuestionMarkCircle, tooltip: 'Frase bajo el título. Ej: Diseños nuevos cada semana.')
                     ->maxLength(255),
                 Select::make('type')
                     ->label('Tipo de sección')
-                    ->hintIcon(Heroicon::OutlinedQuestionMarkCircle, tooltip: 'Decide qué se muestra en esta sección: las ofertas, las novedades que marcaste en cada producto, o los productos de una categoría. Cada opción explica qué incluye.')
+                    ->hintIcon(Heroicon::OutlinedQuestionMarkCircle, tooltip: 'Qué productos muestra la sección. Ej: Ofertas.')
                     ->options(HomeSectionType::class)
                     ->required()
                     ->live(),
                 Select::make('category_id')
                     ->label('Categoría')
-                    ->hintIcon(Heroicon::OutlinedQuestionMarkCircle, tooltip: 'La categoría cuyos productos se muestran en esta sección.')
+                    ->hintIcon(Heroicon::OutlinedQuestionMarkCircle, tooltip: 'Categoría cuyos productos se muestran. Ej: Lámparas.')
                     ->relationship('category', 'name')
                     ->searchable()
                     ->preload()
@@ -96,7 +96,7 @@ class HomeSectionResource extends Resource
                     ->required(fn (Get $get): bool => self::typeOf($get) === HomeSectionType::Category),
                 TextInput::make('products_limit')
                     ->label('Cuántos productos')
-                    ->hintIcon(Heroicon::OutlinedQuestionMarkCircle, tooltip: 'Cuántos productos se muestran como máximo en esta sección, de 1 a 24. Si hay menos, se muestran los que haya. Algunas secciones con diseño especial muestran una cantidad fija.')
+                    ->hintIcon(Heroicon::OutlinedQuestionMarkCircle, tooltip: 'Máximo de productos en la sección. Ej: 8.')
                     ->integer()
                     ->minValue(1)
                     ->maxValue(24)
@@ -104,7 +104,7 @@ class HomeSectionResource extends Resource
                     ->required(),
                 Toggle::make('is_active')
                     ->label('Visible en la portada')
-                    ->hintIcon(Heroicon::OutlinedQuestionMarkCircle, tooltip: 'Apagada, la sección deja de verse en la portada, pero queda guardada aquí para volver a encenderla.')
+                    ->hintIcon(Heroicon::OutlinedQuestionMarkCircle, tooltip: 'Apágala para ocultar la sección sin borrarla.')
                     // Label on top, like the inputs, so the switch lines up with the field beside it
                     ->inline(false)
                     ->default(true),

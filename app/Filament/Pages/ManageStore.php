@@ -58,34 +58,34 @@ class ManageStore extends Page
                     ->schema([
                         TextInput::make('store_name')
                             ->label('Nombre de la tienda')
-                            ->hintIcon(Heroicon::OutlinedQuestionMarkCircle, tooltip: 'El nombre de tu tienda. Se ve en la cabecera en celulares, al pie de cada página, en la pestaña del navegador y al compartir un enlace por WhatsApp o redes.')
+                            ->hintIcon(Heroicon::OutlinedQuestionMarkCircle, tooltip: 'El nombre de tu tienda en la web y al compartir enlaces. Ej: Hade.')
                             ->required()
                             ->maxLength(255),
                         TextInput::make('announcement')
                             ->label('Aviso superior')
-                            ->hintIcon(Heroicon::OutlinedQuestionMarkCircle, tooltip: 'Una frase corta en la franja de color sobre el menú, en todas las páginas. Úsala para avisos como envíos gratis o una promoción. Si la dejas vacía, la franja no aparece.')
+                            ->hintIcon(Heroicon::OutlinedQuestionMarkCircle, tooltip: 'Aviso en la franja sobre el menú. Ej: Envío gratis a todo el Perú.')
                             ->helperText('Franja sobre el menú, p. ej. "Delivery gratis a todo el Perú".')
                             ->maxLength(255),
                         PhotoUpload::make('logo', ImageKind::Logo)
                             ->label('Logo'),
                         PhotoUpload::make('header_image', ImageKind::Header)
                             ->label('Imagen de cabecera')
-                            ->hintIcon(Heroicon::OutlinedQuestionMarkCircle, tooltip: 'La foto de fondo de la pantalla para entrar al manager, la franja que se ve detrás de la caja de correo y contraseña.')
-                            ->hintIcon(Heroicon::OutlinedQuestionMarkCircle, tooltip: 'Tu logo. Se usa como imagen cuando alguien comparte por WhatsApp o redes un enlace de la tienda que no tiene foto propia, como la portada.')
+                            ->hintIcon(Heroicon::OutlinedQuestionMarkCircle, tooltip: 'Foto de fondo de la pantalla para entrar al manager.')
+                            ->hintIcon(Heroicon::OutlinedQuestionMarkCircle, tooltip: 'Imagen que se ve al compartir la tienda por WhatsApp o redes.')
                             ->helperText('La franja de fotos sobre el logo.'),
                     ]),
                 Section::make('Pedidos por WhatsApp')
                     ->schema([
                         TextInput::make('whatsapp_number')
                             ->label('Número de WhatsApp')
-                            ->hintIcon(Heroicon::OutlinedQuestionMarkCircle, tooltip: 'El número al que llegan los pedidos: el botón verde de WhatsApp y el botón para pedir del carrito abren un chat con él. Si lo dejas vacío, el botón verde no aparece.')
+                            ->hintIcon(Heroicon::OutlinedQuestionMarkCircle, tooltip: 'Número que recibe los pedidos del botón de WhatsApp. Ej: 51 986 000 362.')
                             ->helperText('Con código de país, p. ej. 51 986 000 362.')
                             ->tel()
                             ->regex('/^\+?[\d\s-]{8,20}$/')
                             ->maxLength(20),
                         TextInput::make('whatsapp_message')
                             ->label('Mensaje inicial')
-                            ->hintIcon(Heroicon::OutlinedQuestionMarkCircle, tooltip: 'El texto que ya viene escrito cuando la clienta abre el chat con el botón verde de WhatsApp. Ella puede cambiarlo antes de enviarlo.')
+                            ->hintIcon(Heroicon::OutlinedQuestionMarkCircle, tooltip: 'Texto con el que empieza el chat de WhatsApp. Ej: Hola, quiero hacer un pedido.')
                             ->placeholder('Hola. Me gustaría comprar un producto de tu tienda.')
                             ->maxLength(255),
                     ]),
@@ -93,18 +93,18 @@ class ManageStore extends Page
                     ->schema([
                         TextInput::make('email')
                             ->label('Correo')
-                            ->hintIcon(Heroicon::OutlinedQuestionMarkCircle, tooltip: 'Tu correo de contacto. Se muestra en el pie de página y en el Libro de Reclamaciones, y ahí te llegan los avisos de reclamos nuevos.')
+                            ->hintIcon(Heroicon::OutlinedQuestionMarkCircle, tooltip: 'Correo que ven las clientas y donde te llegan los reclamos. Ej: hola@hade.pe.')
                             ->helperText('También aquí llegan los avisos del Libro de Reclamaciones.')
                             ->email()
                             ->maxLength(255),
                         TextInput::make('phone')
                             ->label('Teléfono')
-                            ->hintIcon(Heroicon::OutlinedQuestionMarkCircle, tooltip: 'Un teléfono de contacto que se muestra en el pie de página y en las hojas de reclamación. Es opcional.')
+                            ->hintIcon(Heroicon::OutlinedQuestionMarkCircle, tooltip: 'Teléfono de contacto del pie de página. Ej: 01 234 5678.')
                             ->tel()
                             ->maxLength(30),
                         Textarea::make('footer_text')
                             ->label('Texto del pie de página')
-                            ->hintIcon(Heroicon::OutlinedQuestionMarkCircle, tooltip: 'Un párrafo sobre la tienda al pie de todas las páginas, junto al logo. Google y WhatsApp también lo usan como descripción de la tienda.')
+                            ->hintIcon(Heroicon::OutlinedQuestionMarkCircle, tooltip: 'Texto corto sobre la tienda al pie de cada página. Ej: Stickers para uñas hechos en Perú.')
                             ->helperText('Un párrafo sobre la tienda.')
                             ->rows(4)
                             ->maxLength(1000),
@@ -115,22 +115,22 @@ class ManageStore extends Page
                     ->schema([
                         TextInput::make('facebook_url')
                             ->label('Facebook')
-                            ->hintIcon(Heroicon::OutlinedQuestionMarkCircle, tooltip: 'La dirección completa de tu página de Facebook, empezando por https://. Aparece como ícono en el pie de página de la tienda; si la dejas vacía, el ícono no aparece.')
+                            ->hintIcon(Heroicon::OutlinedQuestionMarkCircle, tooltip: 'Tu página de Facebook, con ícono al pie de la tienda. Ej: https://facebook.com/hade.pe')
                             ->url()
                             ->maxLength(255),
                         TextInput::make('instagram_url')
                             ->label('Instagram')
-                            ->hintIcon(Heroicon::OutlinedQuestionMarkCircle, tooltip: 'La dirección completa de tu página de Instagram, empezando por https://. Aparece como ícono en el pie de página de la tienda; si la dejas vacía, el ícono no aparece.')
+                            ->hintIcon(Heroicon::OutlinedQuestionMarkCircle, tooltip: 'Tu perfil de Instagram, con ícono al pie de la tienda. Ej: https://instagram.com/hade.pe')
                             ->url()
                             ->maxLength(255),
                         TextInput::make('tiktok_url')
                             ->label('TikTok')
-                            ->hintIcon(Heroicon::OutlinedQuestionMarkCircle, tooltip: 'La dirección completa de tu página de TikTok, empezando por https://. Aparece como ícono en el pie de página de la tienda; si la dejas vacía, el ícono no aparece.')
+                            ->hintIcon(Heroicon::OutlinedQuestionMarkCircle, tooltip: 'Tu perfil de TikTok, con ícono al pie de la tienda. Ej: https://tiktok.com/@hade.pe')
                             ->url()
                             ->maxLength(255),
                         TextInput::make('youtube_url')
                             ->label('YouTube')
-                            ->hintIcon(Heroicon::OutlinedQuestionMarkCircle, tooltip: 'La dirección completa de tu página de YouTube, empezando por https://. Aparece como ícono en el pie de página de la tienda; si la dejas vacía, el ícono no aparece.')
+                            ->hintIcon(Heroicon::OutlinedQuestionMarkCircle, tooltip: 'Tu canal de YouTube, con ícono al pie de la tienda. Ej: https://youtube.com/@hade')
                             ->url()
                             ->maxLength(255),
                     ]),
@@ -141,17 +141,17 @@ class ManageStore extends Page
                     ->schema([
                         TextInput::make('legal_name')
                             ->label('Razón social o nombre del titular')
-                            ->hintIcon(Heroicon::OutlinedQuestionMarkCircle, tooltip: 'El nombre legal de la empresa o de la persona dueña, tal como figura en SUNAT. Se imprime en cada hoja del Libro de Reclamaciones.')
+                            ->hintIcon(Heroicon::OutlinedQuestionMarkCircle, tooltip: 'Nombre legal que figura en SUNAT, para el Libro de Reclamaciones. Ej: Hade S.A.C.')
                             ->maxLength(255),
                         TextInput::make('ruc')
                             ->label('RUC')
-                            ->hintIcon(Heroicon::OutlinedQuestionMarkCircle, tooltip: 'El RUC de 11 dígitos de la empresa o de la persona dueña. Se imprime en cada hoja del Libro de Reclamaciones.')
+                            ->hintIcon(Heroicon::OutlinedQuestionMarkCircle, tooltip: 'RUC para el Libro de Reclamaciones. Ej: 20123456789.')
                             ->regex('/^\d{11}$/')
                             ->validationMessages(['regex' => 'El RUC tiene 11 dígitos.'])
                             ->maxLength(11),
                         TextInput::make('legal_address')
                             ->label('Dirección fiscal')
-                            ->hintIcon(Heroicon::OutlinedQuestionMarkCircle, tooltip: 'La dirección registrada en SUNAT. Se imprime en cada hoja del Libro de Reclamaciones.')
+                            ->hintIcon(Heroicon::OutlinedQuestionMarkCircle, tooltip: 'Dirección fiscal para el Libro de Reclamaciones. Ej: Av. Larco 123, Miraflores.')
                             ->maxLength(255)
                             ->columnSpanFull(),
                     ]),

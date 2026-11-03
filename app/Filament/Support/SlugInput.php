@@ -93,14 +93,8 @@ class SlugInput
 
     private static function tooltip(string $routeName, string $sampleSlug, ?string $slug): string
     {
-        $address = filled($slug)
-            ? 'Así quedará la dirección: '.self::address($routeName, $slug).'. '
-            : 'Por ejemplo: '.self::address($routeName, $sampleSlug).'. ';
+        $slug = filled($slug) ? $slug : $sampleSlug;
 
-        return 'Es la última parte de la dirección web de esta página, la que copias para compartirla por WhatsApp o redes. '
-            .$address
-            .'Se escribe sola a partir del nombre y puedes cambiarla. '
-            .'Solo admite minúsculas sin tildes, números y guiones: los espacios se cambian por guiones y los símbolos se quitan. '
-            .'No puede repetirse. Si la cambias cuando ya está publicada, los enlaces que compartiste dejarán de funcionar.';
+        return 'Final de la dirección web, se llena solo con el nombre. Ej: '.self::address($routeName, $slug);
     }
 }

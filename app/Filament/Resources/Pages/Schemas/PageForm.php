@@ -23,7 +23,7 @@ class PageForm
                     ->schema([
                         TextInput::make('title')
                             ->label('Título')
-                            ->hintIcon(Heroicon::OutlinedQuestionMarkCircle, tooltip: 'El nombre de la página en el menú «Información» y en el pie de página, y su título grande al abrirla. De él sale también el enlace.')
+                            ->hintIcon(Heroicon::OutlinedQuestionMarkCircle, tooltip: 'Nombre de la página en el menú Información. Ej: Envíos y delivery.')
                             ->placeholder('Envíos y delivery')
                             ->required()
                             ->maxLength(255)
@@ -38,8 +38,8 @@ class PageForm
                     ->schema([
                         Radio::make('visibility')
                             ->hiddenLabel()
-                            ->hintIcon(Heroicon::OutlinedQuestionMarkCircle, tooltip: 'En qué partes de la tienda aparece el enlace a esta página. Aunque esté oculta, puedes seguir editándola aquí.')
-                            ->hintIcon(Heroicon::OutlinedQuestionMarkCircle, tooltip: 'Todo lo que lee la clienta al abrir la página, por ejemplo cómo son los envíos o los cambios. Puedes usar títulos, negritas, listas y enlaces.')
+                            ->hintIcon(Heroicon::OutlinedQuestionMarkCircle, tooltip: 'Dónde aparece el enlace a esta página. Ej: en el menú y en el pie.')
+                            ->hintIcon(Heroicon::OutlinedQuestionMarkCircle, tooltip: 'Lo que lee la clienta al abrir la página. Ej: plazos y costos de envío.')
                             ->options(PageVisibility::class)
                             ->default(PageVisibility::MenuAndFooter->value)
                             ->required(),
