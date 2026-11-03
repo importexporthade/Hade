@@ -3,13 +3,12 @@
 namespace App\Filament\Resources\Pages\Schemas;
 
 use App\Enums\PageVisibility;
+use App\Filament\Support\SlugInput;
 use Filament\Forms\Components\Radio;
 use Filament\Forms\Components\RichEditor;
 use Filament\Forms\Components\TextInput;
 use Filament\Schemas\Components\Section;
-use Filament\Schemas\Components\Utilities\Set;
 use Filament\Schemas\Schema;
-use Illuminate\Support\Str;
 
 class PageForm
 {
@@ -26,18 +25,9 @@ class PageForm
                             ->placeholder('Envíos y delivery')
                             ->required()
                             ->maxLength(255)
-                            ->live(onBlur: true)
-                            ->afterStateUpdated(function (Set $set, ?string $state, string $operation): void {
-                                if ($operation === 'create') {
-                                    $set('slug', Str::slug((string) $state));
-                                }
-                            }),
-                        TextInput::make('slug')
-                            ->label('Enlace')
-                            ->required()
-                            ->maxLength(255)
-                            ->alphaDash()
-                            ->unique(ignoreRecord: true),
+                            ->live(debounce: 500)
+                            ->afterStateUpdated(SlugInput::fillFromName()),
+                        SlugInput::make('hadetienda.com/information/envios-y-delivery'),
                         RichEditor::make('content')
                             ->label('Contenido'),
                     ]),

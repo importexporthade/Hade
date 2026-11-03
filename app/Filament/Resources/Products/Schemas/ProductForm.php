@@ -5,6 +5,7 @@ namespace App\Filament\Resources\Products\Schemas;
 use App\Enums\ImageKind;
 use App\Filament\Resources\Categories\CategoryResource;
 use App\Filament\Support\PhotoUpload;
+use App\Filament\Support\SlugInput;
 use App\Models\Category;
 use App\Support\Price;
 use Filament\Actions\Action;
@@ -17,9 +18,7 @@ use Filament\Schemas\Components\Callout;
 use Filament\Schemas\Components\Group;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Components\Utilities\Get;
-use Filament\Schemas\Components\Utilities\Set;
 use Filament\Schemas\Schema;
-use Illuminate\Support\Str;
 
 class ProductForm
 {
@@ -36,19 +35,9 @@ class ProductForm
                                 ->label('Nombre')
                                 ->required()
                                 ->maxLength(255)
-                                ->live(onBlur: true)
-                                ->afterStateUpdated(function (Set $set, ?string $state, string $operation): void {
-                                    if ($operation === 'create') {
-                                        $set('slug', Str::slug((string) $state));
-                                    }
-                                }),
-                            TextInput::make('slug')
-                                ->label('Enlace')
-                                ->helperText('Parte final de la dirección del producto en la tienda.')
-                                ->required()
-                                ->maxLength(255)
-                                ->alphaDash()
-                                ->unique(ignoreRecord: true),
+                                ->live(debounce: 500)
+                                ->afterStateUpdated(SlugInput::fillFromName()),
+                            SlugInput::make('hadetienda.com/product/kit-hade-recargada'),
                             Select::make('category_id')
                                 ->label('Categoría')
                                 ->relationship('category', 'name')

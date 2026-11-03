@@ -5,6 +5,7 @@ namespace App\Filament\Resources\Categories;
 use App\Enums\ImageKind;
 use App\Filament\Resources\Categories\Pages\ManageCategories;
 use App\Filament\Support\PhotoUpload;
+use App\Filament\Support\SlugInput;
 use App\Models\Category;
 use App\Support\ImageOptimizer;
 use BackedEnum;
@@ -14,14 +15,12 @@ use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
 use Filament\Resources\Resource;
-use Filament\Schemas\Components\Utilities\Set;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Columns\ImageColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Columns\ToggleColumn;
 use Filament\Tables\Table;
-use Illuminate\Support\Str;
 use UnitEnum;
 
 class CategoryResource extends Resource
@@ -48,18 +47,9 @@ class CategoryResource extends Resource
                     ->label('Nombre')
                     ->required()
                     ->maxLength(255)
-                    ->live(onBlur: true)
-                    ->afterStateUpdated(function (Set $set, ?string $state, string $operation): void {
-                        if ($operation === 'create') {
-                            $set('slug', Str::slug((string) $state));
-                        }
-                    }),
-                TextInput::make('slug')
-                    ->label('Enlace')
-                    ->required()
-                    ->maxLength(255)
-                    ->alphaDash()
-                    ->unique(ignoreRecord: true),
+                    ->live(debounce: 500)
+                    ->afterStateUpdated(SlugInput::fillFromName()),
+                SlugInput::make('hadetienda.com/category/lamparas'),
                 Textarea::make('description')
                     ->label('Descripción')
                     ->rows(3)
