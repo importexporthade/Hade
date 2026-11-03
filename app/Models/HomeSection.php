@@ -42,10 +42,6 @@ class HomeSection extends Model
      */
     public function products(?int $limit = null): Collection
     {
-        if (! $this->type->showsProducts()) {
-            return new Collection;
-        }
-
         $query = Product::query()->visible();
 
         match ($this->type) {

@@ -45,7 +45,7 @@ class CategoryResource extends Resource
             ->components([
                 TextInput::make('name')
                     ->label('Nombre')
-                    ->hintIcon(Heroicon::OutlinedQuestionMarkCircle, tooltip: 'El nombre de la categoría tal como se ve en el menú de la tienda, en el pie de página, en la grilla de categorías de la portada y como título de su página. De él sale también el enlace.')
+                    ->hintIcon(Heroicon::OutlinedQuestionMarkCircle, tooltip: 'El nombre de la categoría tal como se ve en el menú de la tienda, en el pie de página, en «Universo Hade» de la portada y como título de su página. De él sale también el enlace.')
                     ->required()
                     ->maxLength(255)
                     ->live(debounce: 500)
@@ -58,7 +58,7 @@ class CategoryResource extends Resource
                     ->columnSpanFull(),
                 PhotoUpload::make('image', ImageKind::Category)
                     ->label('Foto')
-                    ->hintIcon(Heroicon::OutlinedQuestionMarkCircle, tooltip: 'La foto que representa a la categoría en la grilla de categorías de la portada. Usa una foto clara del tipo de producto; se optimiza sola.')
+                    ->hintIcon(Heroicon::OutlinedQuestionMarkCircle, tooltip: 'La foto que representa a la categoría en «Universo Hade», la fila de categorías de la portada. Usa una foto clara del tipo de producto; se optimiza sola.')
                     ->columnSpanFull(),
                 Toggle::make('is_visible')
                     ->label('Visible en la tienda')

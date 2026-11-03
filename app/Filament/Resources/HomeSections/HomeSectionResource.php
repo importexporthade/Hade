@@ -82,7 +82,7 @@ class HomeSectionResource extends Resource
                     ->maxLength(255),
                 Select::make('type')
                     ->label('Tipo de sección')
-                    ->hintIcon(Heroicon::OutlinedQuestionMarkCircle, tooltip: 'Decide qué se muestra en esta sección: las ofertas, las novedades que marcaste en cada producto, los productos de una categoría o la grilla con todas las categorías. Cada opción explica qué incluye.')
+                    ->hintIcon(Heroicon::OutlinedQuestionMarkCircle, tooltip: 'Decide qué se muestra en esta sección: las ofertas, las novedades que marcaste en cada producto, o los productos de una categoría. Cada opción explica qué incluye.')
                     ->options(HomeSectionType::class)
                     ->required()
                     ->live(),
@@ -101,8 +101,7 @@ class HomeSectionResource extends Resource
                     ->minValue(1)
                     ->maxValue(24)
                     ->default(8)
-                    ->required()
-                    ->visible(fn (Get $get): bool => self::typeOf($get)?->showsProducts() ?? true),
+                    ->required(),
                 Toggle::make('is_active')
                     ->label('Visible en la portada')
                     ->hintIcon(Heroicon::OutlinedQuestionMarkCircle, tooltip: 'Apagada, la sección deja de verse en la portada, pero queda guardada aquí para volver a encenderla.')
@@ -136,9 +135,7 @@ class HomeSectionResource extends Resource
                     ->badge()
                     ->description(fn (HomeSection $record): ?string => $record->category?->name),
                 TextColumn::make('products_limit')
-                    ->label('Productos')
-                    ->state(fn (HomeSection $record): ?int => $record->type->showsProducts() ? $record->products_limit : null)
-                    ->placeholder('—'),
+                    ->label('Productos'),
                 ToggleColumn::make('is_active')
                     ->label('Visible'),
                 ViewColumn::make('edit')

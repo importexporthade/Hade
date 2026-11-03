@@ -87,15 +87,6 @@ class HomeSectionTest extends TestCase
         $this->assertEquals([$first->id, $second->id], $section->products()->modelKeys());
     }
 
-    public function test_a_categories_grid_shows_no_products(): void
-    {
-        Product::factory()->create();
-
-        $section = HomeSection::factory()->ofType(HomeSectionType::Categories)->create();
-
-        $this->assertTrue($section->products()->isEmpty());
-    }
-
     public function test_a_category_section_needs_a_category(): void
     {
         $this->actingAs(User::factory()->admin()->create());
@@ -156,6 +147,16 @@ class HomeSectionTest extends TestCase
             ->assertHasNoTableActionErrors();
 
         $this->assertSame('Lo nuevo de Hade', $section->refresh()->title);
+    }
+
+    public function test_categories_grid_sections_are_removed(): void
+    {
+        $offers = HomeSection::factory()->ofType(HomeSectionType::Offers)->create();
+        DB::table('home_sections')->insert(['title' => 'Categorías', 'type' => 'categories', 'products_limit' => 8, 'is_active' => true, 'sort_order' => 2]);
+
+        (require database_path('migrations/2026_11_03_094833_remove_categories_grid_home_sections.php'))->up();
+
+        $this->assertSame([$offers->id], HomeSection::query()->pluck('id')->all());
     }
 
     private function runFeaturedToNovedadesMigration(): void

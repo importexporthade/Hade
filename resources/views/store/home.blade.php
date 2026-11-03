@@ -145,42 +145,6 @@
                 @endif
                 @break
 
-            @case(HomeSectionType::Categories)
-                @if ($categories->isNotEmpty())
-                    <section class="pt-12" aria-labelledby="seccion-{{ $section->id }}">
-                        <div class="store-container">
-                            <h2 id="seccion-{{ $section->id }}" class="section-heading">{{ $section->title }}</h2>
-                            @if ($section->subtitle)
-                                <p class="mt-1 text-sm text-ink/60">{{ $section->subtitle }}</p>
-                            @endif
-                            <ul class="mt-5 grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-5">
-                                @foreach ($categories as $category)
-                                    <li>
-                                        <a href="{{ route('categories.show', $category) }}" class="group block">
-                                            <span class="block aspect-square overflow-hidden bg-tile">
-                                                @if ($category->image)
-                                                    <x-store.image
-                                                        :path="$category->image"
-                                                        :kind="ImageKind::Category"
-                                                        :width="320"
-                                                        sizes="(min-width: 1024px) 240px, (min-width: 640px) 33vw, 50vw"
-                                                        loading="lazy"
-                                                        class="size-full object-cover transition duration-500 group-hover:scale-105"
-                                                    />
-                                                @else
-                                                    <span class="grid size-full place-items-center bg-sage-light font-serif text-4xl text-emerald">{{ mb_substr($category->name, 0, 1) }}</span>
-                                                @endif
-                                            </span>
-                                            <span class="mt-2 block text-sm font-medium">{{ $category->name }}</span>
-                                        </a>
-                                    </li>
-                                @endforeach
-                            </ul>
-                        </div>
-                    </section>
-                @endif
-                @break
-
             @default
                 @php($isManicureSection = $section->type === HomeSectionType::Category && str_contains(mb_strtolower($section->category?->name ?? ''), 'manicur'))
                 @php($isPedicureSection = $section->type === HomeSectionType::Category && str_contains(mb_strtolower($section->category?->name ?? ''), 'pedicur'))
