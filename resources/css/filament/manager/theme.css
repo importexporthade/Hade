@@ -133,6 +133,114 @@
     display: none !important;
 }
 
+/*
+ * Tables on a phone: every row is a card on the ivory paper. The photo and the name lead,
+ * the rest pairs up in two columns, switches sit side by side, and the buttons close the
+ * card on a line of their own. Desktop keeps the usual table.
+ */
+@variant max-sm {
+    .fi-ta-table.fi-ta-table-stacked-on-mobile > tbody {
+        @apply flex flex-col gap-3 divide-y-0 bg-gray-50 p-3 dark:bg-gray-950/40;
+    }
+
+    .fi-ta-table.fi-ta-table-stacked-on-mobile > tbody > tr.fi-ta-row {
+        @apply flex flex-wrap items-start gap-x-4 gap-y-3 rounded-xl bg-white p-4 shadow-sm ring-1 ring-gray-200 dark:bg-gray-900 dark:ring-white/10;
+    }
+
+    .fi-ta-table.fi-ta-table-stacked-on-mobile > tbody > tr > .fi-ta-cell:not(.fi-ta-selection-cell) {
+        @apply min-w-0 flex-[1_1_calc(50%-0.5rem)] p-0;
+
+        & > .fi-ta-cell-label {
+            @apply pt-0 pb-0.5 text-[0.65rem] leading-4 font-semibold tracking-[0.12em] text-gray-500 uppercase dark:text-gray-400;
+        }
+
+        /* Columns with nothing to show for this row, such as "Oferta" on a product at full price */
+        &:not(:has(.fi-ta-text-item, .fi-ta-toggle, .fi-ta-placeholder, .fi-ta-actions, img, select, button)) {
+            @apply hidden;
+        }
+    }
+
+    /* The photo, small and square, beside the name */
+    .fi-ta-table.fi-ta-table-stacked-on-mobile > tbody > tr > :is(.fi-ta-cell-image, .fi-ta-cell-cover) {
+        @apply order-first flex-[0_0_3.5rem]!;
+
+        & > .fi-ta-cell-label {
+            @apply hidden;
+        }
+
+        & img {
+            @apply size-14! rounded-lg object-cover;
+        }
+    }
+
+    /* The name leads the card in larger type */
+    .fi-ta-table.fi-ta-table-stacked-on-mobile > tbody > tr > :is(.fi-ta-cell-title, .fi-ta-cell-name, .fi-ta-cell-consumer-name) {
+        @apply order-first flex-[1_1_calc(100%-4.5rem)]! self-center;
+
+        & > .fi-ta-cell-label {
+            @apply hidden;
+        }
+
+        & .fi-ta-text-item {
+            @apply text-base font-semibold text-gray-950 dark:text-white;
+        }
+    }
+
+    /* Room for the checkbox or the drag handle pinned to the top corner */
+    .fi-ta-table.fi-ta-table-stacked-on-mobile > tbody > tr:has(> .fi-ta-selection-cell, .fi-ta-reorder-handle) > :is(.fi-ta-cell-title, .fi-ta-cell-name, .fi-ta-cell-consumer-name) {
+        @apply pe-8;
+    }
+
+    .fi-ta-table.fi-ta-table-stacked-on-mobile > tbody > tr > .fi-ta-selection-cell {
+        @apply top-4 end-4 p-0;
+    }
+
+    .fi-ta-table.fi-ta-table-stacked-on-mobile > tbody > tr > .fi-ta-cell:has(.fi-ta-reorder-handle) {
+        @apply absolute! top-3 end-3 flex-none;
+
+        & > .fi-ta-cell-label {
+            @apply hidden;
+        }
+    }
+
+    /* A dropdown gets the full width so its longest option still reads */
+    .fi-ta-table.fi-ta-table-stacked-on-mobile > tbody > tr > .fi-ta-cell:has(select) {
+        @apply flex-[1_1_100%]!;
+    }
+
+    /* A hairline above the card's footer, where the switches and buttons live */
+    .fi-ta-table.fi-ta-table-stacked-on-mobile > tbody > tr.fi-ta-row:has(.fi-ta-toggle, .fi-ta-actions, .fi-ta-cell-edit)::after {
+        @apply order-50 h-px basis-full bg-gray-100 content-[''];
+    }
+
+    /* Plain CSS: Filament's dark variant cannot follow a pseudo-element */
+    .dark .fi-ta-table.fi-ta-table-stacked-on-mobile > tbody > tr.fi-ta-row::after {
+        background-color: rgb(255 255 255 / 0.1);
+    }
+
+    /* Switches read "VISIBLE ⏽" and share the footer, as many as fit */
+    .fi-ta-table.fi-ta-table-stacked-on-mobile > tbody > tr > .fi-ta-cell:has(.fi-ta-toggle) {
+        @apply order-60 flex flex-none! items-center gap-2;
+
+        & > .fi-ta-cell-label {
+            @apply pb-0;
+        }
+    }
+
+    /* Buttons close the footer on the right */
+    .fi-ta-table.fi-ta-table-stacked-on-mobile > tbody > tr > :is(.fi-ta-cell:has(.fi-ta-actions), .fi-ta-cell-edit) {
+        @apply order-70 ms-auto flex-none! self-center py-0!;
+
+        & > .fi-ta-cell-label {
+            @apply hidden;
+        }
+
+        & .fi-ta-actions {
+            @apply w-auto justify-end;
+        }
+    }
+}
+
 /* Rows that open their edit window on a click and move on a drag */
 .hade-click-to-edit [x-sortable-item] {
     @apply cursor-pointer transition-colors hover:bg-gray-950/[0.02] dark:hover:bg-white/[0.03];
