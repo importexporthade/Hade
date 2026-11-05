@@ -218,12 +218,12 @@
         background-color: rgb(255 255 255 / 0.1);
     }
 
-    /* Switches read "VISIBLE ⏽" and share the footer, as many as fit */
+    /* Each switch sits in a tile of the same width, its name above it, so they line up in a row */
     .fi-ta-table.fi-ta-table-stacked-on-mobile > tbody > tr > .fi-ta-cell:has(.fi-ta-toggle) {
-        @apply order-60 flex flex-none! items-center gap-2;
+        @apply order-60 flex max-w-24 flex-[1_1_0]! flex-col items-center gap-1.5 rounded-lg bg-gray-50 px-1 py-2 dark:bg-white/5;
 
         & > .fi-ta-cell-label {
-            @apply pb-0;
+            @apply pb-0 text-center tracking-[0.06em];
         }
     }
 
