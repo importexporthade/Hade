@@ -191,8 +191,9 @@
         @apply pe-8;
     }
 
+    /* Filament makes this cell 4px wide; sized to the checkbox, it keeps the card's 16px margin */
     .fi-ta-table.fi-ta-table-stacked-on-mobile > tbody > tr > .fi-ta-selection-cell {
-        @apply top-4 end-4 p-0;
+        @apply top-4 end-4 flex w-auto! p-0;
     }
 
     .fi-ta-table.fi-ta-table-stacked-on-mobile > tbody > tr > .fi-ta-cell:has(.fi-ta-reorder-handle) {
