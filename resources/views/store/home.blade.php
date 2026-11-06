@@ -357,17 +357,19 @@
                     <p class="mt-3 max-w-sm text-sm leading-relaxed text-ink/65">Lo que más nos preguntan antes de pedir sus stickers: pedidos, pagos, envíos y cómo aplicarlos.</p>
                 </div>
 
-                <div class="divide-y divide-rose/40 rounded-3xl border border-rose/40 bg-white px-5 shadow-[0_18px_40px_-30px_rgba(43,32,34,0.35)] sm:px-7 lg:col-start-2 lg:row-span-2 lg:row-start-1">
+                <div class="divide-y divide-rose/40 rounded-3xl border border-rose/40 bg-white px-5 shadow-[0_18px_40px_-30px_rgba(43,32,34,0.35)] sm:px-7 lg:col-start-2 lg:row-span-2 lg:row-start-1" data-faq-accordion>
                     @foreach ($questions as $question)
-                        <details class="group" name="preguntas-frecuentes">
-                            <summary class="flex cursor-pointer list-none items-center justify-between gap-4 py-4 text-left text-[0.95rem] font-semibold text-ink transition-colors hover:text-burgundy focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-burgundy group-open:text-burgundy sm:py-5 [&::-webkit-details-marker]:hidden">
+                        <details class="group" name="preguntas-frecuentes" data-faq-item>
+                            <summary class="group/trigger flex cursor-pointer list-none items-center justify-between gap-4 py-4 text-left text-[0.95rem] font-semibold text-ink transition-colors hover:text-burgundy focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-burgundy group-open:text-burgundy sm:py-5 [&::-webkit-details-marker]:hidden" data-faq-trigger>
                                 {{ $question['question'] }}
-                                <span class="grid size-8 shrink-0 place-items-center rounded-full bg-rose-light text-burgundy transition-transform duration-200 group-open:rotate-45 motion-reduce:transition-none" aria-hidden="true">
+                                <span class="grid size-8 shrink-0 place-items-center rounded-full bg-rose-light text-burgundy transition-transform duration-400 ease-[cubic-bezier(0.22,1,0.36,1)] group-aria-expanded/trigger:rotate-45 motion-reduce:transition-none" aria-hidden="true">
                                     <x-store.icon name="plus" class="size-4" />
                                 </span>
                             </summary>
-                            <div class="rich-text pb-5">
-                                {!! $question['answer'] !!}
+                            <div data-faq-panel>
+                                <div class="rich-text pb-5">
+                                    {!! $question['answer'] !!}
+                                </div>
                             </div>
                         </details>
                     @endforeach

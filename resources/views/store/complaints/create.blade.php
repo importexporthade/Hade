@@ -35,7 +35,7 @@
         </div>
     </section>
 
-    <div class="store-container max-w-3xl pt-8 sm:pt-10">
+    <div class="store-container pt-8 sm:pt-10">
         @if ($filed)
             <section class="{{ $sectionCard }}" role="status" aria-labelledby="receipt-title">
                 <div class="flex flex-col items-center text-center">

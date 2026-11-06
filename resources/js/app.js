@@ -1,5 +1,6 @@
 import { initCarousels } from './carousel';
 import { initCart } from './cart';
+import { initFaqAccordions } from './faq-accordion';
 import { initGalleries } from './gallery';
 import { initHeroSliders } from './hero-slider';
 import { initMoodShowcases } from './mood-showcase';
@@ -214,6 +215,7 @@ initMobileMenu();
 initDesktopDropdowns();
 initMobileSubmenus();
 initToggles();
+initFaqAccordions();
 initHeroSliders();
 initMoodShowcases();
 initCarousels();
