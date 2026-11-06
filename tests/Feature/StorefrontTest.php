@@ -30,13 +30,13 @@ class StorefrontTest extends TestCase
         Product::factory()->for($manicure)->create(['name' => 'Crepusculo']);
         Product::factory()->onSale()->create(['name' => 'Kit Hade Recargada']);
 
-        HomeSection::factory()->forCategory($manicure)->create(['title' => 'Stickers Manicure', 'sort_order' => 2]);
-        HomeSection::factory()->ofType(HomeSectionType::Offers)->create(['title' => 'Ofertas', 'sort_order' => 1]);
+        HomeSection::factory()->forCategory($manicure)->create(['title' => 'El arte en tus manos', 'sort_order' => 2]);
+        HomeSection::factory()->ofType(HomeSectionType::Offers)->create(['title' => 'Favoritos que combinan', 'sort_order' => 1]);
         HomeSection::factory()->ofType(HomeSectionType::Latest)->create(['title' => 'Sección apagada', 'is_active' => false]);
 
         $this->get('/')
             ->assertOk()
-            ->assertSeeInOrder(['Kits y promociones', 'Kit Hade Recargada', 'Stickers manicure', 'El arte en tus manos', 'Crepusculo'])
+            ->assertSeeInOrder(['Favoritos que combinan', 'Kit Hade Recargada', 'Stickers Manicure', 'El arte en tus manos', 'Crepusculo'])
             ->assertDontSee('Sección apagada');
     }
 
@@ -58,7 +58,7 @@ class StorefrontTest extends TestCase
     public function test_the_latest_section_offers_in_stock_products_to_add_to_the_cart(): void
     {
         Product::factory()->markedAsNew()->create(['name' => 'Stickers Aurora', 'slug' => 'stickers-aurora']);
-        HomeSection::factory()->ofType(HomeSectionType::Latest)->create(['title' => 'Novedades']);
+        HomeSection::factory()->ofType(HomeSectionType::Latest)->create(['title' => 'Nuevos hallazgos']);
 
         $this->get('/')
             ->assertOk()
@@ -81,7 +81,7 @@ class StorefrontTest extends TestCase
                 'created_at' => now()->subDays(10 - $position),
             ]);
         }
-        HomeSection::factory()->ofType(HomeSectionType::Latest)->create(['products_limit' => 8]);
+        HomeSection::factory()->ofType(HomeSectionType::Latest)->create(['title' => 'Nuevos hallazgos', 'products_limit' => 8]);
 
         $this->get('/')
             ->assertOk()
@@ -112,8 +112,8 @@ class StorefrontTest extends TestCase
             ]);
         }
 
-        HomeSection::factory()->forCategory($manicure)->create(['products_limit' => 8]);
-        HomeSection::factory()->forCategory($pedicure)->create(['products_limit' => 8]);
+        HomeSection::factory()->forCategory($manicure)->create(['title' => 'El arte en tus manos', 'products_limit' => 8]);
+        HomeSection::factory()->forCategory($pedicure)->create(['title' => 'Pies que enamoran', 'products_limit' => 8]);
 
         $this->get('/')
             ->assertOk()
@@ -133,7 +133,7 @@ class StorefrontTest extends TestCase
     public function test_the_offers_section_offers_in_stock_products_to_add_to_the_cart(): void
     {
         Product::factory()->onSale()->create(['name' => 'Kit Esencial', 'slug' => 'kit-esencial']);
-        HomeSection::factory()->ofType(HomeSectionType::Offers)->create(['title' => 'Ofertas']);
+        HomeSection::factory()->ofType(HomeSectionType::Offers)->create(['title' => 'Favoritos que combinan']);
 
         $this->get('/')
             ->assertOk()
@@ -170,14 +170,59 @@ class StorefrontTest extends TestCase
     public function test_the_how_it_works_section_renders_between_offers_and_latest_products(): void
     {
         Product::factory()->onSale()->markedAsNew()->create(['name' => 'Kit Primavera', 'slug' => 'kit-primavera']);
-        HomeSection::factory()->ofType(HomeSectionType::Offers)->create(['sort_order' => 1]);
-        HomeSection::factory()->ofType(HomeSectionType::Latest)->create(['sort_order' => 2]);
+        HomeSection::factory()->ofType(HomeSectionType::Offers)->create(['title' => 'Favoritos que combinan', 'sort_order' => 1]);
+        HomeSection::factory()->ofType(HomeSectionType::Latest)->create(['title' => 'Nuevos hallazgos', 'sort_order' => 2]);
 
         $this->get('/')
             ->assertOk()
             ->assertSeeInOrder(['Favoritos que combinan', 'Así de fácil. Así de Hade.', 'Nuevos hallazgos'])
             ->assertSeeInOrder(['Prepara', 'Elige y pega', 'Recorta y lima', 'Cura y disfruta'])
             ->assertSee('Encuentra tu diseño');
+    }
+
+    public function test_every_product_section_shares_the_same_design_with_the_title_from_the_manager(): void
+    {
+        $lamps = Category::factory()->create(['name' => 'Lámparas']);
+        Product::factory()->for($lamps)->create(['name' => 'Lámpara Glow']);
+        Product::factory()->markedAsNew()->create(['name' => 'Kit Novedad']);
+
+        HomeSection::factory()->forCategory($lamps)->create(['title' => 'Luz para tu ritual', 'sort_order' => 1]);
+        HomeSection::factory()->ofType(HomeSectionType::Latest)->create(['title' => 'Lo más pedido', 'sort_order' => 2]);
+
+        $this->get('/')
+            ->assertOk()
+            ->assertSeeInOrder(['Lámparas', 'Luz para tu ritual', 'Lámpara Glow', 'Agregar al carrito', 'Novedades', 'Lo más pedido', 'Kit Novedad', 'Agregar al carrito'])
+            ->assertSee('tracking-[0.24em] uppercase text-emerald">Lámparas</p>', false)
+            ->assertSee('aria-label="Ver más de Luz para tu ritual"', false)
+            ->assertSee('aria-label="Ver más de Lo más pedido"', false)
+            ->assertSee('href="'.route('categories.show', $lamps).'"', false);
+    }
+
+    public function test_product_sections_alternate_cream_and_green_backgrounds_whatever_their_category(): void
+    {
+        foreach (['Lámparas', 'Accesorios', 'Kits'] as $position => $name) {
+            $category = Category::factory()->create(['name' => $name]);
+            Product::factory()->for($category)->create();
+            HomeSection::factory()->forCategory($category)->create(['title' => $name, 'sort_order' => $position]);
+        }
+
+        $html = $this->get('/')->assertOk()->getContent();
+
+        preg_match_all('/<section class="(scalloped-section z-10 bg-cream|bg-forest) /', $html, $backgrounds);
+
+        $this->assertSame(['scalloped-section z-10 bg-cream', 'bg-forest', 'scalloped-section z-10 bg-cream'], $backgrounds[1]);
+    }
+
+    public function test_a_section_label_is_left_out_when_the_manager_title_repeats_it(): void
+    {
+        $lamps = Category::factory()->create(['name' => 'Lámparas']);
+        Product::factory()->for($lamps)->create();
+        HomeSection::factory()->forCategory($lamps)->create(['title' => 'Lámparas']);
+
+        $this->get('/')
+            ->assertOk()
+            ->assertSee('<h2 id="seccion-', false)
+            ->assertDontSee('tracking-[0.24em] uppercase text-emerald">Lámparas</p>', false);
     }
 
     public function test_the_latest_section_does_not_offer_out_of_stock_products_to_add_to_the_cart(): void

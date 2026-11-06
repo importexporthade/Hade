@@ -185,8 +185,12 @@ function initCustomerForm() {
     form.addEventListener('submit', (event) => event.preventDefault());
 }
 
+function cartCount() {
+    return items.reduce((sum, item) => sum + item.quantity, 0);
+}
+
 function render() {
-    const count = items.reduce((sum, item) => sum + item.quantity, 0);
+    const count = cartCount();
     const total = items.reduce((sum, item) => sum + item.price * item.quantity, 0);
 
     document.querySelectorAll('[data-cart-count]').forEach((badge) => {
@@ -291,6 +295,144 @@ function addItem(product, quantity) {
     }
 }
 
+/** How long the added-to-cart notice stays up when nobody is touching it. */
+const TOAST_DURATION = 4000;
+
+/** How far the notice must be swiped sideways before it is dismissed. */
+const TOAST_SWIPE_DISTANCE = 80;
+
+let toastTimer = null;
+
+function cartToast() {
+    return document.querySelector('[data-cart-toast]');
+}
+
+/**
+ * Restarts the wiggle on every add, even when products are added in a row, and lets the
+ * count pop in instead of jump when the cart was empty.
+ */
+function bumpCartIcon(wasEmpty) {
+    document.querySelectorAll('[data-cart-icon]').forEach((icon) => {
+        icon.classList.remove('cart-icon-bump', 'cart-icon-pop');
+        void icon.offsetWidth;
+        icon.classList.add(wasEmpty ? 'cart-icon-pop' : 'cart-icon-bump');
+    });
+}
+
+function announce(message) {
+    const announcer = document.querySelector('[data-cart-announcer]');
+
+    if (!announcer) {
+        return;
+    }
+
+    // Emptying it first makes screen readers repeat the message when the same product is added again
+    announcer.textContent = '';
+    setTimeout(() => {
+        announcer.textContent = message;
+    }, 50);
+}
+
+function scheduleToastHide() {
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(hideToast, TOAST_DURATION);
+}
+
+function hideToast() {
+    const toast = cartToast();
+
+    clearTimeout(toastTimer);
+
+    if (toast) {
+        toast.dataset.open = 'false';
+        toast.style.removeProperty('--toast-drag');
+    }
+}
+
+/**
+ * Shows what was just added. Adding more while it is up replaces its contents instead of
+ * stacking another notice on top.
+ */
+function showToast(product) {
+    const toast = cartToast();
+    const quantity = items.find((item) => item.id === product.id)?.quantity ?? 0;
+
+    announce(`${product.name} agregado a tu carrito`);
+
+    if (!toast) {
+        return;
+    }
+
+    toast.querySelector('[data-cart-toast-image]').src = product.image;
+    toast.querySelector('[data-cart-toast-name]').textContent = product.name;
+    toast.querySelector('[data-cart-toast-quantity]').textContent = `Tienes ${quantity} en tu carrito`;
+
+    // On larger screens it hangs just under the sticky header, wherever the header sits right now
+    const header = document.querySelector('header');
+
+    if (header) {
+        toast.style.setProperty('--cart-toast-top', `${Math.max(0, header.getBoundingClientRect().bottom) + 12}px`);
+    }
+
+    toast.dataset.open = 'true';
+    scheduleToastHide();
+}
+
+function initCartToast() {
+    const toast = cartToast();
+
+    if (!toast) {
+        return;
+    }
+
+    toast.querySelector('[data-cart-toast-close]').addEventListener('click', hideToast);
+
+    // It waits while the customer is reading or about to tap it
+    toast.addEventListener('pointerenter', () => clearTimeout(toastTimer));
+    toast.addEventListener('pointerleave', () => toast.dataset.open === 'true' && scheduleToastHide());
+    toast.addEventListener('focusin', () => clearTimeout(toastTimer));
+    toast.addEventListener('focusout', () => toast.dataset.open === 'true' && scheduleToastHide());
+
+    let swipeStart = null;
+
+    toast.addEventListener('pointerdown', (event) => {
+        if (event.pointerType !== 'mouse') {
+            swipeStart = event.clientX;
+            clearTimeout(toastTimer);
+        }
+    });
+
+    toast.addEventListener('pointermove', (event) => {
+        if (swipeStart === null) {
+            return;
+        }
+
+        toast.dataset.dragging = '';
+        toast.style.setProperty('--toast-drag', `${event.clientX - swipeStart}px`);
+    });
+
+    const endSwipe = (event) => {
+        if (swipeStart === null) {
+            return;
+        }
+
+        const distance = Math.abs(event.clientX - swipeStart);
+
+        swipeStart = null;
+        delete toast.dataset.dragging;
+
+        if (distance > TOAST_SWIPE_DISTANCE) {
+            hideToast();
+        } else {
+            toast.style.removeProperty('--toast-drag');
+            scheduleToastHide();
+        }
+    };
+
+    toast.addEventListener('pointerup', endSwipe);
+    toast.addEventListener('pointercancel', endSwipe);
+}
+
 function showStep(nextStep) {
     step = nextStep;
     render();
@@ -309,6 +451,7 @@ function showStep(nextStep) {
 function openCart() {
     const drawer = document.querySelector('[data-cart]');
 
+    hideToast();
     step = 'items';
     render();
 
@@ -328,6 +471,7 @@ export function initCart() {
     }
 
     initCustomerForm();
+    initCartToast();
     render();
 
     document.querySelectorAll('[data-cart-open]').forEach((button) => button.addEventListener('click', openCart));
@@ -337,6 +481,7 @@ export function initCart() {
     document.addEventListener('keydown', (event) => {
         if (event.key === 'Escape') {
             closeCart();
+            hideToast();
         }
     });
 
@@ -353,9 +498,13 @@ export function initCart() {
             event.preventDefault();
 
             const quantity = Math.min(99, Math.max(1, Number(form.querySelector('[data-quantity]')?.value || 1)));
+            const product = JSON.parse(form.dataset.addToCart);
+            const wasEmpty = cartCount() === 0;
 
-            addItem(JSON.parse(form.dataset.addToCart), quantity);
-            openCart();
+            // Adding keeps the customer where they are; the drawer only opens from the cart icon or the notice
+            addItem(product, quantity);
+            bumpCartIcon(wasEmpty);
+            showToast(product);
         });
     });
 

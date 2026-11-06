@@ -46,7 +46,7 @@
         <a href="#contenido" class="sr-only focus:not-sr-only focus:absolute focus:z-50 focus:bg-white focus:p-3">Ir al contenido</a>
 
         @if ($settings->announcement)
-            <div class="bg-rose px-4 py-2 text-center text-xs font-medium tracking-wide text-burgundy">
+            <div class="bg-forest px-4 py-2 text-center text-xs font-medium tracking-wide text-cream">
                 {{ $settings->announcement }}
             </div>
         @endif
@@ -64,7 +64,15 @@
                 ];
                 $latestIsActive = request()->routeIs('products.index') && request('collection') === 'latest';
                 $storeIsActive = request()->routeIs('products.show', 'categories.*') || (request()->routeIs('products.index') && ! $latestIsActive);
-                $informationIsActive = request()->routeIs('pages.*');
+                $legalLinks = [
+                    ['label' => 'Política de privacidad', 'slug' => 'politica-de-privacidad'],
+                    ['label' => 'Términos y condiciones', 'slug' => 'terminos-y-condiciones'],
+                    ['label' => 'Cambios y devoluciones', 'slug' => 'cambios-y-devoluciones'],
+                ];
+                $legalPageSlugs = collect($legalLinks)->pluck('slug');
+                // Legal pages live only in the footer's "Legal" column, not in the "Información" menu
+                $menuPages = $pages->whereNotIn('slug', $legalPageSlugs);
+                $informationIsActive = request()->routeIs('pages.*') && $menuPages->contains('slug', request()->route('page')?->slug);
             @endphp
 
             <div class="store-container relative z-10 flex h-16 items-center justify-between lg:h-24 lg:justify-start lg:gap-5">
@@ -146,7 +154,7 @@
                                 'hover:bg-rose-light hover:text-burgundy' => ! (request()->routeIs('categories.show') && request()->route('category')?->is($kitsCategory)),
                             ])>Kits</a></li>
                         @endif
-                        @if ($pages->isNotEmpty())
+                        @if ($menuPages->isNotEmpty())
                             <li class="group static flex items-center self-stretch" data-nav-dropdown>
                                 <button type="button" @class([
                                     'flex items-center gap-1.5 rounded-full px-4 py-2.5 font-medium tracking-[0.01em] text-ink/70 transition-colors duration-200 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-burgundy',
@@ -168,7 +176,7 @@
                                         </div>
 
                                         <ul class="grid grid-cols-2 content-center gap-1 px-6 py-4 xl:grid-cols-3">
-                                            @foreach ($pages as $page)
+                                            @foreach ($menuPages as $page)
                                                 <li>
                                                     <a href="{{ route('pages.show', $page) }}" @class([
                                                         'block rounded-xl px-4 py-3 text-sm text-ink/70 transition-colors duration-200 hover:bg-rose-light hover:text-burgundy focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-burgundy',
@@ -197,7 +205,7 @@
                         <x-store.icon name="search" class="size-5" />
                     </button>
 
-                    <button type="button" class="relative grid size-10 place-items-center rounded-full transition hover:bg-white hover:text-emerald focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald" data-cart-open aria-controls="carrito">
+                    <button type="button" class="relative grid size-10 place-items-center rounded-full transition hover:bg-white hover:text-emerald focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald" data-cart-open data-cart-icon aria-controls="carrito">
                         <x-store.icon name="cart" class="size-6" />
                         <span class="absolute -top-0.5 -right-0.5 grid min-h-4 min-w-4 place-items-center rounded-full bg-emerald px-1 text-[0.62rem] leading-none font-bold text-white ring-2 ring-cream" data-cart-count>0</span>
                         <span class="sr-only">Abrir carrito</span>
@@ -275,7 +283,7 @@
                             </li>
                         @endif
 
-                        @if ($pages->isNotEmpty())
+                        @if ($menuPages->isNotEmpty())
                             <li data-mobile-submenu data-open="{{ $informationIsActive ? 'true' : 'false' }}">
                                 <button type="button" class="group flex w-full items-center justify-between rounded-xl px-3 py-3 text-left font-medium transition hover:bg-rose-light focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-burgundy" aria-controls="menu-movil-informacion" aria-expanded="{{ $informationIsActive ? 'true' : 'false' }}" data-submenu-trigger>
                                     <span @class(['text-burgundy' => $informationIsActive])>Información</span>
@@ -286,7 +294,7 @@
                                 <div id="menu-movil-informacion" class="grid grid-rows-[0fr] transition-[grid-template-rows] duration-200 ease-out data-[open=true]:grid-rows-[1fr] motion-reduce:transition-none" aria-hidden="{{ $informationIsActive ? 'false' : 'true' }}" data-submenu-panel data-open="{{ $informationIsActive ? 'true' : 'false' }}" @if (! $informationIsActive) inert @endif>
                                     <div class="overflow-hidden">
                                         <ul class="mx-3 mb-2 border-l border-rose/40 pl-3">
-                                            @foreach ($pages as $page)
+                                            @foreach ($menuPages as $page)
                                                 <li>
                                                     <a href="{{ route('pages.show', $page) }}" @class([
                                                         'flex items-center gap-2.5 rounded-lg px-3 py-2.5 text-sm text-ink/65 transition-colors hover:bg-rose-light hover:text-burgundy',
@@ -337,15 +345,7 @@
                     </ul>
                 </div>
 
-                @php
-                    $legalLinks = [
-                        ['label' => 'Política de privacidad', 'slug' => 'politica-de-privacidad'],
-                        ['label' => 'Términos y condiciones', 'slug' => 'terminos-y-condiciones'],
-                        ['label' => 'Cambios y devoluciones', 'slug' => 'cambios-y-devoluciones'],
-                    ];
-                    $legalPageSlugs = collect($legalLinks)->pluck('slug');
-                    $footerPages = $pages->filter->isInFooter()->whereNotIn('slug', $legalPageSlugs);
-                @endphp
+                @php($footerPages = $menuPages->filter->isInFooter())
                 <div>
                     <h2 class="text-sm font-bold">Información</h2>
                     <ul class="mt-3 space-y-2 text-sm text-white/70">
@@ -381,6 +381,9 @@
                         @if ($settings->ruc)
                             <li>RUC {{ $settings->ruc }}</li>
                         @endif
+                        @if ($settings->legal_address)
+                            <li>{{ $settings->legal_address }}</li>
+                        @endif
                     </ul>
                 </div>
 
@@ -412,6 +415,26 @@
                 <x-store.icon name="whatsapp" class="size-8" />
             </a>
         @endif
+
+        {{-- Added-to-cart notice, filled by resources/js/cart.js so adding a product never interrupts browsing --}}
+        <div class="cart-toast" data-cart-toast data-open="false">
+            <div class="relative flex items-center gap-3 rounded-2xl border border-white/10 bg-forest p-3 text-cream shadow-[0_24px_50px_-20px_rgba(35,72,60,0.65)]">
+                <img alt="" class="size-14 shrink-0 rounded-xl bg-tile object-cover ring-1 ring-white/15" data-cart-toast-image>
+                <div class="min-w-0 flex-1">
+                    <p class="flex items-center gap-1 text-[0.6rem] font-semibold tracking-[0.18em] text-rose-light uppercase">
+                        <x-store.icon name="check" class="size-3.5" />
+                        Agregado a tu carrito
+                    </p>
+                    <p class="mt-0.5 truncate text-sm font-semibold text-white" data-cart-toast-name></p>
+                    <p class="text-xs text-white/70" data-cart-toast-quantity></p>
+                </div>
+                <button type="button" class="inline-flex min-h-9 shrink-0 items-center rounded-full bg-cream px-4 text-xs font-semibold text-forest transition hover:bg-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white" data-cart-open aria-controls="carrito">Ver carrito</button>
+                <button type="button" class="absolute -top-2.5 -right-2.5 grid size-7 place-items-center rounded-full border border-white/20 bg-forest-dark text-white/75 shadow-sm transition hover:text-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white" data-cart-toast-close aria-label="Cerrar aviso">
+                    <x-store.icon name="x" class="size-3.5" />
+                </button>
+            </div>
+        </div>
+        <p class="sr-only" role="status" data-cart-announcer></p>
 
         {{-- Cart drawer, filled by resources/js/cart.js from the browser's saved cart --}}
         <div id="carrito" class="fixed inset-0 z-40" hidden data-cart role="dialog" aria-modal="true" aria-labelledby="carrito-titulo">

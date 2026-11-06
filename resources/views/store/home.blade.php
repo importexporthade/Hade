@@ -119,13 +119,15 @@
                     <section class="bg-emerald py-10 sm:py-12 lg:py-14" aria-labelledby="seccion-{{ $section->id }}">
                         <div class="store-container">
                             <div class="max-w-xl text-left text-white">
-                                <p class="text-[0.5rem] font-semibold tracking-[0.24em] text-sage uppercase">Kits y promociones</p>
-                                <h2 id="seccion-{{ $section->id }}" class="mt-1 font-serif text-[clamp(1.85rem,1.35rem+2vw,2.75rem)] leading-tight font-medium tracking-[-0.03em]">Favoritos que combinan</h2>
+                                @if (mb_strtolower($section->type->getLabel()) !== mb_strtolower($section->title))
+                                    <p class="text-[0.5rem] font-semibold tracking-[0.24em] text-sage uppercase">{{ $section->type->getLabel() }}</p>
+                                @endif
+                                <h2 id="seccion-{{ $section->id }}" class="mt-1 font-serif text-[clamp(1.85rem,1.35rem+2vw,2.75rem)] leading-tight font-medium tracking-[-0.03em]">{{ $section->title }}</h2>
                                 @if ($section->subtitle)
                                     <p class="mt-2 text-sm text-white/75">{{ $section->subtitle }}</p>
                                 @endif
                             </div>
-                            <x-store.carousel label="Favoritos que combinan" :autoplay="true" :interval="5000" :merge-last-page="true" class="mt-6 gap-5 sm:mt-8">
+                            <x-store.carousel :label="$section->title" :autoplay="true" :interval="5000" :merge-last-page="true" class="mt-6 gap-5 sm:mt-8">
                                 @foreach ($products as $product)
                                     <x-store.product-card :product="$product" size="large" class="w-[80%] shrink-0 sm:w-[calc((100%-1.25rem)/2)] lg:w-[30%]" />
                                 @endforeach
@@ -146,14 +148,16 @@
                 @break
 
             @default
+                {{-- Every product section shares one design: the heading comes from the manager, the small label names its category, and the background alternates cream and green --}}
                 @php($isManicureSection = $section->type === HomeSectionType::Category && str_contains(mb_strtolower($section->category?->name ?? ''), 'manicur'))
-                @php($isPedicureSection = $section->type === HomeSectionType::Category && str_contains(mb_strtolower($section->category?->name ?? ''), 'pedicur'))
-                @php($usesFiveProductGrid = $section->type === HomeSectionType::Latest || $isManicureSection || $isPedicureSection)
-                @php($products = $section->products($usesFiveProductGrid ? 5 : null))
-                @php($usesEditorialHeadingStyle = $usesFiveProductGrid)
-                @php($sectionLabel = $section->type === HomeSectionType::Latest ? 'Novedades' : ($isManicureSection ? 'Stickers manicure' : ($isPedicureSection ? 'Stickers pedicure' : null)))
-                @php($sectionHeading = $section->type === HomeSectionType::Latest ? 'Nuevos hallazgos' : ($isManicureSection ? 'El arte en tus manos' : ($isPedicureSection ? 'Pies que enamoran' : $section->title)))
+                @php($products = $section->products(5))
+                @php($sectionHeading = $section->title)
+                @php($sectionLabel = $section->category?->name ?? $section->type->getLabel())
+                @php($sectionLabel = mb_strtolower($sectionLabel) === mb_strtolower($sectionHeading) ? null : $sectionLabel)
+                @php($sectionLink = $section->category ? route('categories.show', $section->category) : ($section->type === HomeSectionType::Latest ? route('products.index', ['collection' => 'latest']) : route('products.index')))
                 @if ($products->isNotEmpty())
+                    @php($productSectionCount = ($productSectionCount ?? 0) + 1)
+                    @php($isDarkSection = $productSectionCount % 2 === 0)
                     @if ($section->type === HomeSectionType::Latest)
                         @once
                             <section class="relative isolate overflow-hidden bg-blush py-10 sm:py-12 lg:py-14" aria-labelledby="como-funciona-title">
@@ -206,59 +210,38 @@
                     @endif
 
                     <section @class([
-                        'pt-12' => $section->type !== HomeSectionType::Latest && ! $isManicureSection && ! $isPedicureSection,
-                        'scalloped-section z-10 bg-cream py-12' => $section->type === HomeSectionType::Latest || $isPedicureSection,
-                        'bg-forest py-10 sm:py-12 lg:py-14' => $isManicureSection,
+                        'scalloped-section z-10 bg-cream py-12' => ! $isDarkSection,
+                        'bg-forest py-10 sm:py-12 lg:py-14' => $isDarkSection,
                     ]) aria-labelledby="seccion-{{ $section->id }}">
                         <div class="store-container">
-                            <div class="flex items-end justify-between gap-4">
-                                <div>
-                                    @if ($sectionLabel)
-                                        <p @class([
-                                            'text-[0.5rem] font-semibold tracking-[0.24em] uppercase',
-                                            'text-rose-light' => $isManicureSection,
-                                            'text-emerald' => ! $isManicureSection,
-                                        ])>{{ $sectionLabel }}</p>
-                                    @endif
-                                    <h2 id="seccion-{{ $section->id }}" @class([
-                                        'section-heading' => ! $usesEditorialHeadingStyle,
-                                        'mt-1 font-serif text-[clamp(1.85rem,1.35rem+2vw,2.75rem)] leading-tight font-medium tracking-[-0.03em]' => $usesEditorialHeadingStyle,
-                                        'text-white' => $isManicureSection,
-                                    ])>{{ $sectionHeading }}</h2>
-                                    @if ($section->subtitle)
-                                        <p @class(['mt-1 text-sm', 'text-white/75' => $isManicureSection, 'text-ink/60' => ! $isManicureSection])>{{ $section->subtitle }}</p>
-                                    @endif
-                                </div>
-                                @unless ($usesFiveProductGrid)
-                                    <a href="{{ $section->category ? route('categories.show', $section->category) : route('products.index') }}" @class([
-                                        'shrink-0 text-sm',
-                                        'text-white/75 hover:text-white' => $isManicureSection,
-                                        'text-ink/70 hover:text-ink' => ! $isManicureSection,
-                                    ])>Ver más</a>
-                                @endunless
-                            </div>
-
-                            @if ($usesFiveProductGrid)
-                                <x-store.carousel :label="'Productos de '.$sectionHeading" :autoplay="true" :interval="5000" :merge-last-page="true" :arrows="false" class="mt-5 lg:grid lg:grid-cols-5 lg:gap-x-4 lg:gap-y-8 lg:overflow-visible lg:pb-0">
-                                    @foreach ($products as $product)
-                                        <x-store.product-card :product="$product" size="latest" class="w-[76%] shrink-0 sm:w-[calc((100%-1rem)/2)] lg:w-auto" />
-                                    @endforeach
-                                </x-store.carousel>
-
-                                <div class="mt-8 flex justify-center">
-                                    <a href="{{ $section->category ? route('categories.show', $section->category) : route('products.index', ['collection' => 'latest']) }}" aria-label="Ver más de {{ $sectionHeading }}" @class([
-                                        'inline-flex min-h-11 items-center justify-center rounded-full px-6 text-sm font-semibold transition duration-300 focus-visible:outline-2 focus-visible:outline-offset-4',
-                                        'bg-white text-forest hover:bg-rose-light focus-visible:outline-white' => $isManicureSection,
-                                        'bg-burgundy text-white hover:bg-burgundy-dark focus-visible:outline-burgundy' => ! $isManicureSection,
-                                    ])>Ver más</a>
-                                </div>
-                            @else
-                                <x-store.carousel :label="$sectionHeading" class="mt-5">
-                                    @foreach ($products as $product)
-                                        <x-store.product-card :product="$product" class="w-40 shrink-0 sm:w-48 lg:w-[calc(20%-0.8rem)]" />
-                                    @endforeach
-                                </x-store.carousel>
+                            @if ($sectionLabel)
+                                <p @class([
+                                    'text-[0.5rem] font-semibold tracking-[0.24em] uppercase',
+                                    'text-rose-light' => $isDarkSection,
+                                    'text-emerald' => ! $isDarkSection,
+                                ])>{{ $sectionLabel }}</p>
                             @endif
+                            <h2 id="seccion-{{ $section->id }}" @class([
+                                'mt-1 font-serif text-[clamp(1.85rem,1.35rem+2vw,2.75rem)] leading-tight font-medium tracking-[-0.03em]',
+                                'text-white' => $isDarkSection,
+                            ])>{{ $sectionHeading }}</h2>
+                            @if ($section->subtitle)
+                                <p @class(['mt-1 text-sm', 'text-white/75' => $isDarkSection, 'text-ink/60' => ! $isDarkSection])>{{ $section->subtitle }}</p>
+                            @endif
+
+                            <x-store.carousel :label="'Productos de '.$sectionHeading" :autoplay="true" :interval="5000" :merge-last-page="true" :arrows="false" class="mt-5 lg:grid lg:grid-cols-5 lg:gap-x-4 lg:gap-y-8 lg:overflow-visible lg:pb-0">
+                                @foreach ($products as $product)
+                                    <x-store.product-card :product="$product" size="latest" class="w-[76%] shrink-0 sm:w-[calc((100%-1rem)/2)] lg:w-auto" />
+                                @endforeach
+                            </x-store.carousel>
+
+                            <div class="mt-8 flex justify-center">
+                                <a href="{{ $sectionLink }}" aria-label="Ver más de {{ $sectionHeading }}" @class([
+                                    'inline-flex min-h-11 items-center justify-center rounded-full px-6 text-sm font-semibold transition duration-300 focus-visible:outline-2 focus-visible:outline-offset-4',
+                                    'bg-white text-forest hover:bg-rose-light focus-visible:outline-white' => $isDarkSection,
+                                    'bg-burgundy text-white hover:bg-burgundy-dark focus-visible:outline-burgundy' => ! $isDarkSection,
+                                ])>Ver más</a>
+                            </div>
                         </div>
                     </section>
 
@@ -363,5 +346,56 @@
             <p class="mt-2 text-ink/60">Estamos preparando la tienda.</p>
         </section>
     @endforelse
+
+    {{-- The first questions of the "Preguntas frecuentes" page, so the owner edits them in one place --}}
+    @if ($questions !== [])
+        <section class="bg-blush pt-16 pb-14 sm:pt-18 lg:pt-20 lg:pb-18" aria-labelledby="preguntas-frecuentes-title">
+            <div class="store-container grid gap-8 lg:grid-cols-[minmax(0,5fr)_minmax(0,7fr)] lg:grid-rows-[auto_1fr] lg:gap-x-16">
+                <div class="lg:col-start-1 lg:row-start-1">
+                    <p class="text-[0.55rem] font-semibold tracking-[0.24em] text-forest uppercase">Preguntas frecuentes</p>
+                    <h2 id="preguntas-frecuentes-title" class="mt-1 font-serif text-[clamp(1.85rem,1.35rem+2vw,2.75rem)] leading-tight font-medium tracking-[-0.03em] text-burgundy">Resolvemos tus dudas</h2>
+                    <p class="mt-3 max-w-sm text-sm leading-relaxed text-ink/65">Lo que más nos preguntan antes de pedir sus stickers: pedidos, pagos, envíos y cómo aplicarlos.</p>
+                </div>
+
+                <div class="divide-y divide-rose/40 rounded-3xl border border-rose/40 bg-white px-5 shadow-[0_18px_40px_-30px_rgba(43,32,34,0.35)] sm:px-7 lg:col-start-2 lg:row-span-2 lg:row-start-1">
+                    @foreach ($questions as $question)
+                        <details class="group" name="preguntas-frecuentes">
+                            <summary class="flex cursor-pointer list-none items-center justify-between gap-4 py-4 text-left text-[0.95rem] font-semibold text-ink transition-colors hover:text-burgundy focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-burgundy group-open:text-burgundy sm:py-5 [&::-webkit-details-marker]:hidden">
+                                {{ $question['question'] }}
+                                <span class="grid size-8 shrink-0 place-items-center rounded-full bg-rose-light text-burgundy transition-transform duration-200 group-open:rotate-45 motion-reduce:transition-none" aria-hidden="true">
+                                    <x-store.icon name="plus" class="size-4" />
+                                </span>
+                            </summary>
+                            <div class="rich-text pb-5">
+                                {!! $question['answer'] !!}
+                            </div>
+                        </details>
+                    @endforeach
+                </div>
+
+                <div class="flex flex-wrap gap-3 lg:col-start-1 lg:row-start-2 lg:self-start">
+                    <a href="{{ route('pages.show', $questionsPage) }}" class="btn-outline">Ver todas las preguntas</a>
+                    @if ($whatsappUrl)
+                        <a href="{{ $whatsappUrl }}" target="_blank" rel="noopener" class="btn-whatsapp rounded-full">
+                            <x-store.icon name="whatsapp" class="size-5" />
+                            ¿Otra duda? Escríbenos
+                        </a>
+                    @endif
+                </div>
+            </div>
+
+            <script type="application/ld+json">
+                {!! json_encode([
+                    '@context' => 'https://schema.org',
+                    '@type' => 'FAQPage',
+                    'mainEntity' => array_map(fn (array $question): array => [
+                        '@type' => 'Question',
+                        'name' => $question['question'],
+                        'acceptedAnswer' => ['@type' => 'Answer', 'text' => str(strip_tags(str_replace('<', ' <', $question['answer'])))->squish()->toString()],
+                    ], $questions),
+                ], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_HEX_TAG) !!}
+            </script>
+        </section>
+    @endif
 
 </x-store-layout>

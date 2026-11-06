@@ -302,6 +302,73 @@
         }
     }
 
+    /* The added-to-cart notice: rises above the WhatsApp button on phones, hangs under the cart icon on larger screens */
+    .cart-toast {
+        position: fixed;
+        inset-inline: 1rem;
+        bottom: 6rem;
+        z-index: 35;
+        opacity: 0;
+        visibility: hidden;
+        transform: translateY(1rem);
+        touch-action: pan-y;
+        transition:
+            opacity 200ms ease-out,
+            transform 300ms cubic-bezier(0.2, 0.9, 0.3, 1.15),
+            visibility 0s linear 300ms;
+
+        &[data-open='true'] {
+            opacity: 1;
+            visibility: visible;
+            transform: translateX(var(--toast-drag, 0px));
+            transition-delay: 0s;
+        }
+
+        &[data-dragging] {
+            transition: none;
+        }
+
+        @media (width >= 40rem) {
+            top: var(--cart-toast-top, 6.75rem);
+            right: max(1.5rem, calc((100vw - 80rem) / 2 + 1.5rem));
+            bottom: auto;
+            left: auto;
+            width: 23rem;
+            transform: translateY(-0.5rem);
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            transform: none !important;
+            transition:
+                opacity 150ms ease-out,
+                visibility 0s linear 150ms;
+        }
+    }
+
+    /* The header cart wiggles and its count jumps each time a product is added */
+    .cart-icon-bump,
+    .cart-icon-pop {
+        & > svg {
+            transform-origin: 50% 30%;
+            animation: cart-wiggle 600ms ease-in-out;
+        }
+
+        & [data-cart-count] {
+            animation: cart-count-bump 450ms ease-out;
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            & > svg,
+            & [data-cart-count] {
+                animation: none;
+            }
+        }
+    }
+
+    .cart-icon-pop [data-cart-count] {
+        animation-name: cart-count-pop;
+    }
+
     /* Soft organic frame for the ritual steps that slowly morphs between petal-like shapes */
     .ritual-shape {
         border-radius: 58% 42% 52% 48% / 46% 54% 46% 54%;
@@ -325,6 +392,40 @@
 
     100% {
         border-radius: 40% 60% 48% 52% / 54% 46% 60% 40%;
+    }
+}
+
+@keyframes cart-wiggle {
+    20% {
+        transform: rotate(-14deg);
+    }
+
+    40% {
+        transform: rotate(11deg);
+    }
+
+    60% {
+        transform: rotate(-7deg);
+    }
+
+    80% {
+        transform: rotate(3deg);
+    }
+}
+
+@keyframes cart-count-bump {
+    40% {
+        transform: scale(1.45);
+    }
+}
+
+@keyframes cart-count-pop {
+    from {
+        transform: scale(0);
+    }
+
+    60% {
+        transform: scale(1.3);
     }
 }
 
