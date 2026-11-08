@@ -25,8 +25,7 @@ class HomeController extends Controller
             ->where('is_active', true)
             ->with('category')
             ->orderBy('sort_order')
-            ->get()
-            ->reject(fn (HomeSection $section): bool => $section->category !== null && ! $section->category->is_visible);
+            ->get();
 
         $questionsPage = Page::query()->published()->where('slug', 'preguntas-frecuentes')->first();
 

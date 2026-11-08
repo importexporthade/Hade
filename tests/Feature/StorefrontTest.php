@@ -55,6 +55,21 @@ class StorefrontTest extends TestCase
             ->assertDontSee('Categoría oculta');
     }
 
+    public function test_the_static_home_sections_remain_when_all_categories_are_hidden(): void
+    {
+        $manicure = Category::factory()->hidden()->create(['name' => 'Stickers Manicure']);
+        Product::factory()->for($manicure)->markedAsNew()->create(['name' => 'Producto de categoría oculta']);
+        HomeSection::factory()->ofType(HomeSectionType::Latest)->create(['title' => 'Nuevos hallazgos', 'sort_order' => 1]);
+        HomeSection::factory()->forCategory($manicure)->create(['title' => 'El arte en tus manos', 'sort_order' => 2]);
+
+        $this->get('/')
+            ->assertOk()
+            ->assertSeeInOrder(['Así de fácil. Así de Hade.', 'Pequeños detalles, grandes expresiones.', 'El detalle está en ti'])
+            ->assertDontSee('Producto de categoría oculta')
+            ->assertDontSee('Nuevos hallazgos')
+            ->assertDontSee('El arte en tus manos');
+    }
+
     public function test_the_latest_section_offers_in_stock_products_to_add_to_the_cart(): void
     {
         Product::factory()->markedAsNew()->create(['name' => 'Stickers Aurora', 'slug' => 'stickers-aurora']);

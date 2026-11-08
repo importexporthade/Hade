@@ -155,60 +155,60 @@
                 @php($sectionLabel = $section->category?->name ?? $section->type->getLabel())
                 @php($sectionLabel = mb_strtolower($sectionLabel) === mb_strtolower($sectionHeading) ? null : $sectionLabel)
                 @php($sectionLink = $section->category ? route('categories.show', $section->category) : ($section->type === HomeSectionType::Latest ? route('products.index', ['collection' => 'latest']) : route('products.index')))
-                @if ($products->isNotEmpty())
-                    @php($productSectionCount = ($productSectionCount ?? 0) + 1)
-                    @php($isDarkSection = $productSectionCount % 2 === 0)
-                    @if ($section->type === HomeSectionType::Latest)
-                        @once
-                            <section class="relative isolate overflow-hidden bg-blush py-10 sm:py-12 lg:py-14" aria-labelledby="como-funciona-title">
-                                <img src="{{ asset('images/moods/flower-corner.webp') }}" alt="" aria-hidden="true" width="720" height="900" class="pointer-events-none absolute -top-10 -left-10 -z-10 h-56 w-auto rotate-180 opacity-50 select-none sm:h-80 lg:-top-16 lg:h-96 lg:opacity-70">
-                                <img src="{{ asset('images/moods/flower-corner.webp') }}" alt="" aria-hidden="true" width="720" height="900" class="pointer-events-none absolute -right-10 -bottom-10 -z-10 h-64 w-auto opacity-50 select-none sm:h-96 lg:-bottom-16 lg:h-[30rem] lg:opacity-70">
+                @if ($section->type === HomeSectionType::Latest)
+                    @once
+                        <section class="relative isolate overflow-hidden bg-blush py-10 sm:py-12 lg:py-14" aria-labelledby="como-funciona-title">
+                            <img src="{{ asset('images/moods/flower-corner.webp') }}" alt="" aria-hidden="true" width="720" height="900" class="pointer-events-none absolute -top-10 -left-10 -z-10 h-56 w-auto rotate-180 opacity-50 select-none sm:h-80 lg:-top-16 lg:h-96 lg:opacity-70">
+                            <img src="{{ asset('images/moods/flower-corner.webp') }}" alt="" aria-hidden="true" width="720" height="900" class="pointer-events-none absolute -right-10 -bottom-10 -z-10 h-64 w-auto opacity-50 select-none sm:h-96 lg:-bottom-16 lg:h-[30rem] lg:opacity-70">
 
-                                <div class="store-container">
-                                    <div class="mx-auto max-w-xl text-center">
-                                        <p class="text-[0.5rem] font-semibold tracking-[0.24em] text-emerald uppercase">Tu ritual Hade</p>
-                                        <h2 id="como-funciona-title" class="mt-1 font-serif text-[clamp(1.85rem,1.35rem+2vw,2.75rem)] leading-tight font-medium tracking-[-0.03em] text-ink">Así de fácil. Así de Hade.</h2>
-                                        <p class="mt-2 text-sm text-ink/70">Una manicure con acabado impecable, desde casa y en pocos minutos.</p>
-                                    </div>
+                            <div class="store-container">
+                                <div class="mx-auto max-w-xl text-center">
+                                    <p class="text-[0.5rem] font-semibold tracking-[0.24em] text-emerald uppercase">Tu ritual Hade</p>
+                                    <h2 id="como-funciona-title" class="mt-1 font-serif text-[clamp(1.85rem,1.35rem+2vw,2.75rem)] leading-tight font-medium tracking-[-0.03em] text-ink">Así de fácil. Así de Hade.</h2>
+                                    <p class="mt-2 text-sm text-ink/70">Una manicure con acabado impecable, desde casa y en pocos minutos.</p>
+                                </div>
 
-                                    <div class="mx-auto mt-8 max-w-5xl sm:mt-10">
-                                        <ol class="grid grid-cols-2 gap-x-5 gap-y-10 sm:gap-x-8 sm:gap-y-12 lg:grid-cols-4 lg:gap-x-6">
-                                            @foreach ([
+                                <div class="mx-auto mt-8 max-w-5xl sm:mt-10">
+                                    <ol class="grid grid-cols-2 gap-x-5 gap-y-10 sm:gap-x-8 sm:gap-y-12 lg:grid-cols-4 lg:gap-x-6">
+                                        @foreach ([
                                                 ['number' => '01', 'title' => 'Prepara', 'description' => 'Limpia y seca tus uñas; empuja suavemente las cutículas.'],
                                                 ['number' => '02', 'title' => 'Elige y pega', 'description' => 'Escoge el tamaño correcto, colócalo desde la base y alisa hacia los bordes.'],
                                                 ['number' => '03', 'title' => 'Recorta y lima', 'description' => 'Retira el excedente y lima hacia abajo siguiendo la forma de tu uña.'],
                                                 ['number' => '04', 'title' => 'Cura y disfruta', 'description' => 'Pasa cada uña por la lámpara para fijar el gel. Tu diseño está listo.'],
                                             ] as $step)
-                                                <li @class(['group text-center', 'mt-8 lg:mt-14' => $loop->even])>
-                                                    <div @class([
+                                            <li @class(['group text-center', 'mt-8 lg:mt-14' => $loop->even])>
+                                                <div @class([
                                                         'ritual-shape mx-auto aspect-[5/6] w-full max-w-56 overflow-hidden shadow-[0_22px_45px_-28px_rgba(110,30,50,0.5)] transition-transform duration-700 ease-out group-hover:rotate-0 motion-reduce:transition-none',
                                                         '-rotate-3' => $loop->odd,
                                                         'rotate-3' => $loop->even,
                                                     ]) style="--ritual-delay: -{{ $loop->index * 3.5 }}s">
-                                                        <img src="{{ asset('images/ritual/step-'.$loop->iteration.'.jpg') }}" alt="" loading="lazy" class="size-full object-cover transition duration-700 group-hover:scale-105 motion-reduce:transition-none">
-                                                    </div>
+                                                    <img src="{{ asset('images/ritual/step-'.$loop->iteration.'.jpg') }}" alt="" loading="lazy" class="size-full object-cover transition duration-700 group-hover:scale-105 motion-reduce:transition-none">
+                                                </div>
 
-                                                    <div class="mt-6">
-                                                        <p class="font-serif text-xl leading-none text-burgundy/60 italic"><span class="sr-only">Paso </span>{{ $step['number'] }}</p>
-                                                        <h3 class="mt-1.5 font-serif text-lg leading-tight font-medium text-ink sm:text-xl">{{ $step['title'] }}</h3>
-                                                        <p class="mx-auto mt-1.5 max-w-[15rem] text-xs leading-relaxed text-ink/70 sm:text-sm">{{ $step['description'] }}</p>
-                                                    </div>
-                                                </li>
-                                            @endforeach
-                                        </ol>
-                                    </div>
-
-                                    <div class="mt-10 flex justify-center lg:mt-12">
-                                        <a href="{{ route('products.index') }}" class="group inline-flex min-h-10 items-center justify-center gap-2 rounded-full bg-burgundy px-5 text-xs font-semibold text-white transition duration-300 hover:bg-burgundy-dark focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-burgundy sm:text-sm">
-                                            Encuentra tu diseño
-                                            <x-store.icon name="chevron-right" class="size-3.5 transition-transform duration-300 group-hover:translate-x-0.5 motion-reduce:transition-none motion-reduce:group-hover:translate-x-0" />
-                                        </a>
-                                    </div>
+                                                <div class="mt-6">
+                                                    <p class="font-serif text-xl leading-none text-burgundy/60 italic"><span class="sr-only">Paso </span>{{ $step['number'] }}</p>
+                                                    <h3 class="mt-1.5 font-serif text-lg leading-tight font-medium text-ink sm:text-xl">{{ $step['title'] }}</h3>
+                                                    <p class="mx-auto mt-1.5 max-w-[15rem] text-xs leading-relaxed text-ink/70 sm:text-sm">{{ $step['description'] }}</p>
+                                                </div>
+                                            </li>
+                                        @endforeach
+                                    </ol>
                                 </div>
-                            </section>
-                        @endonce
-                    @endif
 
+                                <div class="mt-10 flex justify-center lg:mt-12">
+                                    <a href="{{ route('products.index') }}" class="group inline-flex min-h-10 items-center justify-center gap-2 rounded-full bg-burgundy px-5 text-xs font-semibold text-white transition duration-300 hover:bg-burgundy-dark focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-burgundy sm:text-sm">
+                                        Encuentra tu diseño
+                                        <x-store.icon name="chevron-right" class="size-3.5 transition-transform duration-300 group-hover:translate-x-0.5 motion-reduce:transition-none motion-reduce:group-hover:translate-x-0" />
+                                    </a>
+                                </div>
+                            </div>
+                        </section>
+                    @endonce
+                @endif
+
+                @if ($products->isNotEmpty())
+                    @php($productSectionCount = ($productSectionCount ?? 0) + 1)
+                    @php($isDarkSection = $productSectionCount % 2 === 0)
                     <section @class([
                         'scalloped-section z-10 bg-cream py-12' => ! $isDarkSection,
                         'bg-forest py-10 sm:py-12 lg:py-14' => $isDarkSection,
@@ -244,10 +244,11 @@
                             </div>
                         </div>
                     </section>
+                @endif
 
-                    @if ($isManicureSection)
-                        @once
-                            @php($moods = [
+                @if ($isManicureSection)
+                    @once
+                        @php($moods = [
                                 ['key' => 'natural', 'label' => 'Natural', 'description' => 'Mano con uñas naturales'],
                                 ['key' => 'minimal', 'label' => 'Minimal', 'description' => 'Mano con manicura francesa minimalista'],
                                 ['key' => 'classic', 'label' => 'Classic', 'description' => 'Mano con uñas clásicas color borgoña'],
@@ -280,7 +281,7 @@
 
                                         <p class="sr-only" aria-live="polite" data-mood-status>Estilo Natural seleccionado.</p>
 
-                                        <a href="{{ route('categories.show', $section->category) }}" class="group mt-8 inline-flex min-h-12 items-center justify-center gap-3 rounded-full bg-burgundy px-6 text-sm font-semibold text-white transition duration-300 hover:bg-burgundy-dark focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-burgundy">
+                                        <a href="{{ $section->category->is_visible ? route('categories.show', $section->category) : route('products.index') }}" class="group mt-8 inline-flex min-h-12 items-center justify-center gap-3 rounded-full bg-burgundy px-6 text-sm font-semibold text-white transition duration-300 hover:bg-burgundy-dark focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-burgundy">
                                             Explora tu estilo
                                             <x-store.icon name="chevron-right" class="size-4 transition-transform duration-300 group-hover:translate-x-0.5 motion-reduce:transition-none" />
                                         </a>
@@ -308,36 +309,35 @@
                                         @endforeach
                                     </div>
                                 </div>
-                            </section>
-                        @endonce
-                    @endif
+                        </section>
+                    @endonce
+                @endif
 
-                    @if ($section->type === HomeSectionType::Latest)
-                        @once
-                            <section class="relative isolate flex min-h-[19.44rem] items-center overflow-hidden text-center text-white sm:min-h-[16.2rem] lg:min-h-[19.44rem]" aria-labelledby="catalogo-cta">
-                                <img src="{{ asset('images/hero-nail-stickers.jpg') }}" alt="" loading="lazy" class="absolute inset-0 -z-20 size-full object-cover object-center">
-                                <span class="absolute inset-0 -z-10 bg-[#6f5e50]/20" aria-hidden="true"></span>
-                                <span class="absolute inset-0 -z-10 bg-linear-to-b from-[#b9a28f]/55 via-[#8b7360]/65 to-[#514840]/75" aria-hidden="true"></span>
+                @if ($section->type === HomeSectionType::Latest)
+                    @once
+                        <section class="relative isolate flex min-h-[19.44rem] items-center overflow-hidden text-center text-white sm:min-h-[16.2rem] lg:min-h-[19.44rem]" aria-labelledby="catalogo-cta">
+                            <img src="{{ asset('images/hero-nail-stickers.jpg') }}" alt="" loading="lazy" class="absolute inset-0 -z-20 size-full object-cover object-center">
+                            <span class="absolute inset-0 -z-10 bg-[#6f5e50]/20" aria-hidden="true"></span>
+                            <span class="absolute inset-0 -z-10 bg-linear-to-b from-[#b9a28f]/55 via-[#8b7360]/65 to-[#514840]/75" aria-hidden="true"></span>
 
-                                <div class="store-container py-[2.7rem] sm:py-[3.15rem]">
-                                    <div class="mx-auto flex max-w-3xl flex-col items-center gap-3.5">
-                                        <p class="text-[0.62rem] font-semibold tracking-[0.24em] text-white/85 uppercase">Lista para encontrar tu próximo favorito</p>
-                                        <h2 id="catalogo-cta" class="text-balance font-serif text-[clamp(2.25rem,1.6rem+2.4vw,3.5rem)] leading-tight font-medium tracking-[-0.03em]">Pequeños detalles, grandes expresiones.</h2>
-                                        <p class="text-balance text-sm leading-relaxed text-white/80 sm:text-base md:whitespace-nowrap">Descubre el universo Hade y encuentra diseños, kits y esenciales hechos para ti.</p>
-                                        <div class="mt-3 flex flex-wrap justify-center gap-3">
-                                            <a href="{{ route('products.index') }}" class="group inline-flex min-h-12 items-center justify-center gap-2 rounded-full bg-white px-7 text-sm font-semibold text-[#8b7360] transition duration-300 hover:bg-[#f2e8da] focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-white">
-                                                Entrar a la tienda
-                                                <x-store.icon name="chevron-right" class="size-4 transition-transform duration-300 group-hover:translate-x-0.5" />
-                                            </a>
-                                            <a href="#seccion-{{ $section->id }}" class="inline-flex min-h-12 items-center justify-center rounded-full border border-white/70 px-7 text-sm font-semibold text-white transition duration-300 hover:border-white hover:bg-white/10 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-white">
-                                                Ver novedades
-                                            </a>
-                                        </div>
+                            <div class="store-container py-[2.7rem] sm:py-[3.15rem]">
+                                <div class="mx-auto flex max-w-3xl flex-col items-center gap-3.5">
+                                    <p class="text-[0.62rem] font-semibold tracking-[0.24em] text-white/85 uppercase">Lista para encontrar tu próximo favorito</p>
+                                    <h2 id="catalogo-cta" class="text-balance font-serif text-[clamp(2.25rem,1.6rem+2.4vw,3.5rem)] leading-tight font-medium tracking-[-0.03em]">Pequeños detalles, grandes expresiones.</h2>
+                                    <p class="text-balance text-sm leading-relaxed text-white/80 sm:text-base md:whitespace-nowrap">Descubre el universo Hade y encuentra diseños, kits y esenciales hechos para ti.</p>
+                                    <div class="mt-3 flex flex-wrap justify-center gap-3">
+                                        <a href="{{ route('products.index') }}" class="group inline-flex min-h-12 items-center justify-center gap-2 rounded-full bg-white px-7 text-sm font-semibold text-[#8b7360] transition duration-300 hover:bg-[#f2e8da] focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-white">
+                                            Entrar a la tienda
+                                            <x-store.icon name="chevron-right" class="size-4 transition-transform duration-300 group-hover:translate-x-0.5" />
+                                        </a>
+                                        <a href="{{ $products->isNotEmpty() ? '#seccion-'.$section->id : route('products.index', ['collection' => 'latest']) }}" class="inline-flex min-h-12 items-center justify-center rounded-full border border-white/70 px-7 text-sm font-semibold text-white transition duration-300 hover:border-white hover:bg-white/10 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-white">
+                                            Ver novedades
+                                        </a>
                                     </div>
                                 </div>
-                            </section>
-                        @endonce
-                    @endif
+                            </div>
+                        </section>
+                    @endonce
                 @endif
         @endswitch
     @empty
@@ -357,6 +357,16 @@
                     <p class="mt-3 max-w-sm text-sm leading-relaxed text-ink/65">Lo que más nos preguntan antes de pedir sus stickers: pedidos, pagos, envíos y cómo aplicarlos.</p>
                 </div>
 
+                <div class="flex flex-wrap gap-3 lg:col-start-1 lg:row-start-2 lg:self-start">
+                    <a href="{{ route('pages.show', $questionsPage) }}" class="btn-outline">Ver todas las preguntas</a>
+                    @if ($whatsappUrl)
+                        <a href="{{ $whatsappUrl }}" target="_blank" rel="noopener" class="btn-whatsapp rounded-full">
+                            <x-store.icon name="whatsapp" class="size-5" />
+                            ¿Otra duda? Escríbenos
+                        </a>
+                    @endif
+                </div>
+
                 <div class="divide-y divide-rose/40 rounded-3xl border border-rose/40 bg-white px-5 shadow-[0_18px_40px_-30px_rgba(43,32,34,0.35)] sm:px-7 lg:col-start-2 lg:row-span-2 lg:row-start-1" data-faq-accordion>
                     @foreach ($questions as $question)
                         <details class="group" name="preguntas-frecuentes" data-faq-item>
@@ -373,16 +383,6 @@
                             </div>
                         </details>
                     @endforeach
-                </div>
-
-                <div class="flex flex-wrap gap-3 lg:col-start-1 lg:row-start-2 lg:self-start">
-                    <a href="{{ route('pages.show', $questionsPage) }}" class="btn-outline">Ver todas las preguntas</a>
-                    @if ($whatsappUrl)
-                        <a href="{{ $whatsappUrl }}" target="_blank" rel="noopener" class="btn-whatsapp rounded-full">
-                            <x-store.icon name="whatsapp" class="size-5" />
-                            ¿Otra duda? Escríbenos
-                        </a>
-                    @endif
                 </div>
             </div>
 

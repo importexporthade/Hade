@@ -437,9 +437,9 @@
         <p class="sr-only" role="status" data-cart-announcer></p>
 
         {{-- Cart drawer, filled by resources/js/cart.js from the browser's saved cart --}}
-        <div id="carrito" class="fixed inset-0 z-40" hidden data-cart role="dialog" aria-modal="true" aria-labelledby="carrito-titulo">
-            <div class="absolute inset-0 bg-ink/50 backdrop-blur-[2px]" data-cart-close></div>
-            <div class="absolute inset-y-0 right-0 flex w-full max-w-[30rem] flex-col border-l border-rose/30 bg-cream shadow-[-24px_0_60px_rgba(23,23,23,0.2)]">
+        <div id="carrito" class="group/cart fixed inset-0 z-40" hidden data-cart data-open="false" role="dialog" aria-modal="true" aria-hidden="true" aria-labelledby="carrito-titulo">
+            <div class="absolute inset-0 bg-ink/50 opacity-0 backdrop-blur-[2px] transition-opacity duration-400 ease-out group-data-[open=true]/cart:opacity-100 motion-reduce:transition-none" data-cart-close></div>
+            <div class="absolute inset-y-0 right-0 flex w-full max-w-[30rem] translate-x-full flex-col border-l border-rose/30 bg-cream shadow-[-24px_0_60px_rgba(23,23,23,0.2)] transition-transform duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] group-data-[open=true]/cart:translate-x-0 motion-reduce:transition-none" data-cart-panel>
                 <div class="relative overflow-hidden border-b border-rose/30 bg-blush px-5 py-5 sm:px-6 sm:py-6">
                     <div class="relative flex items-start justify-between gap-5">
                         <div>

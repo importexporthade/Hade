@@ -300,8 +300,10 @@ const TOAST_DURATION = 4000;
 
 /** How far the notice must be swiped sideways before it is dismissed. */
 const TOAST_SWIPE_DISTANCE = 80;
+const DRAWER_TRANSITION_DURATION = 500;
 
 let toastTimer = null;
+let drawerCloseTimer = null;
 
 function cartToast() {
     return document.querySelector('[data-cart-toast]');
@@ -451,18 +453,48 @@ function showStep(nextStep) {
 function openCart() {
     const drawer = document.querySelector('[data-cart]');
 
+    clearTimeout(drawerCloseTimer);
     hideToast();
     step = 'items';
     render();
 
     drawer.hidden = false;
+    drawer.inert = false;
+    drawer.setAttribute('aria-hidden', 'false');
     document.body.style.overflow = 'hidden';
+
+    // Force the closed frame to render before starting the panel and backdrop transitions.
+    drawer.getBoundingClientRect();
+    drawer.dataset.open = 'true';
     drawer.querySelector('[data-cart-close]:not(.absolute)')?.focus();
 }
 
 function closeCart() {
-    document.querySelector('[data-cart]').hidden = true;
-    document.body.style.overflow = '';
+    const drawer = document.querySelector('[data-cart]');
+
+    if (drawer.hidden || drawer.dataset.open !== 'true') {
+        return;
+    }
+
+    drawer.dataset.open = 'false';
+    drawer.inert = true;
+
+    const finishClose = () => {
+        if (drawer.dataset.open === 'false') {
+            drawer.hidden = true;
+            drawer.setAttribute('aria-hidden', 'true');
+            document.body.style.overflow = '';
+            drawerCloseTimer = null;
+        }
+    };
+
+    clearTimeout(drawerCloseTimer);
+
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+        finishClose();
+    } else {
+        drawerCloseTimer = setTimeout(finishClose, DRAWER_TRANSITION_DURATION);
+    }
 }
 
 export function initCart() {
