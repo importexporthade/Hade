@@ -114,6 +114,17 @@ class ProductResourceTest extends TestCase
             ->assertCanNotSeeTableRecords([$regular]);
     }
 
+    public function test_the_list_filters_products_marked_as_new(): void
+    {
+        $markedAsNew = Product::factory()->markedAsNew()->create();
+        $regular = Product::factory()->create(['is_featured' => false]);
+
+        Livewire::test(ListProducts::class)
+            ->filterTable('marked_as_new')
+            ->assertCanSeeTableRecords([$markedAsNew])
+            ->assertCanNotSeeTableRecords([$regular]);
+    }
+
     public function test_the_list_sorts_by_the_size_of_the_discount(): void
     {
         $small = Product::factory()->onSale(price: 90.00, compareAtPrice: 100.00)->create();

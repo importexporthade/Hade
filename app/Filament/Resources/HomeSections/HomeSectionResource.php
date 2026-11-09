@@ -6,6 +6,7 @@ use App\Enums\HomeSectionType;
 use App\Filament\Resources\HomeSections\Pages\ManageHomeSections;
 use App\Models\Category;
 use App\Models\HomeSection;
+use App\Models\Product;
 use BackedEnum;
 use Filament\Actions\Action;
 use Filament\Actions\DeleteAction;
@@ -94,11 +95,13 @@ class HomeSectionResource extends Resource
                     ->getOptionLabelFromRecordUsing(fn (Category $category): string => $category->name.($category->isShownInStore() ? '' : ' (oculta)'))
                     ->searchable()
                     ->preload()
+                    ->live()
                     ->visible(fn (Get $get): bool => self::typeOf($get) === HomeSectionType::Category)
                     ->required(fn (Get $get): bool => self::typeOf($get) === HomeSectionType::Category),
                 TextInput::make('products_limit')
                     ->label('Cuántos productos')
                     ->hintIcon(Heroicon::OutlinedQuestionMarkCircle, tooltip: 'Máximo de productos en la sección. Ej: 8.')
+                    ->helperText(fn (Get $get): ?string => self::visibleProductsSummary($get))
                     ->integer()
                     ->minValue(1)
                     ->maxValue(24)
@@ -166,6 +169,46 @@ class HomeSectionResource extends Resource
         return [
             'index' => ManageHomeSections::route('/'),
         ];
+    }
+
+    /**
+     * How many visible products the chosen kind of section has to show, so the owner knows
+     * whether the limit will be filled.
+     */
+    private static function visibleProductsSummary(Get $get): ?string
+    {
+        $type = self::typeOf($get);
+
+        if ($type === HomeSectionType::Category) {
+            $category = Category::query()->find($get('category_id'));
+
+            if ($category === null) {
+                return null;
+            }
+
+            $count = $category->products()->where('is_visible', true)->count();
+            $summary = "Productos visibles en {$category->name}: {$count}.";
+
+            return match (true) {
+                $count === 0 => "{$summary} Sin productos visibles, la sección no sale en la portada.",
+                ! $category->is_visible => "{$summary} La categoría está apagada, así que la sección no sale en la portada.",
+                default => $summary,
+            };
+        }
+
+        $count = match ($type) {
+            HomeSectionType::Offers => Product::query()->visible()->onSale()->count(),
+            HomeSectionType::Latest => Product::query()->visible()->where('is_featured', true)->count(),
+            default => null,
+        };
+
+        if ($count === null) {
+            return null;
+        }
+
+        $summary = ($type === HomeSectionType::Offers ? 'Productos visibles en oferta' : 'Productos visibles marcados como novedad').": {$count}.";
+
+        return $count === 0 ? "{$summary} Sin productos visibles, la sección no sale en la portada." : $summary;
     }
 
     private static function typeOf(Get $get): ?HomeSectionType

@@ -98,6 +98,10 @@ class ProductsTable
                     ->label('En oferta')
                     ->toggle()
                     ->query(fn (Builder $query): Builder => $query->onSale()),
+                Filter::make('marked_as_new')
+                    ->label('Novedades')
+                    ->toggle()
+                    ->query(fn (Builder $query): Builder => $query->where('is_featured', true)),
                 TernaryFilter::make('is_visible')
                     ->label('Visible en la tienda'),
                 TernaryFilter::make('is_in_stock')

@@ -8,6 +8,9 @@ use App\Models\Category;
 use App\Models\HomeSection;
 use App\Models\Product;
 use App\Models\User;
+use Closure;
+use Filament\Forms\Components\TextInput;
+use Filament\Schemas\Components\Text;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\DB;
 use Livewire\Livewire;
@@ -122,6 +125,37 @@ class HomeSectionTest extends TestCase
         $this->assertSame(4, $section->products_limit);
     }
 
+    public function test_the_section_form_counts_the_visible_products_of_the_chosen_category(): void
+    {
+        $this->actingAs(User::factory()->admin()->create());
+        $lamps = Category::factory()->create(['name' => 'Lámparas']);
+        Product::factory()->for($lamps)->count(2)->create();
+        Product::factory()->for($lamps)->hidden()->create();
+        $switchedOff = Category::factory()->hidden()->create(['name' => 'Accesorios']);
+        Product::factory()->for($switchedOff)->create();
+
+        Livewire::test(ManageHomeSections::class)
+            ->mountAction('create')
+            ->fillForm(['type' => HomeSectionType::Category->value, 'category_id' => $lamps->id])
+            ->assertFormFieldExists('products_limit', $this->helperTextIs('Productos visibles en Lámparas: 2.'))
+            ->fillForm(['category_id' => $switchedOff->id])
+            ->assertFormFieldExists('products_limit', $this->helperTextIs('Productos visibles en Accesorios: 1. La categoría está apagada, así que la sección no sale en la portada.'));
+    }
+
+    public function test_the_section_form_counts_the_visible_products_on_sale_and_marked_as_new(): void
+    {
+        $this->actingAs(User::factory()->admin()->create());
+        Product::factory()->onSale()->count(2)->create();
+        Product::factory()->onSale()->hidden()->create();
+
+        Livewire::test(ManageHomeSections::class)
+            ->mountAction('create')
+            ->fillForm(['type' => HomeSectionType::Offers->value])
+            ->assertFormFieldExists('products_limit', $this->helperTextIs('Productos visibles en oferta: 2.'))
+            ->fillForm(['type' => HomeSectionType::Latest->value])
+            ->assertFormFieldExists('products_limit', $this->helperTextIs('Productos visibles marcados como novedad: 0. Sin productos visibles, la sección no sale en la portada.'));
+    }
+
     public function test_the_sections_open_ready_to_drag_and_the_new_order_is_saved(): void
     {
         $this->actingAs(User::factory()->admin()->create());
@@ -157,6 +191,18 @@ class HomeSectionTest extends TestCase
         (require database_path('migrations/2026_11_03_094833_remove_categories_grid_home_sections.php'))->up();
 
         $this->assertSame([$offers->id], HomeSection::query()->pluck('id')->all());
+    }
+
+    /**
+     * @return Closure(TextInput): bool
+     */
+    private function helperTextIs(string $expected): Closure
+    {
+        return function (TextInput $field) use ($expected): bool {
+            $helperText = $field->getChildSchema(TextInput::BELOW_CONTENT_SCHEMA_KEY)?->getComponents()[0] ?? null;
+
+            return $helperText instanceof Text && $helperText->getContent() === $expected;
+        };
     }
 
     private function runFeaturedToNovedadesMigration(): void
