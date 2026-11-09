@@ -35,7 +35,8 @@ class BannersTable
                     ->searchable(),
                 TextColumn::make('destination')
                     ->label('Lleva a')
-                    ->state(fn (Banner $record): string => $record->destinationLabel()),
+                    ->state(fn (Banner $record): string => $record->destinationLabel())
+                    ->wrap(),
                 TextColumn::make('status')
                     ->label('Estado')
                     ->state(fn (Banner $record): string => match (true) {
@@ -53,7 +54,8 @@ class BannersTable
                 TextColumn::make('ends_at')
                     ->label('Hasta')
                     ->dateTime()
-                    ->placeholder('Sin fecha'),
+                    ->placeholder('Sin fecha')
+                    ->wrap(),
                 ToggleColumn::make('is_active')
                     ->label('Activo'),
             ])
