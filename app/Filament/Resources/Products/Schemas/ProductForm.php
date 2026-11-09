@@ -48,12 +48,8 @@ class ProductForm
                                 ->preload()
                                 ->required()
                                 ->live()
-                                ->createOptionForm(fn (Schema $schema) => CategoryResource::form($schema)),
-                            TextInput::make('sku')
-                                ->label('Código (SKU)')
-                                ->hintIcon(Heroicon::OutlinedQuestionMarkCircle, tooltip: 'Código interno, no se ve en la tienda. Ej: HD-0012.')
-                                ->maxLength(255)
-                                ->unique(ignoreRecord: true),
+                                ->createOptionForm(fn (Schema $schema) => CategoryResource::form($schema))
+                                ->columnSpanFull(),
                             RichEditor::make('description')
                                 ->label('Descripción')
                                 ->hintIcon(Heroicon::OutlinedQuestionMarkCircle, tooltip: 'Detalle en la página del producto. Ej: Incluye 20 stickers, dura 2 semanas.')

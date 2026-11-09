@@ -15,7 +15,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 #[Fillable([
-    'category_id', 'name', 'slug', 'sku', 'description', 'price', 'compare_at_price',
+    'category_id', 'name', 'slug', 'description', 'price', 'compare_at_price',
     'images', 'cover_image', 'is_visible', 'is_featured', 'is_in_stock', 'sort_order',
 ])]
 class Product extends Model
