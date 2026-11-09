@@ -13,6 +13,13 @@ class CatalogOverview extends StatsOverviewWidget
 {
     protected static ?int $sort = -1;
 
+    /**
+     * Two cards per row until there is room for four that still fit their names.
+     *
+     * @var array<string, int>
+     */
+    protected int|array|null $columns = StoreActivity::COLUMNS;
+
     protected function getStats(): array
     {
         return [

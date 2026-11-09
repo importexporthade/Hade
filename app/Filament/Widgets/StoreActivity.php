@@ -18,7 +18,20 @@ class StoreActivity extends StatsOverviewWidget
 {
     public const int DAYS = 30;
 
+    /**
+     * Two cards per row until there is room for four that still fit their names, such as
+     * "Pedidos por WhatsApp". Filament's default puts four in a box only 576px wide.
+     *
+     * @var array<string, int>
+     */
+    public const array COLUMNS = ['default' => 2, '@3xl' => 4, '!@lg' => 4];
+
     protected static ?int $sort = 0;
+
+    /**
+     * @var array<string, int>
+     */
+    protected int|array|null $columns = self::COLUMNS;
 
     protected ?string $heading = 'Actividad de los últimos 30 días';
 

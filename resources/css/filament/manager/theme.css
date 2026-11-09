@@ -106,6 +106,17 @@
     @apply border-t-2 border-hade-rose;
 }
 
+/* On a phone the cards go two by two, so the icon sits above the name to leave it the full width */
+@variant max-sm {
+    .fi-wi-stats-overview-stat {
+        @apply p-4;
+    }
+
+    .fi-wi-stats-overview-stat-label-ctn {
+        @apply flex-col items-start gap-1.5;
+    }
+}
+
 /* Calendar: the chosen day in the brand's burgundy, today ringed in rose */
 .fi-fo-date-time-picker-calendar-day {
     @apply rounded-md transition;
@@ -196,8 +207,9 @@
         @apply top-4 end-4 flex w-auto! p-0;
     }
 
+    /* Like the checkbox: sized to the handle, so it keeps the card's margin */
     .fi-ta-table.fi-ta-table-stacked-on-mobile > tbody > tr > .fi-ta-cell:has(.fi-ta-reorder-handle) {
-        @apply absolute! top-3 end-3 flex-none;
+        @apply absolute! top-4 end-4 flex w-auto! flex-none!;
 
         & > .fi-ta-cell-label {
             @apply hidden;
