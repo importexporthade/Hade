@@ -145,13 +145,68 @@
 }
 
 /*
- * Tables on a phone: every row is a card on the ivory paper. The photo and the name lead,
- * the rest pairs up in two columns, switches sit side by side, and the buttons close the
- * card on a line of their own. Desktop keeps the usual table.
+ * Filament stacks tables only below 640px, yet on a tablet or a small laptop most of them
+ * still overflow and hide their buttons behind a sideways scroll. Up to 1280px they stay
+ * stacked: this undoes the table layout Filament brings back from 640px.
  */
-@variant max-sm {
+@variant sm {
+    @variant max-xl {
+        .fi-ta-table.fi-ta-table-stacked-on-mobile {
+            @apply block;
+
+            & > thead {
+                @apply block;
+
+                &:not(:has(.fi-ta-table-stacked-header-row)),
+                & > tr:not(.fi-ta-table-stacked-header-row) {
+                    @apply hidden;
+                }
+
+                & > .fi-ta-table-stacked-header-row {
+                    @apply block;
+                }
+            }
+
+            & > tbody {
+                @apply block whitespace-normal;
+            }
+
+            & > tbody > tr {
+                @apply relative;
+            }
+
+            & > tbody > tr > .fi-ta-selection-cell {
+                @apply absolute w-auto;
+            }
+
+            & > tbody > tr > .fi-ta-cell:not(.fi-ta-selection-cell) {
+                @apply block;
+
+                & > .fi-ta-cell-label {
+                    @apply block;
+                }
+
+                & > .fi-ta-actions {
+                    @apply flex-wrap gap-x-3 gap-y-2;
+                }
+            }
+
+            & :is(.fi-ta-text, .fi-ta-toggle, .fi-ta-image, .fi-ta-icon, .fi-ta-select, .fi-ta-text-input, .fi-ta-checkbox, .fi-ta-color):not(.fi-inline) {
+                @apply p-0;
+            }
+        }
+    }
+}
+
+/*
+ * Tables up to 1280px: every row is a card on the ivory paper, one per row on a phone and
+ * two per row from 640px. The photo and the name lead, the rest pairs up in two columns,
+ * switches sit side by side, and the buttons close the card on a line of their own. Wider
+ * screens keep the usual table.
+ */
+@variant max-xl {
     .fi-ta-table.fi-ta-table-stacked-on-mobile > tbody {
-        @apply flex flex-col gap-3 divide-y-0 bg-gray-50 p-3 dark:bg-gray-950/40;
+        @apply flex flex-col gap-3 divide-y-0 bg-gray-50 p-3 sm:grid sm:grid-cols-2 sm:items-start dark:bg-gray-950/40;
     }
 
     .fi-ta-table.fi-ta-table-stacked-on-mobile > tbody > tr.fi-ta-row {
@@ -176,7 +231,7 @@
         @apply order-first flex-[0_0_3.5rem]!;
 
         & > .fi-ta-cell-label {
-            @apply hidden;
+            @apply hidden!;
         }
 
         & img {
@@ -189,7 +244,7 @@
         @apply order-first flex-[1_1_calc(100%-4.5rem)]! self-center;
 
         & > .fi-ta-cell-label {
-            @apply hidden;
+            @apply hidden!;
         }
 
         & .fi-ta-text-item {
@@ -212,13 +267,18 @@
         @apply absolute! top-4 end-4 flex w-auto! flex-none!;
 
         & > .fi-ta-cell-label {
-            @apply hidden;
+            @apply hidden!;
         }
     }
 
     /* A dropdown gets the full width so its longest option still reads */
     .fi-ta-table.fi-ta-table-stacked-on-mobile > tbody > tr > .fi-ta-cell:has(select) {
         @apply flex-[1_1_100%]!;
+    }
+
+    /* A long badge, such as "Productos de una categoría", wraps instead of being cut */
+    .fi-ta-table.fi-ta-table-stacked-on-mobile > tbody > tr > .fi-ta-cell .fi-badge {
+        @apply max-w-full whitespace-normal;
     }
 
     /* A hairline above the card's footer, where the switches and buttons live */
@@ -248,7 +308,7 @@
         @apply order-70 ms-auto flex-none! self-center py-0!;
 
         & > .fi-ta-cell-label {
-            @apply hidden;
+            @apply hidden!;
         }
 
         & .fi-ta-actions {

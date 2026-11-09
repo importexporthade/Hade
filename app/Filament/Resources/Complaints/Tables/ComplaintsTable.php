@@ -41,7 +41,8 @@ class ComplaintsTable
                     ->searchable(['consumer_name', 'email', 'document_number']),
                 TextColumn::make('item_description')
                     ->label('Sobre')
-                    ->limit(40),
+                    ->limit(40)
+                    ->wrap(),
                 TextColumn::make('status')
                     ->label('Estado')
                     ->state(fn (Complaint $record): string => match (true) {
