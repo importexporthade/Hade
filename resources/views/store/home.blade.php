@@ -281,7 +281,7 @@
 
                                         <p class="sr-only" aria-live="polite" data-mood-status>Estilo Natural seleccionado.</p>
 
-                                        <a href="{{ $section->category->is_visible ? route('categories.show', $section->category) : route('products.index') }}" class="group mt-8 inline-flex min-h-12 items-center justify-center gap-3 rounded-full bg-burgundy px-6 text-sm font-semibold text-white transition duration-300 hover:bg-burgundy-dark focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-burgundy">
+                                        <a href="{{ $section->category->isShownInStore() ? route('categories.show', $section->category) : route('products.index') }}" class="group mt-8 inline-flex min-h-12 items-center justify-center gap-3 rounded-full bg-burgundy px-6 text-sm font-semibold text-white transition duration-300 hover:bg-burgundy-dark focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-burgundy">
                                             Explora tu estilo
                                             <x-store.icon name="chevron-right" class="size-4 transition-transform duration-300 group-hover:translate-x-0.5 motion-reduce:transition-none" />
                                         </a>

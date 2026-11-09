@@ -36,12 +36,18 @@ class HomeSection extends Model
     }
 
     /**
-     * The visible products this section shows on the home page.
+     * The visible products this section shows on the home page. A category section stays
+     * empty, and so off the page, while the store hides its category, even though the
+     * category's "Novedad" products still show in Novedades.
      *
      * @return Collection<int, Product>
      */
     public function products(?int $limit = null): Collection
     {
+        if ($this->type === HomeSectionType::Category && ! $this->category?->isShownInStore()) {
+            return new Collection;
+        }
+
         $query = Product::query()->visible();
 
         match ($this->type) {

@@ -55,19 +55,38 @@ class StorefrontTest extends TestCase
             ->assertDontSee('Categoría oculta');
     }
 
-    public function test_the_static_home_sections_remain_when_all_categories_are_hidden(): void
+    public function test_novedades_still_shows_when_all_categories_are_hidden_but_their_sections_do_not(): void
     {
         $manicure = Category::factory()->hidden()->create(['name' => 'Stickers Manicure']);
-        Product::factory()->for($manicure)->markedAsNew()->create(['name' => 'Producto de categoría oculta']);
+        Product::factory()->for($manicure)->markedAsNew()->create(['name' => 'Novedad de categoría oculta']);
+        Product::factory()->for($manicure)->create(['name' => 'Producto de categoría oculta']);
         HomeSection::factory()->ofType(HomeSectionType::Latest)->create(['title' => 'Nuevos hallazgos', 'sort_order' => 1]);
         HomeSection::factory()->forCategory($manicure)->create(['title' => 'El arte en tus manos', 'sort_order' => 2]);
 
         $this->get('/')
             ->assertOk()
             ->assertSeeInOrder(['Así de fácil. Así de Hade.', 'Pequeños detalles, grandes expresiones.', 'El detalle está en ti'])
+            ->assertSee('Nuevos hallazgos')
+            ->assertSee('Novedad de categoría oculta')
             ->assertDontSee('Producto de categoría oculta')
-            ->assertDontSee('Nuevos hallazgos')
             ->assertDontSee('El arte en tus manos');
+    }
+
+    public function test_the_novedades_section_hides_only_when_no_product_is_marked_as_new(): void
+    {
+        Product::factory()->create(['name' => 'Producto sin marcar']);
+        HomeSection::factory()->ofType(HomeSectionType::Latest)->create(['title' => 'Nuevos hallazgos']);
+
+        $this->get('/')
+            ->assertOk()
+            ->assertDontSee('Nuevos hallazgos');
+    }
+
+    public function test_a_new_product_in_a_hidden_category_opens_its_page(): void
+    {
+        $product = Product::factory()->for(Category::factory()->hidden())->markedAsNew()->create();
+
+        $this->get(route('products.show', $product))->assertOk();
     }
 
     public function test_the_latest_section_offers_in_stock_products_to_add_to_the_cart(): void

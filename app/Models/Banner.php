@@ -90,10 +90,10 @@ class Banner extends Model
     public function linkUrl(): ?string
     {
         return match ($this->link_type) {
-            BannerLinkType::Product => $this->linkProduct?->is_visible && ($this->linkProduct->category?->is_visible ?? true)
+            BannerLinkType::Product => $this->linkProduct?->isShownInStore()
                 ? route('products.show', $this->linkProduct)
                 : null,
-            BannerLinkType::Category => $this->linkCategory?->is_visible ? route('categories.show', $this->linkCategory) : null,
+            BannerLinkType::Category => $this->linkCategory?->isShownInStore() ? route('categories.show', $this->linkCategory) : null,
             BannerLinkType::AllProducts => route('products.index'),
             BannerLinkType::Page => $this->linkPage?->isPublished() ? route('pages.show', $this->linkPage) : null,
             BannerLinkType::WhatsApp => StoreSetting::current()->whatsappUrl(),

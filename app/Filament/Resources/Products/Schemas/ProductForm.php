@@ -116,7 +116,8 @@ class ProductForm
                                 ->key('hiddenCategoryNotice')
                                 ->description(fn (Get $get): string => 'La categoría «'.self::hiddenCategory($get('category_id'))?->name.'» no se ve en la tienda, así que este producto tampoco aparecerá hasta que la muestres.')
                                 ->warning()
-                                ->visible(fn (Get $get): bool => $get('is_visible') && self::hiddenCategory($get('category_id')) !== null)
+                                // A "Novedad" shows even inside a hidden category, so there is nothing to warn about
+                                ->visible(fn (Get $get): bool => $get('is_visible') && ! $get('is_featured') && self::hiddenCategory($get('category_id')) !== null)
                                 ->actions([
                                     Action::make('showCategory')
                                         ->label('Mostrar la categoría')
@@ -137,8 +138,9 @@ class ProductForm
                             Toggle::make('is_featured')
                                 ->label('Novedad')
                                 ->hintIcon(Heroicon::OutlinedQuestionMarkCircle, tooltip: 'Lo muestra en Novedades. Apágalo cuando ya no sea nuevo.')
-                                ->helperText('Aparece en Novedades, en la portada y en el menú.')
-                                ->default(true),
+                                ->helperText('Aparece en Novedades, en la portada y en el menú, aunque su categoría esté oculta.')
+                                ->default(true)
+                                ->live(),
                         ]),
                 ])->columnSpan(['lg' => 1]),
             ]);

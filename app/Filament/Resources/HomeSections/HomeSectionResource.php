@@ -4,6 +4,7 @@ namespace App\Filament\Resources\HomeSections;
 
 use App\Enums\HomeSectionType;
 use App\Filament\Resources\HomeSections\Pages\ManageHomeSections;
+use App\Models\Category;
 use App\Models\HomeSection;
 use BackedEnum;
 use Filament\Actions\Action;
@@ -88,8 +89,9 @@ class HomeSectionResource extends Resource
                     ->live(),
                 Select::make('category_id')
                     ->label('Categoría')
-                    ->hintIcon(Heroicon::OutlinedQuestionMarkCircle, tooltip: 'Categoría cuyos productos se muestran. Ej: Lámparas.')
-                    ->relationship('category', 'name')
+                    ->hintIcon(Heroicon::OutlinedQuestionMarkCircle, tooltip: 'Categoría cuyos productos se muestran. Si está oculta, la sección no sale en la portada. Ej: Lámparas.')
+                    ->relationship('category', 'name', modifyQueryUsing: fn (Builder $query): Builder => $query->withVisibleProductsFlag())
+                    ->getOptionLabelFromRecordUsing(fn (Category $category): string => $category->name.($category->isShownInStore() ? '' : ' (oculta)'))
                     ->searchable()
                     ->preload()
                     ->visible(fn (Get $get): bool => self::typeOf($get) === HomeSectionType::Category)

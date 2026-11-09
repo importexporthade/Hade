@@ -25,6 +25,7 @@ class BannerLinkTest extends TestCase
     {
         $product = Product::factory()->create(['slug' => 'kit-hade-recargada']);
         $category = Category::factory()->create(['slug' => 'lamparas']);
+        Product::factory()->for($category)->create();
         $page = Page::factory()->create(['slug' => 'envios-y-delivery']);
 
         $this->assertSame(route('products.show', $product), Banner::factory()->create(['link_type' => BannerLinkType::Product, 'link_product_id' => $product->id])->linkUrl());

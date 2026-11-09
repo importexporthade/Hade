@@ -211,6 +211,24 @@ class ProductResourceTest extends TestCase
             ->assertNotNotified();
     }
 
+    public function test_a_new_product_in_a_hidden_category_gets_no_reminder_since_it_still_shows(): void
+    {
+        $product = Product::factory()
+            ->for(Category::factory()->hidden())
+            ->markedAsNew()
+            ->create(['is_visible' => false]);
+
+        Livewire::test(EditProduct::class, ['record' => $product->getRouteKey()])
+            ->fillForm(['is_visible' => true])
+            ->assertSchemaComponentHidden('hiddenCategoryNotice')
+            ->fillForm(['is_featured' => false])
+            ->assertSchemaComponentVisible('hiddenCategoryNotice');
+
+        Livewire::test(ListProducts::class)
+            ->call('updateTableColumnState', 'is_visible', (string) $product->id, true)
+            ->assertNotNotified();
+    }
+
     public function test_switching_on_a_product_in_the_list_warns_when_its_category_is_hidden(): void
     {
         $product = Product::factory()

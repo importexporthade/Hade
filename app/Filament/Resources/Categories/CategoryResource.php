@@ -21,6 +21,7 @@ use Filament\Tables\Columns\ImageColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Columns\ToggleColumn;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Builder;
 use UnitEnum;
 
 class CategoryResource extends Resource
@@ -62,7 +63,7 @@ class CategoryResource extends Resource
                     ->columnSpanFull(),
                 Toggle::make('is_visible')
                     ->label('Visible en la tienda')
-                    ->hintIcon(Heroicon::OutlinedQuestionMarkCircle, tooltip: 'Apágala para ocultar la categoría y sus productos sin borrarlos.')
+                    ->hintIcon(Heroicon::OutlinedQuestionMarkCircle, tooltip: 'Apágala para ocultarla aunque tenga productos. Sin productos visibles se oculta sola.')
                     ->default(true),
             ]);
     }
@@ -70,8 +71,9 @@ class CategoryResource extends Resource
     public static function table(Table $table): Table
     {
         return $table
+            ->modifyQueryUsing(fn (Builder $query): Builder => $query->withVisibleProductsFlag())
             ->defaultSort('sort_order')
-            ->description('El interruptor Visible se guarda solo al tocarlo. Para cambiar nombre o foto, pulsa Editar.')
+            ->description('Una categoría sin productos visibles se oculta sola y vuelve cuando muestras uno. El interruptor Visible la oculta a mano y se guarda al tocarlo.')
             ->reorderable('sort_order')
             ->columns([
                 ImageColumn::make('image')
@@ -81,6 +83,7 @@ class CategoryResource extends Resource
                     ->square(),
                 TextColumn::make('name')
                     ->label('Categoría')
+                    ->description(fn (Category $record): ?string => $record->hasVisibleProducts() ? null : 'Oculta: no tiene productos visibles')
                     ->searchable(),
                 TextColumn::make('products_count')
                     ->label('Productos')

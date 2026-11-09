@@ -10,7 +10,7 @@ class CategoryController extends Controller
 {
     public function show(Category $category): View
     {
-        abort_unless($category->is_visible, 404);
+        abort_unless($category->isShownInStore(), 404);
 
         return view('store.categories.show', [
             'category' => $category,

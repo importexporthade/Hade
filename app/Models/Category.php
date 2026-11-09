@@ -37,12 +37,39 @@ class Category extends Model
     }
 
     /**
+     * Categories the store shows: switched on in the manager and with at least one visible
+     * product. One that is empty, or whose products are all hidden, hides itself and comes
+     * back as soon as one of them is shown again.
+     *
      * @param  Builder<Category>  $query
      */
     #[Scope]
     protected function visible(Builder $query): void
     {
-        $query->where('is_visible', true);
+        $query->where('is_visible', true)
+            ->whereHas('products', fn (Builder $query) => $query->where('is_visible', true));
+    }
+
+    /**
+     * @param  Builder<Category>  $query
+     */
+    #[Scope]
+    protected function withVisibleProductsFlag(Builder $query): void
+    {
+        $query->withExists(['products as has_visible_products' => fn (Builder $query) => $query->where('is_visible', true)]);
+    }
+
+    public function hasVisibleProducts(): bool
+    {
+        return (bool) ($this->has_visible_products ?? $this->products()->where('is_visible', true)->exists());
+    }
+
+    /**
+     * Whether the store shows this category, by the same rule as the visible scope.
+     */
+    public function isShownInStore(): bool
+    {
+        return $this->is_visible && $this->hasVisibleProducts();
     }
 
     public function imageUrl(): ?string

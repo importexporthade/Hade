@@ -152,7 +152,9 @@ class Product extends Model
     }
 
     /**
-     * Products the store shows: switched on, and not inside a category the owner hid.
+     * Products the store shows: switched on, and not inside a category the owner hid. A
+     * product marked as "Novedad" shows even then, so Novedades stays full while every
+     * category is switched off.
      *
      * @param  Builder<Product>  $query
      */
@@ -162,7 +164,16 @@ class Product extends Model
         $query->where('is_visible', true)
             ->where(fn (Builder $query) => $query
                 ->whereNull('category_id')
+                ->orWhere('is_featured', true)
                 ->orWhereHas('category', fn (Builder $query) => $query->where('is_visible', true)));
+    }
+
+    /**
+     * Whether the store shows this product, by the same rule as the visible scope.
+     */
+    public function isShownInStore(): bool
+    {
+        return $this->is_visible && ($this->category === null || $this->is_featured || $this->category->is_visible);
     }
 
     /**

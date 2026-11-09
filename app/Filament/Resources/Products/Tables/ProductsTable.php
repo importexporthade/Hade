@@ -63,7 +63,7 @@ class ProductsTable
                 ToggleColumn::make('is_visible')
                     ->label('Visible')
                     ->afterStateUpdated(function (Product $record, bool $state): void {
-                        if (! $state || ! $record->category || $record->category->is_visible) {
+                        if (! $state || $record->isShownInStore()) {
                             return;
                         }
 
