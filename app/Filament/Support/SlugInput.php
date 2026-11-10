@@ -95,6 +95,6 @@ class SlugInput
     {
         $slug = filled($slug) ? $slug : $sampleSlug;
 
-        return 'Final de la dirección web, se llena solo con el nombre. Ej: '.self::address($routeName, $slug);
+        return 'Es el final del enlace y se llena solo con el nombre. Ej: '.self::address($routeName, $slug);
     }
 }

@@ -74,23 +74,23 @@ class HomeSectionResource extends Resource
             ->components([
                 TextInput::make('title')
                     ->label('Título')
-                    ->hintIcon(Heroicon::OutlinedQuestionMarkCircle, tooltip: 'Título de la sección en la portada. Ej: Stickers Manicure.')
+                    ->hintIcon(Heroicon::OutlinedQuestionMarkCircle, tooltip: 'El título que se ve sobre la sección en la portada. Ej: Stickers Manicure.')
                     ->placeholder('Stickers Manicure')
                     ->required()
                     ->maxLength(255),
                 TextInput::make('subtitle')
                     ->label('Subtítulo')
-                    ->hintIcon(Heroicon::OutlinedQuestionMarkCircle, tooltip: 'Frase bajo el título. Ej: Diseños nuevos cada semana.')
+                    ->hintIcon(Heroicon::OutlinedQuestionMarkCircle, tooltip: 'Una frase cortita debajo del título. Ej: Diseños nuevos cada semana.')
                     ->maxLength(255),
                 Select::make('type')
                     ->label('Tipo de sección')
-                    ->hintIcon(Heroicon::OutlinedQuestionMarkCircle, tooltip: 'Qué productos muestra la sección. Ej: Ofertas.')
+                    ->hintIcon(Heroicon::OutlinedQuestionMarkCircle, tooltip: 'Qué productos quieres mostrar aquí. Ej: los que están en Ofertas.')
                     ->options(HomeSectionType::class)
                     ->required()
                     ->live(),
                 Select::make('category_id')
                     ->label('Categoría')
-                    ->hintIcon(Heroicon::OutlinedQuestionMarkCircle, tooltip: 'Categoría cuyos productos se muestran. Si está oculta, la sección no sale en la portada. Ej: Lámparas.')
+                    ->hintIcon(Heroicon::OutlinedQuestionMarkCircle, tooltip: 'De qué categoría salen los productos. Si la escondes, la sección tampoco se ve. Ej: Lámparas.')
                     ->relationship('category', 'name', modifyQueryUsing: fn (Builder $query): Builder => $query->withVisibleProductsFlag())
                     ->getOptionLabelFromRecordUsing(fn (Category $category): string => $category->name.($category->isShownInStore() ? '' : ' (oculta)'))
                     ->searchable()
@@ -100,7 +100,7 @@ class HomeSectionResource extends Resource
                     ->required(fn (Get $get): bool => self::typeOf($get) === HomeSectionType::Category),
                 TextInput::make('products_limit')
                     ->label('Cuántos productos')
-                    ->hintIcon(Heroicon::OutlinedQuestionMarkCircle, tooltip: 'Productos en la sección, hasta 5. Ej: 3.')
+                    ->hintIcon(Heroicon::OutlinedQuestionMarkCircle, tooltip: 'Cuántos productos quieres mostrar, hasta 5. Ej: 3.')
                     ->helperText(fn (Get $get): ?string => self::visibleProductsSummary($get))
                     ->integer()
                     ->minValue(1)
@@ -109,7 +109,7 @@ class HomeSectionResource extends Resource
                     ->required(),
                 Toggle::make('is_active')
                     ->label('Visible en la portada')
-                    ->hintIcon(Heroicon::OutlinedQuestionMarkCircle, tooltip: 'Apágala para ocultar la sección sin borrarla.')
+                    ->hintIcon(Heroicon::OutlinedQuestionMarkCircle, tooltip: 'Apágala si quieres esconder la sección un tiempo, sin borrarla.')
                     // Label on top, like the inputs, so the switch lines up with the field beside it
                     ->inline(false)
                     ->default(true),

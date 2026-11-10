@@ -1,6 +1,12 @@
 <IfModule mod_rewrite.c>
     RewriteEngine On
 
+    # Photos uploaded from the manager live in storage/app/public. The host cannot create
+    # the public/storage link, so /storage/... photos are served from there directly.
+    # Only image files, so nothing else in storage is ever reachable.
+    RewriteRule ^storage/app/public/.+\.(webp|jpe?g|png|gif|avif)$ - [NC,L]
+    RewriteRule ^storage/(.+\.(webp|jpe?g|png|gif|avif))$ storage/app/public/$1 [NC,L]
+
     # Serve Everything From The Public Folder...
     RewriteRule ^(.*)$ public/$1 [L]
 </IfModule>

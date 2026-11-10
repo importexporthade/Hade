@@ -23,7 +23,7 @@ class PageForm
                     ->schema([
                         TextInput::make('title')
                             ->label('Título')
-                            ->hintIcon(Heroicon::OutlinedQuestionMarkCircle, tooltip: 'Nombre de la página en el menú Información. Ej: Envíos y delivery.')
+                            ->hintIcon(Heroicon::OutlinedQuestionMarkCircle, tooltip: 'Cómo se llama la página en el menú Información. Ej: Envíos y delivery.')
                             ->placeholder('Envíos y delivery')
                             ->required()
                             ->maxLength(255)
@@ -31,15 +31,15 @@ class PageForm
                             ->afterStateUpdated(SlugInput::fillFromName()),
                         SlugInput::make('pages.show', 'envios-y-delivery'),
                         RichEditor::make('content')
-                            ->label('Contenido'),
+                            ->label('Contenido')
+                            ->hintIcon(Heroicon::OutlinedQuestionMarkCircle, tooltip: 'Lo que lee la clienta cuando abre la página. Ej: plazos y costos de envío.'),
                     ]),
                 Section::make('Dónde se ve')
                     ->columnSpan(['lg' => 1])
                     ->schema([
                         Radio::make('visibility')
                             ->hiddenLabel()
-                            ->hintIcon(Heroicon::OutlinedQuestionMarkCircle, tooltip: 'Dónde aparece el enlace a esta página. Ej: en el menú y en el pie.')
-                            ->hintIcon(Heroicon::OutlinedQuestionMarkCircle, tooltip: 'Lo que lee la clienta al abrir la página. Ej: plazos y costos de envío.')
+                            ->hintIcon(Heroicon::OutlinedQuestionMarkCircle, tooltip: 'Dónde quieres que salga el enlace a esta página. Ej: en el menú y al pie.')
                             ->options(PageVisibility::class)
                             ->default(PageVisibility::MenuAndFooter->value)
                             ->required(),

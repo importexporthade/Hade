@@ -118,7 +118,7 @@ class ProductsTable
                         ->schema([
                             TextInput::make('percentage')
                                 ->label('Descuento')
-                                ->hintIcon(Heroicon::OutlinedQuestionMarkCircle, tooltip: 'Descuento sobre el precio normal. Ej: 20 deja S/ 50.00 en S/ 40.00.')
+                                ->hintIcon(Heroicon::OutlinedQuestionMarkCircle, tooltip: 'Cuánto le bajas al precio normal. Ej: con 20, S/ 50.00 queda en S/ 40.00.')
                                 ->helperText('Se calcula sobre el precio normal de cada producto.')
                                 ->required()
                                 ->integer()

@@ -41,6 +41,7 @@ class AppServiceProvider extends ServiceProvider
         $this->showValidationInsideTheForm();
         $this->useTwelveHourClock();
         $this->stackTablesOnMobile();
+        $this->closeFiltersAfterApplying();
     }
 
     /**
@@ -96,5 +97,16 @@ class AppServiceProvider extends ServiceProvider
     private function stackTablesOnMobile(): void
     {
         Table::configureUsing(fn (Table $table): Table => $table->stackedOnMobile());
+    }
+
+    /**
+     * The filters panel stayed open over the list after "Aplicar filtros", so the owner had
+     * to close it to see the result; applying now closes it.
+     */
+    private function closeFiltersAfterApplying(): void
+    {
+        Table::configureUsing(fn (Table $table): Table => $table->filtersApplyAction(
+            fn (Action $action): Action => $action->close(),
+        ));
     }
 }
