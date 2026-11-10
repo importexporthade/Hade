@@ -84,7 +84,8 @@
 
                 <a href="{{ route('home') }}" class="absolute left-1/2 flex shrink-0 -translate-x-1/2 items-center gap-2 lg:static lg:translate-x-0" aria-label="{{ $settings->store_name }}, ir al inicio">
                     <img src="{{ asset('images/logos/logo-vino-transparente.png') }}" alt="" class="h-11 w-auto lg:h-[4.5rem]">
-                    <span class="font-serif text-2xl leading-none font-medium tracking-[-0.04em] text-emerald uppercase lg:hidden">{{ $settings->store_name }}</span>
+                    {{-- Below 320px the name would run into the search and cart buttons, so only the mark stays --}}
+                    <span class="font-serif text-2xl leading-none font-medium tracking-[-0.04em] text-emerald uppercase max-[20rem]:hidden lg:hidden">{{ $settings->store_name }}</span>
                 </a>
 
                 <nav class="mx-auto hidden self-stretch lg:flex" aria-label="Principal">
@@ -522,7 +523,7 @@
                             <p class="text-[0.55rem] font-semibold tracking-[0.2em] text-burgundy/60 uppercase">Resumen del pedido</p>
                             <span class="mt-1 block text-sm text-ink/60">Total</span>
                         </div>
-                        <span class="font-serif text-3xl leading-none font-semibold text-burgundy" data-cart-total></span>
+                        <span class="font-serif text-3xl leading-none font-semibold whitespace-nowrap text-burgundy" data-cart-total></span>
                     </div>
 
                     <div class="mt-5 space-y-3" data-cart-step="items">
@@ -553,7 +554,7 @@
                     </div>
                     <span class="mt-1 font-serif text-base font-semibold text-burgundy" data-item-price></span>
 
-                    <div class="mt-auto flex items-center justify-between gap-3 pt-3">
+                    <div class="mt-auto flex flex-wrap items-center justify-between gap-3 pt-3">
                         <div class="flex items-center rounded-full border border-rose/40 bg-cream">
                             <button type="button" class="grid size-8 place-items-center rounded-full text-burgundy transition hover:bg-rose-light focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-burgundy" data-item-decrease aria-label="Quitar uno"><x-store.icon name="minus" class="size-3.5" /></button>
                             <span class="w-8 text-center text-sm font-semibold text-ink" data-item-quantity></span>
