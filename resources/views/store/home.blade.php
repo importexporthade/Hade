@@ -47,7 +47,9 @@
 
                 <div class="relative col-start-1 row-start-1 min-h-[clamp(28rem,68svh,36rem)] min-w-0 overflow-hidden lg:col-start-2 lg:min-h-full">
                     <img
-                        src="{{ asset('images/hero-nail-stickers.jpg') }}"
+                        src="{{ asset('images/hero-nail-stickers.webp') }}"
+                        srcset="{{ asset('images/hero-nail-stickers-768.webp') }} 768w, {{ asset('images/hero-nail-stickers.webp') }} 1536w"
+                        sizes="(min-width: 1024px) 50vw, 100vw"
                         alt="Manicure en tonos nude con flores blancas y detalles verdes"
                         width="1536"
                         height="1024"
@@ -316,7 +318,7 @@
                 @if ($section->type === HomeSectionType::Latest)
                     @once
                         <section class="relative isolate flex min-h-[19.44rem] items-center overflow-hidden text-center text-white sm:min-h-[16.2rem] lg:min-h-[19.44rem]" aria-labelledby="catalogo-cta">
-                            <img src="{{ asset('images/hero-nail-stickers.jpg') }}" alt="" loading="lazy" class="absolute inset-0 -z-20 size-full object-cover object-center">
+                            <img src="{{ asset('images/hero-nail-stickers.webp') }}" srcset="{{ asset('images/hero-nail-stickers-768.webp') }} 768w, {{ asset('images/hero-nail-stickers.webp') }} 1536w" sizes="100vw" alt="" loading="lazy" class="absolute inset-0 -z-20 size-full object-cover object-center">
                             <span class="absolute inset-0 -z-10 bg-[#6f5e50]/20" aria-hidden="true"></span>
                             <span class="absolute inset-0 -z-10 bg-linear-to-b from-[#b9a28f]/55 via-[#8b7360]/65 to-[#514840]/75" aria-hidden="true"></span>
 

@@ -83,7 +83,7 @@
                 </button>
 
                 <a href="{{ route('home') }}" class="absolute left-1/2 flex shrink-0 -translate-x-1/2 items-center gap-2 lg:static lg:translate-x-0" aria-label="{{ $settings->store_name }}, ir al inicio">
-                    <img src="{{ asset('images/logos/logo-vino-transparente.png') }}" alt="" class="h-11 w-auto lg:h-[4.5rem]">
+                    <img src="{{ asset('images/logos/logo-vino-transparente.webp') }}" alt="" width="281" height="351" class="h-11 w-auto lg:h-[4.5rem]">
                     {{-- Below 320px the name would run into the search and cart buttons, so only the mark stays --}}
                     <span class="font-serif text-2xl leading-none font-medium tracking-[-0.04em] text-emerald uppercase max-[20rem]:hidden lg:hidden">{{ $settings->store_name }}</span>
                 </a>
