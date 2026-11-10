@@ -186,7 +186,7 @@ class StorefrontTest extends TestCase
                 'sort_order' => $position,
             ]);
         }
-        HomeSection::factory()->ofType(HomeSectionType::Offers)->create(['products_limit' => 3]);
+        HomeSection::factory()->ofType(HomeSectionType::Offers)->create(['products_limit' => 8]);
 
         $this->get('/')
             ->assertOk()

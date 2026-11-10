@@ -100,12 +100,12 @@ class HomeSectionResource extends Resource
                     ->required(fn (Get $get): bool => self::typeOf($get) === HomeSectionType::Category),
                 TextInput::make('products_limit')
                     ->label('Cuántos productos')
-                    ->hintIcon(Heroicon::OutlinedQuestionMarkCircle, tooltip: 'Máximo de productos en la sección. Ej: 8.')
+                    ->hintIcon(Heroicon::OutlinedQuestionMarkCircle, tooltip: 'Productos en la sección, hasta 5. Ej: 3.')
                     ->helperText(fn (Get $get): ?string => self::visibleProductsSummary($get))
                     ->integer()
                     ->minValue(1)
-                    ->maxValue(24)
-                    ->default(8)
+                    ->maxValue(HomeSection::MAX_PRODUCTS)
+                    ->default(HomeSection::MAX_PRODUCTS)
                     ->required(),
                 Toggle::make('is_active')
                     ->label('Visible en la portada')

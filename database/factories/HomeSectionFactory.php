@@ -22,7 +22,7 @@ class HomeSectionFactory extends Factory
         return [
             'title' => fake()->words(2, true),
             'type' => HomeSectionType::Latest,
-            'products_limit' => 8,
+            'products_limit' => 5,
             'is_active' => true,
             'sort_order' => 0,
         ];

@@ -114,7 +114,7 @@
     @forelse ($sections as $section)
         @switch($section->type)
             @case(HomeSectionType::Offers)
-                @php($products = $section->products(5))
+                @php($products = $section->products())
                 @if ($products->isNotEmpty())
                     <section class="bg-emerald py-10 sm:py-12 lg:py-14" aria-labelledby="seccion-{{ $section->id }}">
                         <div class="store-container">
@@ -150,7 +150,7 @@
             @default
                 {{-- Every product section shares one design: the heading comes from the manager, the small label names its category, and the background alternates cream and green --}}
                 @php($isManicureSection = $section->type === HomeSectionType::Category && str_contains(mb_strtolower($section->category?->name ?? ''), 'manicur'))
-                @php($products = $section->products(5))
+                @php($products = $section->products())
                 @php($sectionHeading = $section->title)
                 @php($sectionLabel = $section->category?->name ?? $section->type->getLabel())
                 @php($sectionLabel = mb_strtolower($sectionLabel) === mb_strtolower($sectionHeading) ? null : $sectionLabel)
@@ -229,9 +229,9 @@
                                 <p @class(['mt-1 text-sm', 'text-white/75' => $isDarkSection, 'text-ink/60' => ! $isDarkSection])>{{ $section->subtitle }}</p>
                             @endif
 
-                            <x-store.carousel :label="'Productos de '.$sectionHeading" :autoplay="true" :interval="5000" :merge-last-page="true" :arrows="false" class="mt-5 lg:grid lg:grid-cols-5 lg:gap-x-4 lg:gap-y-8 lg:overflow-visible lg:pb-0">
+                            <x-store.carousel :label="'Productos de '.$sectionHeading" :autoplay="true" :interval="5000" :merge-last-page="true" :arrows="false" class="mt-5 lg:justify-center lg:overflow-visible lg:pb-0">
                                 @foreach ($products as $product)
-                                    <x-store.product-card :product="$product" size="latest" class="w-[76%] shrink-0 sm:w-[calc((100%-1rem)/2)] lg:w-auto" />
+                                    <x-store.product-card :product="$product" size="latest" class="w-[76%] shrink-0 sm:w-[calc((100%-1rem)/2)] lg:w-[calc((100%-4rem)/5)]" />
                                 @endforeach
                             </x-store.carousel>
 

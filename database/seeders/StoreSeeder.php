@@ -77,7 +77,7 @@ class StoreSeeder extends Seeder
 
         $sections = [
             ['title' => 'Ofertas', 'type' => HomeSectionType::Offers],
-            ['title' => 'Novedades', 'type' => HomeSectionType::Latest, 'products_limit' => 10],
+            ['title' => 'Novedades', 'type' => HomeSectionType::Latest, 'products_limit' => 5],
             ['title' => 'Stickers Manicure', 'type' => HomeSectionType::Category, 'category_id' => $categories['Stickers Manicure']->id],
             ['title' => 'Stickers Pedicure', 'type' => HomeSectionType::Category, 'category_id' => $categories['Stickers Pedicure']->id],
             ['title' => 'Kits y Promociones', 'type' => HomeSectionType::Category, 'category_id' => $categories['Kits y Promociones']->id],

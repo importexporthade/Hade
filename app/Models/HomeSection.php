@@ -16,6 +16,9 @@ class HomeSection extends Model
     /** @use HasFactory<HomeSectionFactory> */
     use HasFactory;
 
+    /** The most products a home section shows: one row of five cards on a computer. */
+    public const int MAX_PRODUCTS = 5;
+
     /**
      * @return array<string, string>
      */
@@ -38,11 +41,12 @@ class HomeSection extends Model
     /**
      * The visible products this section shows on the home page. A category section stays
      * empty, and so off the page, while the store hides its category, even though the
-     * category's "Novedad" products still show in Novedades.
+     * category's "Novedad" products still show in Novedades. Every section respects the
+     * storefront's maximum number of product cards.
      *
      * @return Collection<int, Product>
      */
-    public function products(?int $limit = null): Collection
+    public function products(): Collection
     {
         if ($this->type === HomeSectionType::Category && ! $this->category?->isShownInStore()) {
             return new Collection;
@@ -56,6 +60,6 @@ class HomeSection extends Model
             HomeSectionType::Category => $query->where('category_id', $this->category_id)->orderBy('sort_order'),
         };
 
-        return $query->limit($limit ?? $this->products_limit)->get();
+        return $query->limit(min($this->products_limit, self::MAX_PRODUCTS))->get();
     }
 }
