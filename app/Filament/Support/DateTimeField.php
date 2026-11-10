@@ -27,6 +27,24 @@ class DateTimeField
     public const string END_OF_DAY = '23:59';
 
     /**
+     * Adds a "Hoy" link under the calendar, which picks today and closes it. It lives inside
+     * the calendar instead of beside the box so the box keeps room for the date on a phone.
+     */
+    private const string TODAY_BUTTON_JS = <<<'JS'
+        $nextTick(() => {
+            const row = document.createElement('div');
+            row.style.cssText = 'display:flex;justify-content:center;padding-top:.5rem';
+            const today = document.createElement('button');
+            today.type = 'button';
+            today.textContent = 'Hoy';
+            today.className = 'fi-link fi-size-sm fi-color fi-color-primary fi-text-color-700 dark:fi-text-color-300';
+            today.addEventListener('click', () => { $data.focusedDate = $data.getToday(); $data.selectDate(); });
+            row.appendChild(today);
+            $refs.panel.appendChild(row);
+        })
+        JS;
+
+    /**
      * @param  string|null  $after  Name of another DateTimeField this one must come after.
      * @param  string|null  $tooltip  What the date means for the owner, shown beside the label.
      */
@@ -36,7 +54,9 @@ class DateTimeField
         $time = self::timeField($name);
 
         return Group::make([
-            Grid::make(['default' => 3])->schema([
+            // Side by side only when the card is wide enough; on a phone, or in a half-width
+            // card, the day and the hour each take a full row instead of squeezing the date.
+            Grid::make(['default' => 1, '@xl' => 3])->gridContainer()->schema([
                 DatePicker::make($date)
                     ->label($label)
                     ->when($tooltip !== null, fn (DatePicker $picker): DatePicker => $picker->hintIcon(Heroicon::OutlinedQuestionMarkCircle, tooltip: $tooltip))
@@ -45,12 +65,18 @@ class DateTimeField
                     ->displayFormat('d/m/Y')
                     ->firstDayOfWeek(1)
                     ->closeOnDateSelection()
-                    ->prefixIcon(Heroicon::OutlinedCalendarDays)
+                    ->extraAlpineAttributes(['x-init' => self::TODAY_BUTTON_JS])
+                    ->prefixActions([
+                        // The icon opens the calendar too, not only the box beside it. It waits a
+                        // moment so the picker's own "clicked outside, close" runs first.
+                        Action::make("{$name}Open")
+                            ->icon(Heroicon::OutlinedCalendarDays)
+                            ->label('Abrir calendario')
+                            ->iconButton()
+                            ->color('gray')
+                            ->alpineClickHandler("setTimeout(() => \$el.closest('.fi-input-wrp').querySelector('.fi-fo-date-time-picker-trigger')?.click())"),
+                    ])
                     ->suffixActions([
-                        Action::make("{$name}Today")
-                            ->icon(Heroicon::OutlinedSun)
-                            ->tooltip('Hoy')
-                            ->action(fn (Set $set) => $set($date, now()->toDateString())),
                         Action::make("{$name}Clear")
                             ->icon(Heroicon::OutlinedXMark)
                             ->tooltip('Quitar fecha')
@@ -60,7 +86,7 @@ class DateTimeField
                     ->dehydrated(false)
                     ->afterStateHydrated(fn (DatePicker $component, ?Model $record) => $component->state($record?->{$name}?->toDateString()))
                     ->rules($after === null ? [] : [fn (Get $get): Closure => self::mustComeAfter($get, $after, $name)])
-                    ->columnSpan(2),
+                    ->columnSpan(['default' => 1, '@xl' => 2]),
                 Select::make($time)
                     ->label('Hora')
                     ->options(fn (?string $state): array => self::timeOptions($state))
