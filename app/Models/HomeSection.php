@@ -41,8 +41,8 @@ class HomeSection extends Model
     /**
      * The visible products this section shows on the home page. A category section stays
      * empty, and so off the page, while the store hides its category, even though the
-     * category's "Novedad" products still show in Novedades. Every section respects the
-     * storefront's maximum number of product cards.
+     * category's "Novedad" products still show in Novedades. Every section shows up to five,
+     * one row of cards on a computer.
      *
      * @return Collection<int, Product>
      */
@@ -60,6 +60,6 @@ class HomeSection extends Model
             HomeSectionType::Category => $query->where('category_id', $this->category_id)->orderBy('sort_order'),
         };
 
-        return $query->limit(min($this->products_limit, self::MAX_PRODUCTS))->get();
+        return $query->limit(self::MAX_PRODUCTS)->get();
     }
 }

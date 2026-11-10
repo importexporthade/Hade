@@ -5,12 +5,14 @@ namespace App\Providers\Filament;
 use App\Filament\Pages\Auth\Login;
 use App\Filament\Pages\Auth\UnlockAccount;
 use App\Filament\Pages\Dashboard;
+use App\Filament\Resources\Products\Pages\ListProducts;
 use Filament\Http\Middleware\Authenticate;
 use Filament\Http\Middleware\AuthenticateSession;
 use Filament\Http\Middleware\DisableBladeIconComponents;
 use Filament\Http\Middleware\DispatchServingFilamentEvent;
 use Filament\Panel;
 use Filament\PanelProvider;
+use Filament\Tables\View\TablesRenderHook;
 use Filament\View\PanelsRenderHook;
 use Illuminate\Contracts\View\View;
 use Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse;
@@ -88,6 +90,15 @@ class ManagerPanelProvider extends PanelProvider
             ->renderHook(
                 PanelsRenderHook::SIMPLE_LAYOUT_START,
                 fn (): View => view('filament.simple-layout-band'),
+            )
+            ->renderHook(
+                PanelsRenderHook::BODY_END,
+                fn (): View => view('filament.floating-dropdowns'),
+            )
+            ->renderHook(
+                TablesRenderHook::SELECTION_INDICATOR_ACTIONS_AFTER,
+                fn (): View => view('filament.selection-bar-actions'),
+                scopes: ListProducts::class,
             )
             ->navigationGroups([
                 'Catálogo',

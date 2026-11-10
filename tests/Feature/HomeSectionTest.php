@@ -9,7 +9,7 @@ use App\Models\HomeSection;
 use App\Models\Product;
 use App\Models\User;
 use Closure;
-use Filament\Forms\Components\TextInput;
+use Filament\Forms\Components\Field;
 use Filament\Schemas\Components\Text;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\DB;
@@ -31,25 +31,22 @@ class HomeSectionTest extends TestCase
         $this->assertEquals([$onSale->id], $section->products()->modelKeys());
     }
 
-    public function test_a_section_shows_as_many_products_as_the_owner_chose_up_to_five(): void
+    public function test_a_section_always_shows_up_to_five_products(): void
     {
         Product::factory()->onSale()->count(7)->create();
 
-        $this->assertCount(3, HomeSection::factory()->ofType(HomeSectionType::Offers)->create(['products_limit' => 3])->products());
-        $this->assertCount(5, HomeSection::factory()->ofType(HomeSectionType::Offers)->create(['products_limit' => 8])->products());
+        // An older section may still have another number saved from when the owner chose it
+        $this->assertCount(5, HomeSection::factory()->ofType(HomeSectionType::Offers)->create(['products_limit' => 3])->products());
     }
 
-    public function test_a_novedades_section_shows_the_products_marked_as_new_from_newest_up_to_its_limit(): void
+    public function test_a_novedades_section_shows_the_five_newest_products_marked_as_new(): void
     {
-        $oldest = Product::factory()->markedAsNew()->create(['created_at' => now()->subDays(3)]);
-        $older = Product::factory()->markedAsNew()->create(['created_at' => now()->subDays(2)]);
-        $newest = Product::factory()->markedAsNew()->create(['created_at' => now()->subDay()]);
+        $markedAsNew = collect(range(6, 1))->map(fn (int $daysAgo): Product => Product::factory()->markedAsNew()->create(['created_at' => now()->subDays($daysAgo)]));
         Product::factory()->create(['is_featured' => false, 'created_at' => now()]);
 
-        $section = HomeSection::factory()->ofType(HomeSectionType::Latest)->create(['products_limit' => 2]);
+        $section = HomeSection::factory()->ofType(HomeSectionType::Latest)->create();
 
-        $this->assertEquals([$newest->id, $older->id], $section->products()->modelKeys());
-        $this->assertNotContains($oldest->id, $section->products()->modelKeys());
+        $this->assertEquals($markedAsNew->reverse()->take(5)->pluck('id')->all(), $section->products()->modelKeys());
     }
 
     public function test_a_featured_section_becomes_the_novedades_section_when_there_is_none(): void
@@ -95,7 +92,6 @@ class HomeSectionTest extends TestCase
             ->callAction('create', data: [
                 'title' => 'Stickers Manicure',
                 'type' => HomeSectionType::Category->value,
-                'products_limit' => 8,
             ])
             ->assertHasFormErrors(['category_id' => 'required']);
 
@@ -112,14 +108,12 @@ class HomeSectionTest extends TestCase
                 'title' => 'Stickers Manicure',
                 'type' => HomeSectionType::Category->value,
                 'category_id' => $category->id,
-                'products_limit' => 4,
             ])
             ->assertHasNoFormErrors();
 
         $section = HomeSection::query()->sole();
         $this->assertSame(HomeSectionType::Category, $section->type);
         $this->assertTrue($section->category->is($category));
-        $this->assertSame(4, $section->products_limit);
     }
 
     public function test_the_section_form_counts_the_visible_products_of_the_chosen_category(): void
@@ -134,9 +128,9 @@ class HomeSectionTest extends TestCase
         Livewire::test(ManageHomeSections::class)
             ->mountAction('create')
             ->fillForm(['type' => HomeSectionType::Category->value, 'category_id' => $lamps->id])
-            ->assertFormFieldExists('products_limit', $this->helperTextIs('Productos visibles en Lámparas: 2.'))
+            ->assertFormFieldExists('category_id', $this->helperTextIs('Productos visibles en Lámparas: 2.'))
             ->fillForm(['category_id' => $switchedOff->id])
-            ->assertFormFieldExists('products_limit', $this->helperTextIs('Productos visibles en Accesorios: 1. La categoría está apagada, así que la sección no sale en la portada.'));
+            ->assertFormFieldExists('category_id', $this->helperTextIs('Productos visibles en Accesorios: 1. La categoría está apagada, así que la sección no sale en la portada.'));
     }
 
     public function test_the_section_form_counts_the_visible_products_on_sale_and_marked_as_new(): void
@@ -148,9 +142,9 @@ class HomeSectionTest extends TestCase
         Livewire::test(ManageHomeSections::class)
             ->mountAction('create')
             ->fillForm(['type' => HomeSectionType::Offers->value])
-            ->assertFormFieldExists('products_limit', $this->helperTextIs('Productos visibles en oferta: 2.'))
+            ->assertFormFieldExists('type', $this->helperTextIs('Productos visibles en oferta: 2.'))
             ->fillForm(['type' => HomeSectionType::Latest->value])
-            ->assertFormFieldExists('products_limit', $this->helperTextIs('Productos visibles marcados como novedad: 0. Sin productos visibles, la sección no sale en la portada.'));
+            ->assertFormFieldExists('type', $this->helperTextIs('Productos visibles marcados como novedad: 0. Sin productos visibles, la sección no sale en la portada.'));
     }
 
     public function test_the_sections_open_ready_to_drag_and_the_new_order_is_saved(): void
@@ -191,12 +185,12 @@ class HomeSectionTest extends TestCase
     }
 
     /**
-     * @return Closure(TextInput): bool
+     * @return Closure(Field): bool
      */
     private function helperTextIs(string $expected): Closure
     {
-        return function (TextInput $field) use ($expected): bool {
-            $helperText = $field->getChildSchema(TextInput::BELOW_CONTENT_SCHEMA_KEY)?->getComponents()[0] ?? null;
+        return function (Field $field) use ($expected): bool {
+            $helperText = $field->getChildSchema(Field::BELOW_CONTENT_SCHEMA_KEY)?->getComponents()[0] ?? null;
 
             return $helperText instanceof Text && $helperText->getContent() === $expected;
         };

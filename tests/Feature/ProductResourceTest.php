@@ -142,7 +142,7 @@ class ProductResourceTest extends TestCase
         $alreadyOnSale = Product::factory()->onSale(price: 35.00, compareAtPrice: 50.00)->create();
 
         Livewire::test(ListProducts::class)
-            ->callTableBulkAction('applyDiscount', [$regular, $alreadyOnSale], data: ['percentage' => 20])
+            ->callTableBulkAction('offer', [$regular, $alreadyOnSale], data: ['on_sale' => true, 'percentage' => 20])
             ->assertHasNoFormErrors();
 
         $this->assertSame(['32.00', '40.00'], [$regular->refresh()->price, $regular->compare_at_price]);
@@ -154,7 +154,7 @@ class ProductResourceTest extends TestCase
         $product = Product::factory()->create(['price' => 40.00]);
 
         Livewire::test(ListProducts::class)
-            ->callTableBulkAction('applyDiscount', [$product], data: ['percentage' => 95])
+            ->callTableBulkAction('offer', [$product], data: ['on_sale' => true, 'percentage' => 95])
             ->assertHasFormErrors(['percentage' => 'max']);
 
         $this->assertNull($product->refresh()->compare_at_price);
@@ -165,7 +165,7 @@ class ProductResourceTest extends TestCase
         $product = Product::factory()->onSale(price: 76.90, compareAtPrice: 90.00)->create();
 
         Livewire::test(ListProducts::class)
-            ->callTableBulkAction('removeDiscount', [$product]);
+            ->callTableBulkAction('offer', [$product], data: ['on_sale' => false]);
 
         $product->refresh();
         $this->assertSame('90.00', $product->price);

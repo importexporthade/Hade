@@ -8,11 +8,12 @@ use App\Support\ImageOptimizer;
 use App\Support\Price;
 use Filament\Actions\Action;
 use Filament\Actions\BulkAction;
-use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
 use Filament\Forms\Components\TextInput;
+use Filament\Forms\Components\Toggle;
 use Filament\Notifications\Notification;
+use Filament\Schemas\Components\Utilities\Get;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Columns\ImageColumn;
 use Filament\Tables\Columns\TextColumn;
@@ -26,12 +27,17 @@ use Illuminate\Database\Eloquent\Collection;
 
 class ProductsTable
 {
+    /**
+     * Marks the bulk actions that move from the toolbar to the selection bar.
+     */
+    public const string SELECTION_BAR_CLASS = 'hade-selection-bar-action';
+
     public static function configure(Table $table): Table
     {
         return $table
             ->modifyQueryUsing(fn (Builder $query): Builder => $query->with('category'))
             ->defaultSort('sort_order')
-            ->description('Los interruptores se guardan solos al tocarlos. Para cambiar precio, fotos o textos, pulsa Editar.')
+            ->description('Los interruptores se guardan solos al tocarlos. Para cambiar precio, fotos o textos, pulsa Editar. Para poner o quitar ofertas, o borrar varios a la vez, marca sus casillas.')
             ->reorderable('sort_order')
             ->columns([
                 ImageColumn::make('cover')
@@ -110,47 +116,54 @@ class ProductsTable
             ->recordActions([
                 EditAction::make(),
             ])
+            // Shown as two small links beside "Deselecciona todos" once a product is ticked
+            // (see the selection-bar view), instead of hiding behind a "⋮" menu.
             ->toolbarActions([
-                BulkActionGroup::make([
-                    BulkAction::make('applyDiscount')
-                        ->label('Poner en oferta')
-                        ->icon(Heroicon::OutlinedTag)
-                        ->schema([
-                            TextInput::make('percentage')
-                                ->label('Descuento')
-                                ->hintIcon(Heroicon::OutlinedQuestionMarkCircle, tooltip: 'Cuánto le bajas al precio normal. Ej: con 20, S/ 50.00 queda en S/ 40.00.')
-                                ->helperText('Se calcula sobre el precio normal de cada producto.')
-                                ->required()
-                                ->integer()
-                                ->minValue(1)
-                                ->maxValue(90)
-                                ->suffix('%'),
-                        ])
-                        ->action(function (Collection $records, array $data): void {
-                            $records->each(fn (Product $product) => $product->applyDiscount((int) $data['percentage']));
-
-                            Notification::make()
-                                ->success()
-                                ->title("{$records->count()} productos en oferta con -{$data['percentage']} %")
-                                ->send();
-                        })
-                        ->deselectRecordsAfterCompletion(),
-                    BulkAction::make('removeDiscount')
-                        ->label('Quitar oferta')
-                        ->icon(Heroicon::OutlinedXCircle)
-                        ->requiresConfirmation()
-                        ->modalDescription('Los productos vuelven a su precio normal.')
-                        ->action(function (Collection $records): void {
+                BulkAction::make('offer')
+                    ->label('Oferta')
+                    ->icon(Heroicon::OutlinedTag)
+                    ->link()
+                    ->extraAttributes(['class' => self::SELECTION_BAR_CLASS], merge: true)
+                    ->modalHeading(fn (Collection $records): string => $records->count() === 1 ? 'Oferta de 1 producto' : "Oferta de {$records->count()} productos")
+                    ->modalSubmitActionLabel('Guardar')
+                    ->schema([
+                        Toggle::make('on_sale')
+                            ->label('En oferta')
+                            ->helperText('Apágalo para que vuelvan a su precio normal.')
+                            ->default(true)
+                            ->live(),
+                        TextInput::make('percentage')
+                            ->label('Descuento')
+                            ->hintIcon(Heroicon::OutlinedQuestionMarkCircle, tooltip: 'Cuánto le bajas al precio normal. Ej: con 20, S/ 50.00 queda en S/ 40.00.')
+                            ->helperText('Se calcula sobre el precio normal de cada producto.')
+                            ->visible(fn (Get $get): bool => (bool) $get('on_sale'))
+                            ->required()
+                            ->integer()
+                            ->minValue(1)
+                            ->maxValue(90)
+                            ->suffix('%'),
+                    ])
+                    ->action(function (Collection $records, array $data): void {
+                        if (! $data['on_sale']) {
                             $records->each(fn (Product $product) => $product->removeDiscount());
 
-                            Notification::make()
-                                ->success()
-                                ->title('Ofertas quitadas')
-                                ->send();
-                        })
-                        ->deselectRecordsAfterCompletion(),
-                    DeleteBulkAction::make(),
-                ]),
+                            Notification::make()->success()->title('Ofertas quitadas')->send();
+
+                            return;
+                        }
+
+                        $records->each(fn (Product $product) => $product->applyDiscount((int) $data['percentage']));
+
+                        Notification::make()
+                            ->success()
+                            ->title("{$records->count()} productos en oferta con -{$data['percentage']} %")
+                            ->send();
+                    })
+                    ->deselectRecordsAfterCompletion(),
+                DeleteBulkAction::make()
+                    ->label('Borrar')
+                    ->link()
+                    ->extraAttributes(['class' => self::SELECTION_BAR_CLASS], merge: true),
             ]);
     }
 }

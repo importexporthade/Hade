@@ -86,6 +86,8 @@ class HomeSectionResource extends Resource
                     ->label('Tipo de sección')
                     ->hintIcon(Heroicon::OutlinedQuestionMarkCircle, tooltip: 'Qué productos quieres mostrar aquí. Ej: los que están en Ofertas.')
                     ->options(HomeSectionType::class)
+                    // A category section counts under the category instead, once one is chosen
+                    ->helperText(fn (Get $get): ?string => self::typeOf($get) === HomeSectionType::Category ? null : self::visibleProductsSummary($get))
                     ->required()
                     ->live(),
                 Select::make('category_id')
@@ -95,18 +97,10 @@ class HomeSectionResource extends Resource
                     ->getOptionLabelFromRecordUsing(fn (Category $category): string => $category->name.($category->isShownInStore() ? '' : ' (oculta)'))
                     ->searchable()
                     ->preload()
+                    ->helperText(fn (Get $get): ?string => self::visibleProductsSummary($get))
                     ->live()
                     ->visible(fn (Get $get): bool => self::typeOf($get) === HomeSectionType::Category)
                     ->required(fn (Get $get): bool => self::typeOf($get) === HomeSectionType::Category),
-                TextInput::make('products_limit')
-                    ->label('Cuántos productos')
-                    ->hintIcon(Heroicon::OutlinedQuestionMarkCircle, tooltip: 'Cuántos productos quieres mostrar, hasta 5. Ej: 3.')
-                    ->helperText(fn (Get $get): ?string => self::visibleProductsSummary($get))
-                    ->integer()
-                    ->minValue(1)
-                    ->maxValue(HomeSection::MAX_PRODUCTS)
-                    ->default(HomeSection::MAX_PRODUCTS)
-                    ->required(),
                 Toggle::make('is_active')
                     ->label('Visible en la portada')
                     ->hintIcon(Heroicon::OutlinedQuestionMarkCircle, tooltip: 'Apágala si quieres esconder la sección un tiempo, sin borrarla.')
@@ -139,8 +133,6 @@ class HomeSectionResource extends Resource
                     ->label('Tipo de sección')
                     ->badge()
                     ->description(fn (HomeSection $record): ?string => $record->category?->name),
-                TextColumn::make('products_limit')
-                    ->label('Productos'),
                 ToggleColumn::make('is_active')
                     ->label('Visible'),
                 ViewColumn::make('edit')
@@ -173,7 +165,7 @@ class HomeSectionResource extends Resource
 
     /**
      * How many visible products the chosen kind of section has to show, so the owner knows
-     * whether the limit will be filled.
+     * whether its five places will be filled.
      */
     private static function visibleProductsSummary(Get $get): ?string
     {
