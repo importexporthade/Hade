@@ -33,7 +33,8 @@ return [
         'local' => [
             'driver' => 'local',
             'root' => storage_path('app/private'),
-            'serve' => true,
+            // Off: its /storage address belongs to the uploaded photos (StoredPhotoController)
+            'serve' => false,
             'throw' => false,
             'report' => false,
         ],
