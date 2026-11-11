@@ -2,10 +2,12 @@
 
 namespace App\Filament\Pages\Auth;
 
+use App\Filament\Support\ManagerLoginResponse;
 use App\Models\User;
 use App\Support\AccountLockout;
 use Filament\Auth\Http\Responses\Contracts\LoginResponse;
 use Filament\Auth\Pages\Login as BaseLogin;
+use Filament\Facades\Filament;
 use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Contracts\Auth\Guard;
 use Illuminate\Contracts\Support\Htmlable;
@@ -35,6 +37,14 @@ class Login extends BaseLogin
 
     public function mount(): void
     {
+        // Already signed in: on to the remembered page, never to one of Livewire's own
+        // addresses, which Filament's own login would open and show "405 Method Not Allowed"
+        if (Filament::auth()->check()) {
+            redirect()->to(ManagerLoginResponse::destination());
+
+            return;
+        }
+
         parent::mount();
 
         $this->justUnlocked = (bool) session()->pull(self::JUST_UNLOCKED_SESSION_KEY);

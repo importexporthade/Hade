@@ -5,7 +5,9 @@ namespace Tests\Feature;
 use App\Filament\Pages\Auth\Login;
 use App\Models\User;
 use Filament\Facades\Filament;
+use Illuminate\Auth\AuthenticationException;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Route;
 use Livewire\Features\SupportTesting\Testable;
 use Livewire\Livewire;
 use Tests\TestCase;
@@ -35,6 +37,29 @@ class ManagerSessionTest extends TestCase
         session(['url.intended' => url('/manager/products')]);
 
         $this->signIn()->assertRedirect(url('/manager/products'));
+    }
+
+    public function test_opening_the_login_while_signed_in_never_lands_on_a_livewire_address(): void
+    {
+        session(['url.intended' => url('/livewire-de1460f5/update')]);
+
+        $this->actingAs($this->owner);
+
+        Livewire::test(Login::class)->assertRedirect(Filament::getUrl());
+    }
+
+    public function test_a_signed_out_request_from_a_manager_page_does_not_leave_its_address_to_return_to(): void
+    {
+        Route::post('/livewire-test/update', fn () => throw new AuthenticationException(redirectTo: '/manager/login'))->middleware('web');
+        Route::get('/manager/test-page', fn () => throw new AuthenticationException(redirectTo: '/manager/login'))->middleware('web');
+
+        $this->post('/livewire-test/update', headers: ['X-Livewire' => '1'])
+            ->assertRedirect('/manager/login');
+        $this->assertNull(session('url.intended'));
+
+        // A real page is still remembered, so signing in brings her back to it
+        $this->get('/manager/test-page')->assertRedirect('/manager/login');
+        $this->assertSame(url('/manager/test-page'), session('url.intended'));
     }
 
     public function test_an_open_manager_page_keeps_the_session_alive(): void
