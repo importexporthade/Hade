@@ -144,6 +144,16 @@
     display: none !important;
 }
 
+/* The drag hint starts with the same two-bar handle every row shows (Heroicon mini bars-2) */
+.fi-ta-reorder-indicator::before {
+    content: '';
+    flex-shrink: 0;
+    width: 1.25rem;
+    height: 1.25rem;
+    background-color: var(--gray-500);
+    mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3E%3Cpath fill-rule='evenodd' d='M2 6.75A.75.75 0 0 1 2.75 6h14.5a.75.75 0 0 1 0 1.5H2.75A.75.75 0 0 1 2 6.75Zm0 6.5a.75.75 0 0 1 .75-.75h14.5a.75.75 0 0 1 0 1.5H2.75a.75.75 0 0 1-.75-.75Z' clip-rule='evenodd'/%3E%3C/svg%3E") center / contain no-repeat;
+}
+
 /*
  * Filament stacks tables only below 640px, yet on a tablet or a small laptop most of them
  * still overflow and hide their buttons behind a sideways scroll. Up to 1280px they stay
