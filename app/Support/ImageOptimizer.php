@@ -18,7 +18,8 @@ class ImageOptimizer
 
     /**
      * Saves the image and its smaller copies, and returns the main copy's path, or null
-     * when the contents are not an image GD can read.
+     * when the contents are not an image GD can read or GD could not make the copies; the
+     * caller then keeps the photo as it was uploaded instead.
      */
     public static function store(string $contents, ImageKind $kind): ?string
     {
@@ -30,8 +31,11 @@ class ImageOptimizer
 
         $path = $kind->directory().'/'.Str::uuid().'.webp';
 
-        self::write($image, $path, longestSide: $kind->maxSize());
-        self::writeVariants($image, $path, $kind);
+        if (! self::write($image, $path, longestSide: $kind->maxSize()) || ! self::writeVariants($image, $path, $kind)) {
+            Storage::disk('public')->delete([$path, ...self::companionPaths($path)]);
+
+            return null;
+        }
 
         return $path;
     }
@@ -61,7 +65,9 @@ class ImageOptimizer
         }
 
         foreach ($missing as $width) {
-            self::write($image, self::variantPath($path, $width), width: $width);
+            if (! self::write($image, self::variantPath($path, $width), width: $width)) {
+                return false;
+            }
         }
 
         return true;
@@ -183,19 +189,24 @@ class ImageOptimizer
         }
     }
 
-    private static function writeVariants(GdImage $image, string $path, ImageKind $kind): void
+    private static function writeVariants(GdImage $image, string $path, ImageKind $kind): bool
     {
         foreach ($kind->widths() as $width) {
-            self::write($image, self::variantPath($path, $width), width: $width);
+            if (! self::write($image, self::variantPath($path, $width), width: $width)) {
+                return false;
+            }
         }
+
+        return true;
     }
 
     /**
      * Saves a WebP copy no larger than the limit given: the longest side for main copies,
      * the width for smaller ones. Photos are never enlarged, so a copy of a small photo is
-     * simply the photo itself and every listed copy exists.
+     * simply the photo itself and every listed copy exists. Returns false when GD could not
+     * make the copy.
      */
-    private static function write(GdImage $image, string $path, ?int $longestSide = null, ?int $width = null): void
+    private static function write(GdImage $image, string $path, ?int $longestSide = null, ?int $width = null): bool
     {
         $imageWidth = imagesx($image);
         $imageHeight = imagesy($image);
@@ -205,15 +216,42 @@ class ImageOptimizer
             : (int) $longestSide / max($imageWidth, $imageHeight));
 
         $resized = $scale < 1
-            ? imagescale($image, max(1, (int) round($imageWidth * $scale)), max(1, (int) round($imageHeight * $scale)), IMG_BICUBIC)
+            ? self::resize($image, max(1, (int) round($imageWidth * $scale)), max(1, (int) round($imageHeight * $scale)))
             : $image;
+
+        if ($resized === null) {
+            return false;
+        }
 
         imagealphablending($resized, false);
         imagesavealpha($resized, true);
 
         ob_start();
-        imagewebp($resized, null, self::QUALITY);
+        $encoded = imagewebp($resized, null, self::QUALITY);
+        $webp = (string) ob_get_clean();
 
-        Storage::disk('public')->put($path, (string) ob_get_clean());
+        return $encoded && $webp !== '' && Storage::disk('public')->put($path, $webp);
+    }
+
+    /**
+     * A smaller copy of the image, keeping its transparency. Hostinger's GD returned false
+     * from imagescale() with bicubic scaling and saving any photo failed there; resampling
+     * onto a new canvas works the same on every GD build.
+     */
+    private static function resize(GdImage $image, int $width, int $height): ?GdImage
+    {
+        $canvas = imagecreatetruecolor($width, $height);
+
+        if ($canvas === false) {
+            return null;
+        }
+
+        imagealphablending($canvas, false);
+        imagesavealpha($canvas, true);
+        imagefill($canvas, 0, 0, imagecolorallocatealpha($canvas, 0, 0, 0, 127));
+
+        $copied = imagecopyresampled($canvas, $image, 0, 0, 0, 0, $width, $height, imagesx($image), imagesy($image));
+
+        return $copied ? $canvas : null;
     }
 }

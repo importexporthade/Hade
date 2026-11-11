@@ -44,6 +44,22 @@ class ImageOptimizationTest extends TestCase
         $this->assertSame([300, 200], array_slice($this->dimensions(ImageOptimizer::variantPath($path, 480)), 0, 2));
     }
 
+    public function test_the_smaller_copies_of_a_transparent_photo_stay_transparent(): void
+    {
+        $canvas = imagecreatetruecolor(1000, 1000);
+        imagealphablending($canvas, false);
+        imagesavealpha($canvas, true);
+        imagefill($canvas, 0, 0, imagecolorallocatealpha($canvas, 255, 255, 255, 127));
+        ob_start();
+        imagepng($canvas);
+
+        $path = ImageOptimizer::store((string) ob_get_clean(), ImageKind::Category);
+
+        $copy = imagecreatefromstring(Storage::disk('public')->get(ImageOptimizer::variantPath($path, 320)));
+        $this->assertSame([320, 320], [imagesx($copy), imagesy($copy)]);
+        $this->assertSame(127, imagecolorsforindex($copy, imagecolorat($copy, 160, 160))['alpha']);
+    }
+
     public function test_contents_that_are_not_an_image_are_not_stored(): void
     {
         $this->assertNull(ImageOptimizer::store('<html>no soy una foto</html>', ImageKind::Product));
