@@ -2,6 +2,7 @@
 
 namespace App\Providers;
 
+use App\Filament\Support\ButtonIcons;
 use App\Filament\Support\ManagerLoginResponse;
 use Filament\Actions\Action;
 use Filament\Actions\CreateAction;
@@ -45,6 +46,7 @@ class AppServiceProvider extends ServiceProvider
         $this->useTwelveHourClock();
         $this->stackTablesOnMobile();
         $this->closeFiltersAfterApplying();
+        ButtonIcons::register();
     }
 
     /**

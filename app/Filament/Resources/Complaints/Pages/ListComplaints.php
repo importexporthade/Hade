@@ -28,6 +28,7 @@ class ListComplaints extends ListRecords
                 ->modalHeading('Exportar el Libro de Reclamaciones')
                 ->modalDescription('Descarga las hojas registradas entre dos fechas, con sus respuestas, en un archivo que se abre en Excel.')
                 ->modalSubmitActionLabel('Descargar')
+                ->modalSubmitAction(fn (Action $action): Action => $action->icon(Heroicon::OutlinedArrowDownTray))
                 ->schema([
                     Grid::make(2)->schema([
                         DatePicker::make('from')

@@ -43,6 +43,7 @@ class ViewComplaint extends ViewRecord
                 ->modalHeading('Responder la hoja de reclamación')
                 ->modalDescription(fn (): string => "La respuesta se envía por correo a {$this->record->email} y queda guardada en el libro. No se puede cambiar después.")
                 ->modalSubmitActionLabel('Enviar respuesta')
+                ->modalSubmitAction(fn (Action $action): Action => $action->icon(Heroicon::OutlinedPaperAirplane))
                 ->schema([
                     Textarea::make('response')
                         ->label('Respuesta')
