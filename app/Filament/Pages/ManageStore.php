@@ -168,7 +168,7 @@ class ManageStore extends Page
                     ->footer([
                         Actions::make([
                             Action::make('save')
-                                ->label('Guardar cambios')
+                                ->label('Guardar')
                                 ->submit('save'),
                         ])->sticky(),
                     ]),
