@@ -3,6 +3,7 @@
 namespace App\Filament\Pages\Auth;
 
 use App\Enums\UnlockAttempt;
+use App\Filament\Support\ManagerLoginResponse;
 use App\Models\User;
 use App\Support\AccountLockout;
 use DanHarrin\LivewireRateLimiting\Exceptions\TooManyRequestsException;
@@ -53,7 +54,7 @@ class UnlockAccount extends SimplePage
     public function mount(): void
     {
         if (Filament::auth()->check()) {
-            redirect()->intended(Filament::getUrl());
+            redirect()->to(ManagerLoginResponse::destination());
 
             return;
         }

@@ -2,9 +2,11 @@
 
 namespace App\Providers;
 
+use App\Filament\Support\ManagerLoginResponse;
 use Filament\Actions\Action;
 use Filament\Actions\CreateAction;
 use Filament\Actions\EditAction;
+use Filament\Auth\Http\Responses\Contracts\LoginResponse;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\DateTimePicker;
 use Filament\Pages\BasePage;
@@ -29,7 +31,8 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-        //
+        // Signing in never lands on one of Livewire's own addresses
+        $this->app->bind(LoginResponse::class, ManagerLoginResponse::class);
     }
 
     /**

@@ -96,6 +96,10 @@ class ManagerPanelProvider extends PanelProvider
                 fn (): View => view('filament.floating-dropdowns'),
             )
             ->renderHook(
+                PanelsRenderHook::BODY_END,
+                fn (): View => view('filament.keep-session-alive'),
+            )
+            ->renderHook(
                 TablesRenderHook::SELECTION_INDICATOR_ACTIONS_AFTER,
                 fn (): View => view('filament.selection-bar-actions'),
                 scopes: ListProducts::class,

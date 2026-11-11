@@ -8,6 +8,7 @@ use App\Http\Controllers\Store\PageController;
 use App\Http\Controllers\Store\ProductController;
 use App\Http\Controllers\Store\SitemapController;
 use App\Http\Middleware\IdentifyVisitor;
+use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -33,6 +34,11 @@ Route::middleware(IdentifyVisitor::class)->group(function (): void {
         Route::post('/metrics/checkout', [MetricsController::class, 'checkout'])->name('metrics.checkout');
     });
 });
+
+// Pinged by every open manager page so the session does not run out while she works
+Route::get('/manager/sigue-conectada', fn (): Response => response()->noContent())
+    ->middleware('auth')
+    ->name('manager.keep-alive');
 
 Route::get('/sitemap.xml', [SitemapController::class, 'sitemap'])->name('sitemap');
 Route::get('/robots.txt', [SitemapController::class, 'robots'])->name('robots');
