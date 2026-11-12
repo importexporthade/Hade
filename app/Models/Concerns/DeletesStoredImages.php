@@ -37,6 +37,18 @@ trait DeletesStoredImages
     }
 
     /**
+     * Every file on the public disk this record uses: its photos and their smaller copies.
+     *
+     * @return list<string>
+     */
+    public function storedImageFiles(): array
+    {
+        $paths = $this->storedImagePaths(fn (string $attribute) => $this->getAttribute($attribute));
+
+        return [...$paths, ...collect($paths)->flatMap(ImageOptimizer::companionPaths(...))];
+    }
+
+    /**
      * @param  callable(string): mixed  $valueOf
      * @return list<string>
      */
