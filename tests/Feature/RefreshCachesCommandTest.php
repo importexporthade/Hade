@@ -3,6 +3,8 @@
 namespace Tests\Feature;
 
 use App\Support\AppCaches;
+use Illuminate\Console\Scheduling\CallbackEvent;
+use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Support\Facades\File;
 use Mockery;
 use Mockery\MockInterface;
@@ -104,9 +106,18 @@ class RefreshCachesCommandTest extends TestCase
         $this->assertNull($this->caches->deployedCommit());
     }
 
-    public function test_the_scheduler_checks_every_minute(): void
+    public function test_the_scheduler_refreshes_the_caches_inside_its_own_process(): void
     {
-        $this->artisan('schedule:list')->expectsOutputToContain('hade:refresh-caches');
+        // A task started as a separate process would not see this test's fake caches
+        $this->artisan('schedule:run')->assertSuccessful();
+
+        $this->assertSame(1, $this->builds);
+    }
+
+    public function test_no_scheduled_task_needs_a_separate_process(): void
+    {
+        $this->assertContainsOnlyInstancesOf(CallbackEvent::class, app(Schedule::class)->events());
+        $this->assertNotEmpty(app(Schedule::class)->events());
     }
 
     private function deploy(string $commit): void
