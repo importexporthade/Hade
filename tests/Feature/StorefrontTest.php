@@ -460,6 +460,15 @@ class StorefrontTest extends TestCase
             ->assertSee('No encontramos productos con ese nombre.');
     }
 
+    public function test_an_empty_catalog_does_not_link_to_itself_while_an_empty_search_links_back_to_it(): void
+    {
+        // The menu also says "Ver todos los productos", so only the empty-state button tells the pages apart
+        $catalog = $this->get('/products')->assertOk()->assertSee('Aún no hay productos disponibles.')->getContent();
+        $search = $this->get('/products?q=perfume')->assertOk()->getContent();
+
+        $this->assertSame(substr_count($catalog, 'Ver todos los productos') + 1, substr_count($search, 'Ver todos los productos'));
+    }
+
     public function test_a_published_page_shows_its_content_without_scripts(): void
     {
         Page::factory()->create([

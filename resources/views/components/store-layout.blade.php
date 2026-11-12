@@ -337,24 +337,29 @@
                     @endif
                 </div>
 
-                <div>
-                    <h2 class="text-sm font-bold">Categorías</h2>
-                    <ul class="mt-3 space-y-2 text-sm text-white/70">
-                        @foreach ($categories as $category)
-                            <li><a href="{{ route('categories.show', $category) }}" class="hover:text-white">{{ $category->name }}</a></li>
-                        @endforeach
-                    </ul>
-                </div>
+                {{-- A column with nothing to link is left out, so a heading never stands alone --}}
+                @if ($categories->isNotEmpty())
+                    <div>
+                        <h2 class="text-sm font-bold">Categorías</h2>
+                        <ul class="mt-3 space-y-2 text-sm text-white/70">
+                            @foreach ($categories as $category)
+                                <li><a href="{{ route('categories.show', $category) }}" class="hover:text-white">{{ $category->name }}</a></li>
+                            @endforeach
+                        </ul>
+                    </div>
+                @endif
 
                 @php($footerPages = $menuPages->filter->isInFooter())
-                <div>
-                    <h2 class="text-sm font-bold">Información</h2>
-                    <ul class="mt-3 space-y-2 text-sm text-white/70">
-                        @foreach ($footerPages as $page)
-                            <li><a href="{{ route('pages.show', $page) }}" class="hover:text-white">{{ $page->title }}</a></li>
-                        @endforeach
-                    </ul>
-                </div>
+                @if ($footerPages->isNotEmpty())
+                    <div>
+                        <h2 class="text-sm font-bold">Información</h2>
+                        <ul class="mt-3 space-y-2 text-sm text-white/70">
+                            @foreach ($footerPages as $page)
+                                <li><a href="{{ route('pages.show', $page) }}" class="hover:text-white">{{ $page->title }}</a></li>
+                            @endforeach
+                        </ul>
+                    </div>
+                @endif
 
                 <div>
                     <h2 class="text-sm font-bold">Legal</h2>
@@ -388,25 +393,27 @@
                     </ul>
                 </div>
 
-                <div>
-                    <h2 class="text-sm font-bold">Contáctanos</h2>
-                    <ul class="mt-3 space-y-2 text-sm text-white/70">
-                        @if ($settings->email)
-                            <li><a href="mailto:{{ $settings->email }}" class="flex items-center gap-2 break-all hover:text-white"><x-store.icon name="envelope" class="size-4 shrink-0" />{{ $settings->email }}</a></li>
-                        @endif
-                        @if ($settings->phone)
-                            <li><a href="tel:{{ preg_replace('/[^\d+]/', '', $settings->phone) }}" class="flex items-center gap-2 hover:text-white"><x-store.icon name="phone" class="size-4 shrink-0" />{{ $settings->phone }}</a></li>
-                        @endif
-                    </ul>
-                    @php($socials = array_filter(['Facebook' => $settings->facebook_url, 'Instagram' => $settings->instagram_url, 'TikTok' => $settings->tiktok_url, 'YouTube' => $settings->youtube_url]))
-                    @if ($socials !== [])
-                        <ul class="mt-4 flex flex-wrap gap-2">
-                            @foreach ($socials as $network => $url)
-                                <li><a href="{{ $url }}" target="_blank" rel="noopener" class="inline-block border border-white/25 px-2.5 py-1 text-xs font-medium hover:border-white/60">{{ $network }}</a></li>
-                            @endforeach
+                @php($socials = array_filter(['Facebook' => $settings->facebook_url, 'Instagram' => $settings->instagram_url, 'TikTok' => $settings->tiktok_url, 'YouTube' => $settings->youtube_url]))
+                @if ($settings->email || $settings->phone || $socials !== [])
+                    <div>
+                        <h2 class="text-sm font-bold">Contáctanos</h2>
+                        <ul class="mt-3 space-y-2 text-sm text-white/70">
+                            @if ($settings->email)
+                                <li><a href="mailto:{{ $settings->email }}" class="flex items-center gap-2 break-all hover:text-white"><x-store.icon name="envelope" class="size-4 shrink-0" />{{ $settings->email }}</a></li>
+                            @endif
+                            @if ($settings->phone)
+                                <li><a href="tel:{{ preg_replace('/[^\d+]/', '', $settings->phone) }}" class="flex items-center gap-2 hover:text-white"><x-store.icon name="phone" class="size-4 shrink-0" />{{ $settings->phone }}</a></li>
+                            @endif
                         </ul>
-                    @endif
-                </div>
+                        @if ($socials !== [])
+                            <ul class="mt-4 flex flex-wrap gap-2">
+                                @foreach ($socials as $network => $url)
+                                    <li><a href="{{ $url }}" target="_blank" rel="noopener" class="inline-block border border-white/25 px-2.5 py-1 text-xs font-medium hover:border-white/60">{{ $network }}</a></li>
+                                @endforeach
+                            </ul>
+                        @endif
+                    </div>
+                @endif
             </div>
             <p class="border-t border-white/15 py-4 text-center text-xs text-white/60">© {{ now()->year }} {{ $settings->store_name }}</p>
         </footer>

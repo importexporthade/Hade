@@ -3,7 +3,9 @@
 namespace Tests\Feature;
 
 use App\Enums\PageVisibility;
+use App\Models\Category;
 use App\Models\Page;
+use App\Models\Product;
 use App\Models\StoreSetting;
 use Database\Seeders\InformationPagesSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -116,6 +118,25 @@ class InformationPagesTest extends TestCase
             ->assertSee('Hade Import Export S.A.C.')
             ->assertSee('RUC 20612345678')
             ->assertSee('Av. Larco 123, Miraflores, Lima');
+    }
+
+    public function test_the_footer_leaves_out_columns_with_nothing_to_show(): void
+    {
+        $this->get('/products')
+            ->assertOk()
+            ->assertSee('<h2 class="text-sm font-bold">Legal</h2>', false)
+            ->assertDontSee('<h2 class="text-sm font-bold">Categorías</h2>', false)
+            ->assertDontSee('<h2 class="text-sm font-bold">Información</h2>', false)
+            ->assertDontSee('<h2 class="text-sm font-bold">Contáctanos</h2>', false);
+
+        Product::factory()->for(Category::factory())->create();
+        $this->seed(InformationPagesSeeder::class);
+        StoreSetting::current()->update(['instagram_url' => 'https://www.instagram.com/hade.pe']);
+
+        $this->get('/products')
+            ->assertSee('<h2 class="text-sm font-bold">Categorías</h2>', false)
+            ->assertSee('<h2 class="text-sm font-bold">Información</h2>', false)
+            ->assertSee('<h2 class="text-sm font-bold">Contáctanos</h2>', false);
     }
 
     public function test_the_footer_links_the_legal_pages_once_they_exist(): void
