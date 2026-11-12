@@ -37,6 +37,19 @@ class ManagerAccessTest extends TestCase
             ->assertDontSee('Escritorio');
     }
 
+    public function test_every_manager_screen_links_to_the_store_in_a_new_tab(): void
+    {
+        $this->actingAs(User::factory()->admin()->create());
+
+        foreach (['/manager', '/manager/products'] as $path) {
+            $this->get($path)
+                ->assertOk()
+                ->assertSee('href="'.route('home').'"', false)
+                ->assertSee('target="_blank"', false)
+                ->assertSee('Ver tienda');
+        }
+    }
+
     public function test_the_dashboard_counts_the_catalog(): void
     {
         $this->actingAs(User::factory()->admin()->create());

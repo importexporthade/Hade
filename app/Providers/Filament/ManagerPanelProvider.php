@@ -92,6 +92,10 @@ class ManagerPanelProvider extends PanelProvider
                 fn (): View => view('filament.simple-layout-band'),
             )
             ->renderHook(
+                PanelsRenderHook::USER_MENU_BEFORE,
+                fn (): View => view('filament.store-link'),
+            )
+            ->renderHook(
                 PanelsRenderHook::BODY_END,
                 fn (): View => view('filament.floating-dropdowns'),
             )
