@@ -32,7 +32,8 @@ class PurchaseFunnelChart extends StoreChart
                 'borderRadius' => 4,
                 'maxBarThickness' => 36,
             ]],
-            'labels' => $this->stepLabels($funnel),
+            // Name and figure on separate lines, so the labels fit beside the bars on a phone
+            'labels' => $this->steps($funnel),
         ];
     }
 
@@ -55,7 +56,9 @@ class PurchaseFunnelChart extends StoreChart
 
     public function getChartAssistiveContent(): string
     {
-        return 'Embudo de compra: '.implode(', ', $this->stepLabels(StoreMetrics::funnel($this->days()))).'.';
+        $steps = array_map(fn (array $step): string => implode(': ', $step), $this->steps(StoreMetrics::funnel($this->days())));
+
+        return 'Embudo de compra: '.implode(', ', $steps).'.';
     }
 
     /**
@@ -63,16 +66,16 @@ class PurchaseFunnelChart extends StoreChart
      * read without doing the math.
      *
      * @param  array{viewed: int, added: int, ordered: int}  $funnel
-     * @return list<string>
+     * @return list<array{0: string, 1: string}>
      */
-    private function stepLabels(array $funnel): array
+    private function steps(array $funnel): array
     {
         $share = fn (int $count): string => $funnel['viewed'] > 0 ? ' ('.round($count / $funnel['viewed'] * 100).' %)' : '';
 
         return [
-            "Vieron productos: {$funnel['viewed']}",
-            "Agregaron al carrito: {$funnel['added']}".$share($funnel['added']),
-            "Enviaron pedido: {$funnel['ordered']}".$share($funnel['ordered']),
+            ['Vieron productos', (string) $funnel['viewed']],
+            ['Agregaron al carrito', $funnel['added'].$share($funnel['added'])],
+            ['Enviaron pedido', $funnel['ordered'].$share($funnel['ordered'])],
         ];
     }
 }

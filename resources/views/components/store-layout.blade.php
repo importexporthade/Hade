@@ -214,7 +214,7 @@
                 </div>
             </div>
 
-            <nav class="pointer-events-none invisible absolute inset-x-0 top-full z-30 -translate-y-2 border-t border-ink/5 bg-cream/98 opacity-0 shadow-[0_20px_45px_rgba(23,23,23,0.16)] backdrop-blur-xl transition-[opacity,transform,visibility] duration-200 ease-out data-[open=true]:pointer-events-auto data-[open=true]:visible data-[open=true]:translate-y-0 data-[open=true]:opacity-100 data-[open=true]:transition-[opacity,transform] motion-reduce:transition-none lg:hidden" aria-label="Principal móvil" aria-hidden="true" data-menu-panel data-open="false" inert>
+            <nav class="pointer-events-none invisible absolute inset-x-0 top-full z-30 -translate-y-2 border-t border-ink/5 bg-cream opacity-0 shadow-[0_20px_45px_rgba(23,23,23,0.16)] transition-[opacity,transform,visibility] duration-200 ease-out data-[open=true]:pointer-events-auto data-[open=true]:visible data-[open=true]:translate-y-0 data-[open=true]:opacity-100 data-[open=true]:transition-[opacity,transform] motion-reduce:transition-none lg:hidden" aria-label="Principal móvil" aria-hidden="true" data-menu-panel data-open="false" inert>
                 <div id="menu-movil" class="store-container max-h-[calc(100dvh-4rem)] overflow-y-auto py-4" data-menu>
                     <form action="{{ route('products.index') }}" method="get" role="search" class="group/search mb-4 flex items-center gap-2 rounded-2xl border border-ink/10 bg-white px-4 shadow-sm transition focus-within:border-emerald/50 focus-within:ring-4 focus-within:ring-emerald/15">
                         <x-store.icon name="search" class="size-5 text-ink/60 transition-colors group-focus-within/search:text-emerald" />

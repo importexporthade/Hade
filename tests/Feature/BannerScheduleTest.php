@@ -7,6 +7,8 @@ use App\Filament\Resources\Banners\Pages\EditBanner;
 use App\Filament\Support\DateTimeField;
 use App\Models\Banner;
 use App\Models\User;
+use DOMDocument;
+use DOMXPath;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
@@ -41,6 +43,18 @@ class BannerScheduleTest extends TestCase
         $banner = Banner::query()->sole();
         $this->assertSame('2026-10-20 09:00:00', $banner->starts_at->toDateTimeString());
         $this->assertSame('2026-10-31 23:59:00', $banner->ends_at->toDateTimeString());
+    }
+
+    public function test_the_calendar_script_stays_inside_its_attribute_instead_of_showing_as_text(): void
+    {
+        $html = $this->get(route('filament.manager.resources.banners.create'))->assertOk()->getContent();
+
+        $page = new DOMDocument;
+        @$page->loadHTML($html);
+        $calendarsWithTodayLink = (new DOMXPath($page))->query("//*[contains(@x-init, '\$refs.panel.appendChild(row)')]");
+
+        $this->assertSame(2, $calendarsWithTodayLink->length);
+        $this->assertStringNotContainsString('$data.selectDate(); });', strip_tags($html));
     }
 
     public function test_without_dates_the_banner_shows_from_now_and_never_expires(): void
