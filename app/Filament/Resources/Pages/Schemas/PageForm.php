@@ -23,7 +23,7 @@ class PageForm
                     ->schema([
                         TextInput::make('title')
                             ->label('Título')
-                            ->hintIcon(Heroicon::OutlinedQuestionMarkCircle, tooltip: 'Cómo se llama la página en el menú Información. Ej: Envíos y delivery.')
+                            ->hintIcon(Heroicon::OutlinedQuestionMarkCircle, tooltip: 'Así se llamará la página en el menú Información. Ej: Envíos y delivery.')
                             ->placeholder('Envíos y delivery')
                             ->required()
                             ->maxLength(255)
@@ -32,14 +32,14 @@ class PageForm
                         SlugInput::make('pages.show', 'envios-y-delivery'),
                         RichEditor::make('content')
                             ->label('Contenido')
-                            ->hintIcon(Heroicon::OutlinedQuestionMarkCircle, tooltip: 'Lo que lee la clienta cuando abre la página. Ej: plazos y costos de envío.'),
+                            ->hintIcon(Heroicon::OutlinedQuestionMarkCircle, tooltip: 'Lo que leerán tus clientas al abrirla. Escríbelo como si les contestaras una duda. Ej: plazos y costos de envío.'),
                     ]),
                 Section::make('Dónde se ve')
                     ->columnSpan(['lg' => 1])
                     ->schema([
                         Radio::make('visibility')
                             ->hiddenLabel()
-                            ->hintIcon(Heroicon::OutlinedQuestionMarkCircle, tooltip: 'Dónde quieres que salga el enlace a esta página. Ej: en el menú y al pie.')
+                            ->hintIcon(Heroicon::OutlinedQuestionMarkCircle, tooltip: 'Dónde aparece el enlace a esta página para que la encuentren. Ej: en el menú y al pie.')
                             ->options(PageVisibility::class)
                             ->default(PageVisibility::MenuAndFooter->value)
                             ->required(),

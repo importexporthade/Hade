@@ -134,7 +134,7 @@ class ProductsTable
                             ->live(),
                         TextInput::make('percentage')
                             ->label('Descuento')
-                            ->hintIcon(Heroicon::OutlinedQuestionMarkCircle, tooltip: 'Cuánto le bajas al precio normal. Ej: con 20, S/ 50.00 queda en S/ 40.00.')
+                            ->hintIcon(Heroicon::OutlinedQuestionMarkCircle, tooltip: 'El descuento, en porcentaje, sobre el precio normal de cada producto. Ej: con 20, uno de S/ 50.00 queda en S/ 40.00.')
                             ->helperText('Se calcula sobre el precio normal de cada producto.')
                             ->visible(fn (Get $get): bool => (bool) $get('on_sale'))
                             ->required()

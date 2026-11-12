@@ -34,7 +34,7 @@ class ProductForm
                         ->schema([
                             TextInput::make('name')
                                 ->label('Nombre')
-                                ->hintIcon(Heroicon::OutlinedQuestionMarkCircle, tooltip: 'Así lo verán tus clientas en la tienda. Ej: Kit Hade Recargada.')
+                                ->hintIcon(Heroicon::OutlinedQuestionMarkCircle, tooltip: 'Así lo verán tus clientas en la tienda y en su pedido por WhatsApp. Ej: Kit Hade Recargada.')
                                 // Also brings the cursor back here after "Crear y seguir aquí"
                                 ->autofocus(fn (string $operation): bool => $operation === 'create')
                                 ->required()
@@ -55,7 +55,7 @@ class ProductForm
                                 ->columnSpanFull(),
                             RichEditor::make('description')
                                 ->label('Descripción')
-                                ->hintIcon(Heroicon::OutlinedQuestionMarkCircle, tooltip: 'Cuéntale a tu clienta lo que necesita saber antes de comprar. Ej: Trae 20 stickers y duran 2 semanas.')
+                                ->hintIcon(Heroicon::OutlinedQuestionMarkCircle, tooltip: 'Cuéntale a tu clienta lo que necesita saber antes de comprar: qué trae, cuánto dura, cómo se usa. Ej: Trae 20 stickers y duran 2 semanas.')
                                 ->toolbarButtons([
                                     ['bold', 'italic', 'underline', 'link'],
                                     ['h2', 'h3', 'bulletList', 'orderedList'],
@@ -68,7 +68,7 @@ class ProductForm
                         ->schema([
                             PhotoUpload::make('images', ImageKind::Product)
                                 ->hiddenLabel()
-                                ->hintIcon(Heroicon::OutlinedQuestionMarkCircle, tooltip: 'Puedes subir hasta 10. La primera es la que se ve primero en la página del producto.')
+                                ->hintIcon(Heroicon::OutlinedQuestionMarkCircle, tooltip: 'Puedes subir hasta 10. La primera es la que se ve primero; arrástralas para cambiar el orden.')
                                 ->multiple()
                                 ->reorderable()
                                 ->appendFiles()
@@ -83,7 +83,7 @@ class ProductForm
                         ->schema([
                             PhotoUpload::make('cover_image', ImageKind::ProductCover)
                                 ->hiddenLabel()
-                                ->hintIcon(Heroicon::OutlinedQuestionMarkCircle, tooltip: 'La foto de la tarjeta en el catálogo. Si no subes una, usamos la primera de la galería.')
+                                ->hintIcon(Heroicon::OutlinedQuestionMarkCircle, tooltip: 'La foto de la tarjeta en el catálogo, lo primero que ven tus clientas. Si no subes una, usamos la primera de la galería.')
                                 ->imageCropAspectRatio('1:1')
                                 ->imageEditorAspectRatios(['1:1'])
                                 ->helperText('Se recorta cuadrada. Usa el lápiz para elegir qué parte se ve.'),
@@ -100,7 +100,7 @@ class ProductForm
                                 ->live(onBlur: true),
                             TextInput::make('compare_at_price')
                                 ->label('Precio normal (tachado)')
-                                ->hintIcon(Heroicon::OutlinedQuestionMarkCircle, tooltip: 'Si lo llenas, sale tachado junto al precio y el producto pasa a Ofertas. Ej: 45.00.')
+                                ->hintIcon(Heroicon::OutlinedQuestionMarkCircle, tooltip: 'El precio de antes. Si lo llenas, sale tachado junto al precio actual y el producto pasa a Ofertas. Ej: 45.00.')
                                 ->helperText(fn (Get $get): string => self::discountHint($get('price'), $get('compare_at_price')))
                                 ->numeric()
                                 ->prefix('S/')
@@ -112,7 +112,7 @@ class ProductForm
                         ->schema([
                             Toggle::make('is_visible')
                                 ->label('Visible en la tienda')
-                                ->hintIcon(Heroicon::OutlinedQuestionMarkCircle, tooltip: 'Apágalo si quieres esconder el producto un tiempo, sin borrarlo.')
+                                ->hintIcon(Heroicon::OutlinedQuestionMarkCircle, tooltip: 'Apágalo para esconder el producto un tiempo sin borrarlo. Lo vuelves a prender cuando quieras.')
                                 ->default(true)
                                 ->live(),
                             Callout::make('Su categoría está oculta')
@@ -136,11 +136,11 @@ class ProductForm
                                 ]),
                             Toggle::make('is_in_stock')
                                 ->label('Hay stock')
-                                ->hintIcon(Heroicon::OutlinedQuestionMarkCircle, tooltip: 'Apágalo cuando se te acabe: saldrá «Agotado» y nadie podrá comprarlo.')
+                                ->hintIcon(Heroicon::OutlinedQuestionMarkCircle, tooltip: 'Apágalo cuando se te acabe: saldrá «Agotado» y nadie podrá pedirlo hasta que lo vuelvas a prender.')
                                 ->default(true),
                             Toggle::make('is_featured')
                                 ->label('Novedad')
-                                ->hintIcon(Heroicon::OutlinedQuestionMarkCircle, tooltip: 'Préndelo para que salga en Novedades, y lo apagas cuando ya no sea nuevo.')
+                                ->hintIcon(Heroicon::OutlinedQuestionMarkCircle, tooltip: 'Préndelo para que salga en Novedades y se luzca. Cuando ya no sea nuevo, lo apagas.')
                                 ->helperText('Aparece en Novedades, en la portada y en el menú, aunque su categoría esté oculta.')
                                 ->default(true)
                                 ->live(),

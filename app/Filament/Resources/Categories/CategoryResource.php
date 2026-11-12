@@ -46,7 +46,7 @@ class CategoryResource extends Resource
             ->components([
                 TextInput::make('name')
                     ->label('Nombre')
-                    ->hintIcon(Heroicon::OutlinedQuestionMarkCircle, tooltip: 'Así se llamará en el menú y en la portada. Ej: Lámparas.')
+                    ->hintIcon(Heroicon::OutlinedQuestionMarkCircle, tooltip: 'Así la verán tus clientas en el menú y en la portada. Ej: Lámparas.')
                     ->autofocus()
                     ->required()
                     ->maxLength(255)
@@ -55,16 +55,16 @@ class CategoryResource extends Resource
                 SlugInput::make('categories.show', 'lamparas'),
                 Textarea::make('description')
                     ->label('Descripción')
-                    ->hintIcon(Heroicon::OutlinedQuestionMarkCircle, tooltip: 'Una frase que sale bajo el nombre, en la página de la categoría. Ej: Secado rápido para tus diseños.')
+                    ->hintIcon(Heroicon::OutlinedQuestionMarkCircle, tooltip: 'Una frase bajo el nombre, en la página de la categoría, que dé ganas de mirar. Ej: Secado rápido para tus diseños.')
                     ->rows(3)
                     ->columnSpanFull(),
                 PhotoUpload::make('image', ImageKind::Category)
                     ->label('Foto')
-                    ->hintIcon(Heroicon::OutlinedQuestionMarkCircle, tooltip: 'La foto que la representa en «Universo Hade», en la portada.')
+                    ->hintIcon(Heroicon::OutlinedQuestionMarkCircle, tooltip: 'La foto que la representa en «Universo Hade», en la portada. Elige una que muestre bien lo que hay dentro.')
                     ->columnSpanFull(),
                 Toggle::make('is_visible')
                     ->label('Visible en la tienda')
-                    ->hintIcon(Heroicon::OutlinedQuestionMarkCircle, tooltip: 'Apágala para esconderla aunque tenga productos. Si no tiene ninguno visible, se esconde sola.')
+                    ->hintIcon(Heroicon::OutlinedQuestionMarkCircle, tooltip: 'Apágala para esconderla aunque tenga productos. Y no te preocupes: si no tiene ningún producto visible, se esconde sola.')
                     ->default(true),
             ]);
     }
