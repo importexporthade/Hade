@@ -106,14 +106,40 @@
     @apply border-t-2 border-hade-rose;
 }
 
-/* On a phone the cards go two by two, so the icon sits above the name to leave it the full width */
+/*
+ * On a phone the cards go two by two, so the icon sits above the name to leave it the full
+ * width. Every card is the same size there: each row as tall as the tallest card, and a
+ * height that fits the longest names and descriptions, so the two blocks match each other.
+ */
 @variant max-sm {
+    .fi-wi-stats-overview .fi-section-content {
+        @apply auto-rows-fr;
+    }
+
+    .fi-wi-stats-overview .fi-section-content > .fi-grid-col > .fi-sc-component {
+        @apply h-full;
+    }
+
     .fi-wi-stats-overview-stat {
-        @apply p-4;
+        @apply min-h-50 p-4;
     }
 
     .fi-wi-stats-overview-stat-label-ctn {
         @apply flex-col items-start gap-1.5;
+    }
+}
+
+/*
+ * On a phone the filters panel is wider than the room beside its button, and Filament then
+ * pushes it flush against the screen edge. There it spans the table card instead, inset from
+ * both sides; the panel is placed against that card, so these offsets are inside it.
+ */
+@variant max-sm {
+    .fi-ta-filters-dropdown > .fi-dropdown-panel {
+        right: 0.75rem;
+        left: 0.75rem !important;
+        width: auto;
+        max-width: none !important;
     }
 }
 
@@ -210,17 +236,19 @@
 
 /*
  * Tables up to 1280px: every row is a card on the ivory paper, one per row on a phone and
- * two per row from 640px. The photo and the name lead, the rest pairs up in two columns,
- * switches sit side by side, and the buttons close the card on a line of their own. Wider
- * screens keep the usual table.
+ * two per row from 640px. Every card of a table is the same size, as tall as its tallest
+ * one, so a product with an old price beside one without still lines up. The photo and the
+ * name lead, the rest pairs up in two columns, switches sit side by side, and the buttons
+ * close the card on a line of their own. Wider screens keep the usual table.
  */
 @variant max-xl {
     .fi-ta-table.fi-ta-table-stacked-on-mobile > tbody {
-        @apply flex flex-col gap-3 divide-y-0 bg-gray-50 p-3 sm:grid sm:grid-cols-2 sm:items-start dark:bg-gray-950/40;
+        @apply grid auto-rows-fr grid-cols-1 gap-3 divide-y-0 bg-gray-50 p-3 sm:grid-cols-2 dark:bg-gray-950/40;
     }
 
+    /* The spare room of a shorter card goes between its lines, so its switches and buttons still end at the bottom */
     .fi-ta-table.fi-ta-table-stacked-on-mobile > tbody > tr.fi-ta-row {
-        @apply flex flex-wrap items-start gap-x-4 gap-y-3 rounded-xl bg-white p-4 shadow-sm ring-1 ring-gray-200 dark:bg-gray-900 dark:ring-white/10;
+        @apply flex flex-wrap content-between items-start gap-x-4 gap-y-3 rounded-xl bg-white p-4 shadow-sm ring-1 ring-gray-200 dark:bg-gray-900 dark:ring-white/10;
     }
 
     .fi-ta-table.fi-ta-table-stacked-on-mobile > tbody > tr > .fi-ta-cell:not(.fi-ta-selection-cell) {
