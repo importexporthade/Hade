@@ -13,6 +13,8 @@ class CatalogOverview extends StatsOverviewWidget
 {
     protected static ?int $sort = -1;
 
+    protected ?string $pollingInterval = StoreActivity::POLLING_INTERVAL;
+
     /**
      * Two cards per row until there is room for four that still fit their names.
      *

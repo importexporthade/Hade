@@ -3,9 +3,11 @@
 namespace Tests\Feature;
 
 use App\Enums\ProductEventType;
+use App\Filament\Widgets\CatalogOverview;
 use App\Filament\Widgets\OrdersChart;
 use App\Filament\Widgets\ProductViewsChart;
 use App\Filament\Widgets\PurchaseFunnelChart;
+use App\Filament\Widgets\StoreActivity;
 use App\Models\Checkout;
 use App\Models\ProductEvent;
 use App\Models\User;
@@ -93,5 +95,16 @@ class MetricsChartsTest extends TestCase
             ->assertSee('Vieron productos: 1')
             ->assertSee('Agregaron al carrito: 1 (100 %)')
             ->assertSee('Enviaron pedido: 1 (100 %)');
+    }
+
+    public function test_the_dashboard_blocks_refresh_once_a_minute(): void
+    {
+        $this->actingAs(User::factory()->admin()->create());
+
+        foreach ([CatalogOverview::class, StoreActivity::class, ProductViewsChart::class, OrdersChart::class, PurchaseFunnelChart::class] as $widget) {
+            Livewire::test($widget)
+                ->assertSeeHtml('wire:poll.60s')
+                ->assertDontSeeHtml('wire:poll.5s');
+        }
     }
 }
