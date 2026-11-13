@@ -108,19 +108,17 @@
                 @endif
 
                 {{--
-                    The owner turns this off per product. Their own texts from "Datos de la tienda"
-                    replace the general ones as soon as they write either of them.
+                    Each destination shows when the product has its switch on, with the owner's text
+                    from "Datos de la tienda" or a general one until they write it.
                 --}}
-                @if ($product->shows_shipping)
+                @php
+                    $shippingOptions = array_filter([
+                        $product->ships_to_capital ? ['title' => 'Envíos a capital', 'text' => filled($settings->shipping_capital) ? $settings->shipping_capital : 'Hacemos delivery en Lima. El costo y el plazo se confirman según tu distrito.', 'tone' => 'bg-sage-light text-emerald'] : null,
+                        $product->ships_to_province ? ['title' => 'Envíos a provincia', 'text' => filled($settings->shipping_province) ? $settings->shipping_province : 'Enviamos a todo el Perú. El costo y el plazo se confirman según tu ciudad.', 'tone' => 'bg-beige text-taupe'] : null,
+                    ]);
+                @endphp
+                @if ($shippingOptions !== [])
                     @php
-                        $shippingOptions = array_filter([
-                            ['title' => 'Envíos a capital', 'text' => $settings->shipping_capital, 'icon' => 'truck', 'tone' => 'bg-sage-light text-emerald'],
-                            ['title' => 'Envíos a provincia', 'text' => $settings->shipping_province, 'icon' => 'truck', 'tone' => 'bg-beige text-taupe'],
-                        ], fn (array $option): bool => filled($option['text']));
-                        $shippingOptions = $shippingOptions !== [] ? $shippingOptions : [
-                            ['title' => 'Envío a domicilio', 'text' => 'Hacemos delivery a todo el Perú. El costo y el plazo se confirman según tu ubicación.', 'icon' => 'truck', 'tone' => 'bg-sage-light text-emerald'],
-                            ['title' => 'Despacho coordinado', 'text' => 'Al completar tu pedido por WhatsApp coordinamos contigo la alternativa disponible y todos los detalles.', 'icon' => 'check', 'tone' => 'bg-beige text-taupe'],
-                        ];
                         $shippingPage = \App\Models\Page::query()->published()->where('slug', 'envios-y-delivery')->first();
                     @endphp
 
@@ -136,7 +134,7 @@
                             @foreach ($shippingOptions as $option)
                                 <li class="flex gap-3 py-4 sm:gap-4">
                                     <span class="grid size-10 shrink-0 place-items-center rounded-full {{ $option['tone'] }} sm:size-11">
-                                        <x-store.icon :name="$option['icon']" class="size-5" />
+                                        <x-store.icon name="truck" class="size-5" />
                                     </span>
                                     <div class="min-w-0">
                                         <h3 class="text-sm font-semibold">{{ $option['title'] }}</h3>

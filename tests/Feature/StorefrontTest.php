@@ -430,33 +430,42 @@ Llega en 24 a 48 horas.',
             ->assertOk()
             ->assertSeeInOrder(['Opciones de despacho', 'Envíos a capital', 'Delivery S/ 10.
 Llega en 24 a 48 horas.', 'Envíos a provincia', 'Por &lt;b&gt;Shalom&lt;/b&gt; desde S/ 15.'], false)
-            ->assertDontSee('Despacho coordinado');
+            ->assertDontSee('se confirman según tu');
     }
 
-    public function test_only_the_shipping_the_owner_filled_in_is_shown(): void
+    public function test_a_destination_without_its_text_shows_a_general_one(): void
     {
         StoreSetting::current()->update(['shipping_capital' => 'Delivery S/ 10.']);
         Product::factory()->create(['slug' => 'kit']);
 
         $this->get('/product/kit')
+            ->assertSeeInOrder(['Envíos a capital', 'Delivery S/ 10.', 'Envíos a provincia', 'Enviamos a todo el Perú.'])
+            ->assertDontSee('Hacemos delivery en Lima.');
+    }
+
+    public function test_a_product_shows_only_the_destinations_it_ships_to(): void
+    {
+        StoreSetting::current()->update(['shipping_capital' => 'Delivery S/ 10.', 'shipping_province' => 'Por Shalom desde S/ 15.']);
+        Product::factory()->create(['slug' => 'solo-lima', 'ships_to_province' => false]);
+        Product::factory()->create(['slug' => 'solo-provincia', 'ships_to_capital' => false]);
+
+        $this->get('/product/solo-lima')
             ->assertSee('Envíos a capital')
-            ->assertDontSee('Envíos a provincia');
+            ->assertSee('Delivery S/ 10.')
+            ->assertDontSee('Envíos a provincia')
+            ->assertDontSee('Por Shalom desde S/ 15.');
+
+        $this->get('/product/solo-provincia')
+            ->assertSee('Envíos a provincia')
+            ->assertSee('Por Shalom desde S/ 15.')
+            ->assertDontSee('Envíos a capital')
+            ->assertDontSee('Delivery S/ 10.');
     }
 
-    public function test_without_shipping_texts_the_product_page_keeps_the_general_options(): void
-    {
-        Product::factory()->create(['slug' => 'kit']);
-
-        $this->get('/product/kit')
-            ->assertSee('Opciones de despacho')
-            ->assertSee('Hacemos delivery a todo el Perú.')
-            ->assertDontSee('Envíos a capital');
-    }
-
-    public function test_a_product_set_not_to_show_shipping_leaves_the_section_out(): void
+    public function test_a_product_shipped_nowhere_leaves_the_section_out(): void
     {
         StoreSetting::current()->update(['shipping_capital' => 'Delivery S/ 10.']);
-        Product::factory()->create(['slug' => 'kit', 'shows_shipping' => false]);
+        Product::factory()->create(['slug' => 'kit', 'ships_to_capital' => false, 'ships_to_province' => false]);
 
         $this->get('/product/kit')
             ->assertOk()
