@@ -3,13 +3,13 @@
 namespace App\Filament\Resources\HomeSections\Pages;
 
 use App\Filament\Resources\HomeSections\HomeSectionResource;
-use App\Filament\Support\BreadcrumbsBackToTheList;
+use App\Filament\Support\WithoutBreadcrumbs;
 use Filament\Actions\CreateAction;
 use Filament\Resources\Pages\ManageRecords;
 
 class ManageHomeSections extends ManageRecords
 {
-    use BreadcrumbsBackToTheList;
+    use WithoutBreadcrumbs;
 
     protected static string $resource = HomeSectionResource::class;
 

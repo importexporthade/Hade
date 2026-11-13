@@ -4,8 +4,7 @@ namespace App\Filament\Support;
 
 /**
  * Breadcrumbs of two steps, the table and the current screen: "Productos › Editar".
- * Filament puts the record's name in between as a link to the very page it is on, and
- * leaves the screens that list and edit in one place with an empty step.
+ * Filament puts the record's name in between as a link to the very page it is on.
  */
 trait BreadcrumbsBackToTheList
 {
@@ -18,7 +17,7 @@ trait BreadcrumbsBackToTheList
 
         return [
             $resource::getUrl() => $resource::getBreadcrumb(),
-            $this->getBreadcrumb() ?? __('filament-panels::resources/pages/list-records.breadcrumb'),
+            $this->getBreadcrumb(),
         ];
     }
 }
