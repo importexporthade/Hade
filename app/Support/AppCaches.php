@@ -92,4 +92,32 @@ class AppCaches
     {
         Artisan::call('optimize');
     }
+
+    /**
+     * Compiles the Blade views again, after a deploy that changed them.
+     */
+    public function rebuildViews(): void
+    {
+        Artisan::call('view:clear');
+        Artisan::call('view:cache');
+    }
+
+    /**
+     * Caches the routes again, after a deploy that changed them.
+     */
+    public function rebuildRoutes(): void
+    {
+        Artisan::call('route:clear');
+        Artisan::call('route:cache');
+    }
+
+    /**
+     * Reads .env again: empties the application cache and caches the config anew.
+     */
+    public function rebuildConfig(): void
+    {
+        Artisan::call('cache:clear');
+        Artisan::call('config:clear');
+        Artisan::call('config:cache');
+    }
 }
