@@ -113,11 +113,14 @@
         </section>
     @endif
 
-    @forelse ($sections as $section)
+    @php($renderedSectionCount = 0)
+    @foreach ($sections as $section)
+        @php($sectionRendered = false)
         @switch($section->type)
             @case(HomeSectionType::Offers)
-                @php($products = $section->products())
+                @php($products = $productsBySection->get($section->getKey()))
                 @if ($products->isNotEmpty())
+                    @php($sectionRendered = true)
                     <section class="bg-emerald py-10 sm:py-12 lg:py-14" aria-labelledby="seccion-{{ $section->id }}">
                         <div class="store-container">
                             <div class="max-w-xl text-left text-white">
@@ -151,66 +154,14 @@
 
             @default
                 {{-- Every product section shares one design: the heading comes from the manager, the small label names its category, and the background alternates cream and green --}}
-                @php($isManicureSection = $section->type === HomeSectionType::Category && str_contains(mb_strtolower($section->category?->name ?? ''), 'manicur'))
-                @php($products = $section->products())
+                @php($products = $productsBySection->get($section->getKey()))
                 @php($sectionHeading = $section->title)
                 @php($sectionLabel = $section->category?->name ?? $section->type->getLabel())
                 @php($sectionLabel = mb_strtolower($sectionLabel) === mb_strtolower($sectionHeading) ? null : $sectionLabel)
                 @php($sectionLink = $section->category ? route('categories.show', $section->category) : ($section->type === HomeSectionType::Latest ? route('products.index', ['collection' => 'latest']) : route('products.index')))
-                @if ($section->type === HomeSectionType::Latest)
-                    @once
-                        <section class="relative isolate overflow-hidden bg-blush py-10 sm:py-12 lg:py-14" aria-labelledby="como-funciona-title">
-                            <img src="{{ asset('images/moods/flower-corner.webp') }}" alt="" aria-hidden="true" width="720" height="900" class="pointer-events-none absolute -top-10 -left-10 -z-10 h-56 w-auto rotate-180 opacity-50 select-none sm:h-80 lg:-top-16 lg:h-96 lg:opacity-70">
-                            <img src="{{ asset('images/moods/flower-corner.webp') }}" alt="" aria-hidden="true" width="720" height="900" class="pointer-events-none absolute -right-10 -bottom-10 -z-10 h-64 w-auto opacity-50 select-none sm:h-96 lg:-bottom-16 lg:h-[30rem] lg:opacity-70">
-
-                            <div class="store-container">
-                                <div class="mx-auto max-w-xl text-center">
-                                    <p class="text-[0.5rem] font-semibold tracking-[0.24em] text-emerald uppercase">Tu ritual Hade</p>
-                                    <h2 id="como-funciona-title" class="mt-1 font-serif text-[clamp(1.85rem,1.35rem+2vw,2.75rem)] leading-tight font-medium tracking-[-0.03em] text-ink">Así de fácil. Así de Hade.</h2>
-                                    <p class="mt-2 text-sm text-ink/70">Una manicure con acabado impecable, desde casa y en pocos minutos.</p>
-                                </div>
-
-                                <div class="mx-auto mt-8 max-w-5xl sm:mt-10">
-                                    <ol class="grid grid-cols-2 gap-x-5 gap-y-10 sm:gap-x-8 sm:gap-y-12 lg:grid-cols-4 lg:gap-x-6">
-                                        @foreach ([
-                                                ['number' => '01', 'title' => 'Prepara', 'description' => 'Limpia y seca tus uñas; empuja suavemente las cutículas.'],
-                                                ['number' => '02', 'title' => 'Elige y pega', 'description' => 'Escoge el tamaño correcto, colócalo desde la base y alisa hacia los bordes.'],
-                                                ['number' => '03', 'title' => 'Recorta y lima', 'description' => 'Retira el excedente y lima hacia abajo siguiendo la forma de tu uña.'],
-                                                ['number' => '04', 'title' => 'Cura y disfruta', 'description' => 'Pasa cada uña por la lámpara para fijar el gel. Tu diseño está listo.'],
-                                            ] as $step)
-                                            <li @class(['group text-center', 'mt-8 lg:mt-14' => $loop->even])>
-                                                <div @class([
-                                                        'ritual-shape mx-auto aspect-[5/6] w-full max-w-56 overflow-hidden shadow-[0_22px_45px_-28px_rgba(110,30,50,0.5)] transition-transform duration-700 ease-out group-hover:rotate-0 motion-reduce:transition-none',
-                                                        '-rotate-3' => $loop->odd,
-                                                        'rotate-3' => $loop->even,
-                                                    ]) style="--ritual-delay: -{{ $loop->index * 3.5 }}s">
-                                                    <img src="{{ asset('images/ritual/step-'.$loop->iteration.'.jpg') }}" alt="" loading="lazy" class="size-full object-cover transition duration-700 group-hover:scale-105 motion-reduce:transition-none">
-                                                </div>
-
-                                                <div class="mt-6">
-                                                    <p class="font-serif text-xl leading-none text-burgundy/60 italic"><span class="sr-only">Paso </span>{{ $step['number'] }}</p>
-                                                    <h3 class="mt-1.5 font-serif text-lg leading-tight font-medium text-ink sm:text-xl">{{ $step['title'] }}</h3>
-                                                    <p class="mx-auto mt-1.5 max-w-[15rem] text-xs leading-relaxed text-ink/70 sm:text-sm">{{ $step['description'] }}</p>
-                                                </div>
-                                            </li>
-                                        @endforeach
-                                    </ol>
-                                </div>
-
-                                <div class="mt-10 flex justify-center lg:mt-12">
-                                    <a href="{{ route('products.index') }}" class="group inline-flex min-h-10 items-center justify-center gap-2 rounded-full bg-burgundy px-5 text-xs font-semibold text-white transition duration-300 hover:bg-burgundy-dark focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-burgundy sm:text-sm">
-                                        Encuentra tu diseño
-                                        <x-store.icon name="chevron-right" class="size-3.5 transition-transform duration-300 group-hover:translate-x-0.5 motion-reduce:transition-none motion-reduce:group-hover:translate-x-0" />
-                                    </a>
-                                </div>
-                            </div>
-                        </section>
-                    @endonce
-                @endif
-
                 @if ($products->isNotEmpty())
-                    @php($productSectionCount = ($productSectionCount ?? 0) + 1)
-                    @php($isDarkSection = $productSectionCount % 2 === 0)
+                    @php($sectionRendered = true)
+                    @php($isDarkSection = $darkBackgroundsBySection[$section->getKey()])
                     <section @class([
                         'scalloped-section z-10 bg-cream py-12' => ! $isDarkSection,
                         'bg-forest py-10 sm:py-12 lg:py-14' => $isDarkSection,
@@ -248,106 +199,35 @@
                     </section>
                 @endif
 
-                @if ($isManicureSection)
-                    @once
-                        @php($moods = [
-                                ['key' => 'natural', 'label' => 'Natural', 'description' => 'Mano con uñas naturales'],
-                                ['key' => 'minimal', 'label' => 'Minimal', 'description' => 'Mano con manicura francesa minimalista'],
-                                ['key' => 'classic', 'label' => 'Classic', 'description' => 'Mano con uñas clásicas color borgoña'],
-                                ['key' => 'print', 'label' => 'Print', 'description' => 'Mano con uñas de animal print'],
-                                ['key' => 'glow', 'label' => 'Glow', 'description' => 'Mano con uñas azules brillantes'],
-                            ])
-
-                            <section
-                                class="mood-showcase-section scalloped-section relative z-10 overflow-hidden bg-blush pt-12 sm:pt-16 lg:pt-20"
-                                style="--mood-pattern-image: url('{{ asset('images/moods/patron-pink.png') }}?v={{ filemtime(public_path('images/moods/patron-pink.png')) }}')"
-                                aria-labelledby="mood-showcase-title"
-                                data-mood-showcase
-                            >
-                                <div class="store-container grid items-center gap-8 lg:grid-cols-[0.78fr_1.22fr] lg:gap-10">
-                                    <div class="relative z-20 lg:py-6">
-                                        <p class="text-[0.55rem] font-semibold tracking-[0.3em] text-emerald uppercase">Tu estilo Hade</p>
-                                        <h2 id="mood-showcase-title" class="mt-2 max-w-[9ch] text-balance font-serif text-[clamp(2.75rem,2rem+3.1vw,5rem)] leading-[0.95] font-medium tracking-[-0.045em] text-ink">El detalle está en ti</h2>
-                                        <p class="mt-5 max-w-md text-sm leading-relaxed text-ink/60 sm:text-base">Parte de una base natural y descubre cuatro estilos que hacen única cada manicura.</p>
-
-                                        <div class="mt-6 flex flex-wrap gap-2" role="group" aria-label="Elige el estilo de manicura">
-                                            @foreach (array_slice($moods, 1) as $mood)
-                                                <button
-                                                    type="button"
-                                                    class="min-h-10 rounded-full border border-taupe/25 bg-white/40 px-4 text-xs font-semibold text-ink/70 transition duration-300 hover:border-emerald/50 hover:bg-white/70 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald aria-pressed:border-emerald aria-pressed:bg-emerald aria-pressed:text-white sm:px-5 sm:text-sm"
-                                                    data-mood-option="{{ $mood['key'] }}"
-                                                    aria-pressed="false"
-                                                >{{ $mood['label'] }}</button>
-                                            @endforeach
-                                        </div>
-
-                                        <p class="sr-only" aria-live="polite" data-mood-status>Estilo Natural seleccionado.</p>
-
-                                        <a href="{{ $section->category->isShownInStore() ? route('categories.show', $section->category) : route('products.index') }}" class="group mt-8 inline-flex min-h-12 items-center justify-center gap-3 rounded-full bg-burgundy px-6 text-sm font-semibold text-white transition duration-300 hover:bg-burgundy-dark focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-burgundy">
-                                            Explora tu estilo
-                                            <x-store.icon name="chevron-right" class="size-4 transition-transform duration-300 group-hover:translate-x-0.5 motion-reduce:transition-none" />
-                                        </a>
-                                    </div>
-
-                                    <div class="relative mx-auto aspect-[8/5] w-full max-w-3xl" aria-label="Vista previa del estilo seleccionado">
-                                        <span class="absolute top-[10%] right-[4%] bottom-[2%] left-[4%] rounded-[50%] bg-white/45 lg:inset-y-[5%] lg:right-[1%] lg:left-[12%]" aria-hidden="true"></span>
-                                        <span class="absolute top-[12%] right-[6%] h-[80%] w-[80%] rounded-full border border-taupe/15 lg:top-[8%] lg:right-[-8%] lg:h-[84%] lg:w-[64%]" aria-hidden="true"></span>
-                                        <span class="absolute right-[6%] bottom-[8%] size-24 rounded-full bg-white/30 blur-2xl sm:size-36" aria-hidden="true"></span>
-
-                                        @foreach ($moods as $mood)
-                                            <img
-                                                id="mood-image-{{ $mood['key'] }}"
-                                                src="{{ asset('images/moods/'.$mood['key'].'.webp') }}?v={{ filemtime(public_path('images/moods/'.$mood['key'].'.webp')) }}"
-                                                width="1920"
-                                                height="1200"
-                                                alt="{{ $mood['description'] }}"
-                                                loading="lazy"
-                                                decoding="async"
-                                                class="absolute inset-0 z-10 size-full object-contain opacity-0 transition-opacity duration-500 ease-out motion-reduce:transition-none data-[active]:opacity-100"
-                                                data-mood-image="{{ $mood['key'] }}"
-                                                aria-hidden="{{ $loop->first ? 'false' : 'true' }}"
-                                                @if ($loop->first) data-active @endif
-                                            >
-                                        @endforeach
-                                    </div>
-                                </div>
-                        </section>
-                    @endonce
-                @endif
-
-                @if ($section->type === HomeSectionType::Latest)
-                    @once
-                        <section class="relative isolate flex min-h-[19.44rem] items-center overflow-hidden text-center text-white sm:min-h-[16.2rem] lg:min-h-[19.44rem]" aria-labelledby="catalogo-cta">
-                            <img src="{{ asset('images/hero-nail-stickers.webp') }}" srcset="{{ asset('images/hero-nail-stickers-768.webp') }} 768w, {{ asset('images/hero-nail-stickers.webp') }} 1536w" sizes="100vw" alt="" loading="lazy" class="absolute inset-0 -z-20 size-full object-cover object-center">
-                            <span class="absolute inset-0 -z-10 bg-[#6f5e50]/20" aria-hidden="true"></span>
-                            <span class="absolute inset-0 -z-10 bg-linear-to-b from-[#b9a28f]/55 via-[#8b7360]/65 to-[#514840]/75" aria-hidden="true"></span>
-
-                            <div class="store-container py-[2.7rem] sm:py-[3.15rem]">
-                                <div class="mx-auto flex max-w-3xl flex-col items-center gap-3.5">
-                                    <p class="text-[0.62rem] font-semibold tracking-[0.24em] text-white/85 uppercase">Lista para encontrar tu próximo favorito</p>
-                                    <h2 id="catalogo-cta" class="text-balance font-serif text-[clamp(2.25rem,1.6rem+2.4vw,3.5rem)] leading-tight font-medium tracking-[-0.03em]">Pequeños detalles, grandes expresiones.</h2>
-                                    <p class="text-balance text-sm leading-relaxed text-white/80 sm:text-base md:whitespace-nowrap">Descubre el universo Hade y encuentra diseños, kits y esenciales hechos para ti.</p>
-                                    <div class="mt-3 flex flex-wrap justify-center gap-3">
-                                        <a href="{{ route('products.index') }}" class="group inline-flex min-h-12 items-center justify-center gap-2 rounded-full bg-white px-7 text-sm font-semibold text-[#8b7360] transition duration-300 hover:bg-[#f2e8da] focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-white">
-                                            Entrar a la tienda
-                                            <x-store.icon name="chevron-right" class="size-4 transition-transform duration-300 group-hover:translate-x-0.5" />
-                                        </a>
-                                        <a href="{{ $products->isNotEmpty() ? '#seccion-'.$section->id : route('products.index', ['collection' => 'latest']) }}" class="inline-flex min-h-12 items-center justify-center rounded-full border border-white/70 px-7 text-sm font-semibold text-white transition duration-300 hover:border-white hover:bg-white/10 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-white">
-                                            Ver novedades
-                                        </a>
-                                    </div>
-                                </div>
-                            </div>
-                        </section>
-                    @endonce
-                @endif
         @endswitch
-    @empty
-        <section class="store-container py-24 text-center">
-            <p class="font-serif text-2xl">Muy pronto</p>
-            <p class="mt-2 text-ink/60">Estamos preparando la tienda.</p>
-        </section>
-    @endforelse
+
+        @if ($sectionRendered)
+            @php($renderedSectionCount++)
+            @switch($renderedSectionCount)
+                @case(1)
+                    <x-store.home-ritual />
+                    @break
+
+                @case(2)
+                    <x-store.home-catalog-cta />
+                    @break
+
+                @case(3)
+                    <x-store.home-mood-showcase />
+                    @break
+            @endswitch
+        @endif
+    @endforeach
+
+    @if ($renderedSectionCount < 1)
+        <x-store.home-ritual />
+    @endif
+    @if ($renderedSectionCount < 2)
+        <x-store.home-catalog-cta />
+    @endif
+    @if ($renderedSectionCount < 3)
+        <x-store.home-mood-showcase />
+    @endif
 
     {{-- The first questions of the "Preguntas frecuentes" page, so the owner edits them in one place --}}
     @if ($questions !== [])

@@ -24,6 +24,49 @@ class StorefrontTest extends TestCase
         $this->withoutVite();
     }
 
+    public function test_the_editorial_sections_always_show_without_catalog_data(): void
+    {
+        $this->get('/')
+            ->assertOk()
+            ->assertSeeInOrder([
+                'Tu ritual Hade',
+                'Lista para encontrar tu próximo favorito',
+                'Tu estilo Hade',
+            ]);
+    }
+
+    public function test_the_editorial_sections_keep_fixed_slots_between_the_owner_sections(): void
+    {
+        foreach (['Primera sección', 'Segunda sección', 'Tercera sección', 'Cuarta sección', 'Quinta sección'] as $position => $title) {
+            $category = Category::factory()->create(['name' => "Categoría {$position}"]);
+            Product::factory()->for($category)->create();
+            HomeSection::factory()->forCategory($category)->create([
+                'title' => $title,
+                'sort_order' => $position + 1,
+            ]);
+        }
+
+        Page::factory()->create([
+            'slug' => 'preguntas-frecuentes',
+            'content' => '<h2>¿Pregunta al final?</h2><p>Respuesta al final.</p>',
+        ]);
+
+        $this->get('/')
+            ->assertOk()
+            ->assertSeeInOrder([
+                'Primera sección',
+                'Tu ritual Hade',
+                'Segunda sección',
+                'Lista para encontrar tu próximo favorito',
+                'Tercera sección',
+                'Tu estilo Hade',
+                'Cuarta sección',
+                'Quinta sección',
+                'Resolvemos tus dudas',
+                '© '.now()->year.' Hade',
+            ]);
+    }
+
     public function test_the_home_page_shows_the_active_sections_in_the_owner_order(): void
     {
         $manicure = Category::factory()->create(['name' => 'Stickers Manicure']);
@@ -226,13 +269,13 @@ class StorefrontTest extends TestCase
         $this->get('/')
             ->assertOk()
             ->assertSeeInOrder(['Lámparas', 'Luz para tu ritual', 'Lámpara Glow', 'Agregar al carrito', 'Novedades', 'Lo más pedido', 'Kit Novedad', 'Agregar al carrito'])
-            ->assertSee('tracking-[0.24em] uppercase text-emerald">Lámparas</p>', false)
+            ->assertSee('tracking-[0.24em] uppercase text-rose-light">Lámparas</p>', false)
             ->assertSee('aria-label="Ver más de Luz para tu ritual"', false)
             ->assertSee('aria-label="Ver más de Lo más pedido"', false)
             ->assertSee('href="'.route('categories.show', $lamps).'"', false);
     }
 
-    public function test_product_sections_alternate_cream_and_green_backgrounds_whatever_their_category(): void
+    public function test_product_sections_start_green_after_categories_and_keep_alternating(): void
     {
         foreach (['Lámparas', 'Accesorios', 'Kits'] as $position => $name) {
             $category = Category::factory()->create(['name' => $name]);
@@ -244,7 +287,28 @@ class StorefrontTest extends TestCase
 
         preg_match_all('/<section class="(scalloped-section z-10 bg-cream|bg-forest) /', $html, $backgrounds);
 
-        $this->assertSame(['scalloped-section z-10 bg-cream', 'bg-forest', 'scalloped-section z-10 bg-cream'], $backgrounds[1]);
+        $this->assertSame(['bg-forest', 'scalloped-section z-10 bg-cream', 'bg-forest'], $backgrounds[1]);
+    }
+
+    public function test_offers_away_from_the_start_leaves_green_after_categories_and_cream_before_the_footer(): void
+    {
+        foreach (['Lámparas', 'Accesorios', 'Kits'] as $position => $name) {
+            $category = Category::factory()->create(['name' => $name]);
+            Product::factory()->for($category)->create();
+            HomeSection::factory()->forCategory($category)->create([
+                'title' => $name,
+                'sort_order' => $position === 0 ? 1 : $position + 2,
+            ]);
+        }
+
+        Product::factory()->onSale()->create();
+        HomeSection::factory()->ofType(HomeSectionType::Offers)->create(['sort_order' => 2]);
+
+        $html = $this->get('/')->assertOk()->getContent();
+
+        preg_match_all('/<section class="(scalloped-section z-10 bg-cream|bg-forest) /', $html, $backgrounds);
+
+        $this->assertSame(['bg-forest', 'scalloped-section z-10 bg-cream', 'scalloped-section z-10 bg-cream'], $backgrounds[1]);
     }
 
     public function test_a_section_label_is_left_out_when_the_manager_title_repeats_it(): void
@@ -256,7 +320,8 @@ class StorefrontTest extends TestCase
         $this->get('/')
             ->assertOk()
             ->assertSee('<h2 id="seccion-', false)
-            ->assertDontSee('tracking-[0.24em] uppercase text-emerald">Lámparas</p>', false);
+            ->assertDontSee('tracking-[0.24em] uppercase text-emerald">Lámparas</p>', false)
+            ->assertDontSee('tracking-[0.24em] uppercase text-rose-light">Lámparas</p>', false);
     }
 
     public function test_the_latest_section_does_not_offer_out_of_stock_products_to_add_to_the_cart(): void

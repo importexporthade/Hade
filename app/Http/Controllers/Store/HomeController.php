@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Store;
 
+use App\Enums\HomeSectionType;
 use App\Http\Controllers\Controller;
 use App\Models\Banner;
 use App\Models\Category;
@@ -27,11 +28,51 @@ class HomeController extends Controller
             ->orderBy('sort_order')
             ->get();
 
+        $productsBySection = $sections->mapWithKeys(
+            fn (HomeSection $section): array => [$section->getKey() => $section->products()],
+        );
+
+        $renderedSections = $sections
+            ->filter(fn (HomeSection $section): bool => $productsBySection->get($section->getKey())->isNotEmpty())
+            ->values();
+
+        // The first three sections are separated by fixed editorial blocks, so they start
+        // green after the cream categories. "Tu estilo" separates the remaining sections;
+        // that tail restarts by parity so its final section is always cream before the footer.
+        $trailingAlternatingSectionCount = $renderedSections
+            ->slice(3)
+            ->reject(fn (HomeSection $section): bool => $section->type === HomeSectionType::Offers)
+            ->count();
+
+        $trailingSectionsStartDark = $trailingAlternatingSectionCount > 0
+            && $trailingAlternatingSectionCount % 2 === 0;
+
+        $darkBackgroundsBySection = [];
+        $leadingAlternatingIndex = 0;
+        $trailingAlternatingIndex = 0;
+
+        foreach ($renderedSections as $position => $section) {
+            if ($section->type === HomeSectionType::Offers) {
+                continue;
+            }
+
+            if ($position < 3) {
+                $darkBackgroundsBySection[$section->getKey()] = ++$leadingAlternatingIndex % 2 === 1;
+
+                continue;
+            }
+
+            $trailingAlternatingIndex++;
+            $darkBackgroundsBySection[$section->getKey()] = ($trailingAlternatingIndex + ($trailingSectionsStartDark ? 1 : 0)) % 2 === 0;
+        }
+
         $questionsPage = Page::query()->published()->where('slug', 'preguntas-frecuentes')->first();
 
         return view('store.home', [
             'banners' => Banner::query()->showing()->with(['linkProduct.category', 'linkCategory', 'linkPage'])->orderBy('sort_order')->get(),
             'sections' => $sections,
+            'productsBySection' => $productsBySection,
+            'darkBackgroundsBySection' => $darkBackgroundsBySection,
             'categories' => Category::query()->visible()->orderBy('sort_order')->get(),
             'questionsPage' => $questionsPage,
             'questions' => array_slice($questionsPage?->questions() ?? [], 0, self::HOME_QUESTIONS),
