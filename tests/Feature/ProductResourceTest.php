@@ -46,6 +46,20 @@ class ProductResourceTest extends TestCase
         $this->assertTrue($product->category->is($category));
         $this->assertSame(15, $product->discountPercentage());
         $this->assertTrue($product->is_visible);
+        $this->assertTrue($product->shows_shipping);
+    }
+
+    public function test_the_owner_hides_the_shipping_options_of_a_product(): void
+    {
+        $product = Product::factory()->create();
+
+        Livewire::test(EditProduct::class, ['record' => $product->getRouteKey()])
+            ->assertSchemaStateSet(['shows_shipping' => true])
+            ->fillForm(['shows_shipping' => false])
+            ->call('save')
+            ->assertHasNoFormErrors();
+
+        $this->assertFalse($product->refresh()->shows_shipping);
     }
 
     public function test_the_regular_price_must_be_higher_than_the_sale_price(): void

@@ -144,6 +144,10 @@ class ProductForm
                                 ->helperText('Aparece en Novedades, en la portada y en el menú, aunque su categoría esté oculta.')
                                 ->default(true)
                                 ->live(),
+                            Toggle::make('shows_shipping')
+                                ->label('Mostrar envíos')
+                                ->hintIcon(Heroicon::OutlinedQuestionMarkCircle, tooltip: 'Muestra en la página del producto los envíos a capital y a provincia que escribiste en Datos de la tienda. Apágalo si este producto no se envía.')
+                                ->default(true),
                         ]),
                 ])->columnSpan(['lg' => 1]),
             ]);

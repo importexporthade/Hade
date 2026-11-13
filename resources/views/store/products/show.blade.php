@@ -5,7 +5,8 @@
 
     $gallery = $product->galleryPaths();
     $settings = \App\Models\StoreSetting::current();
-    $whatsappUrl = $settings->whatsappUrl("Hola, quiero pedir: {$product->name} (".Price::format($product->price).")\n".route('products.show', $product));
+    $orderLine = $product->name.' ('.Price::format($product->price).")\n".route('products.show', $product);
+    $whatsappUrl = $settings->whatsappUrl($settings->whatsappGreeting() ? $settings->whatsappGreeting()."\n\n".$orderLine : 'Hola, quiero pedir: '.$orderLine);
     $shareDescription = filled(strip_tags((string) $product->description))
         ? $product->description
         : $product->name.' a '.Price::format($product->price).'. '.$settings->footer_text;
@@ -106,33 +107,46 @@
                     @endif
                 @endif
 
-                <section class="mt-7 border-t border-ink/10 pt-6 sm:mt-8" aria-labelledby="despacho">
-                    <div class="flex flex-wrap items-center justify-between gap-2">
-                        <h2 id="despacho" class="font-serif text-lg font-semibold">Opciones de despacho</h2>
-                        <a href="{{ route('pages.show', 'envios-y-delivery') }}" class="text-xs font-semibold text-emerald underline decoration-emerald/30 underline-offset-4 transition hover:decoration-emerald">Ver detalles</a>
-                    </div>
+                {{--
+                    The owner turns this off per product. Their own texts from "Datos de la tienda"
+                    replace the general ones as soon as they write either of them.
+                --}}
+                @if ($product->shows_shipping)
+                    @php
+                        $shippingOptions = array_filter([
+                            ['title' => 'Envíos a capital', 'text' => $settings->shipping_capital, 'icon' => 'truck', 'tone' => 'bg-sage-light text-emerald'],
+                            ['title' => 'Envíos a provincia', 'text' => $settings->shipping_province, 'icon' => 'truck', 'tone' => 'bg-beige text-taupe'],
+                        ], fn (array $option): bool => filled($option['text']));
+                        $shippingOptions = $shippingOptions !== [] ? $shippingOptions : [
+                            ['title' => 'Envío a domicilio', 'text' => 'Hacemos delivery a todo el Perú. El costo y el plazo se confirman según tu ubicación.', 'icon' => 'truck', 'tone' => 'bg-sage-light text-emerald'],
+                            ['title' => 'Despacho coordinado', 'text' => 'Al completar tu pedido por WhatsApp coordinamos contigo la alternativa disponible y todos los detalles.', 'icon' => 'check', 'tone' => 'bg-beige text-taupe'],
+                        ];
+                        $shippingPage = \App\Models\Page::query()->published()->where('slug', 'envios-y-delivery')->first();
+                    @endphp
 
-                    <ul class="mt-3 divide-y divide-ink/10 border-t border-ink/10 sm:border-y">
-                        <li class="flex gap-3 py-4 sm:gap-4">
-                            <span class="grid size-10 shrink-0 place-items-center rounded-full bg-sage-light text-emerald sm:size-11">
-                                <x-store.icon name="truck" class="size-5" />
-                            </span>
-                            <div>
-                                <h3 class="text-sm font-semibold">Envío a domicilio</h3>
-                                <p class="mt-1 text-xs leading-relaxed text-ink/60 sm:text-sm">Hacemos delivery a todo el Perú. El costo y el plazo se confirman según tu ubicación.</p>
-                            </div>
-                        </li>
-                        <li class="flex gap-3 py-4 sm:gap-4">
-                            <span class="grid size-10 shrink-0 place-items-center rounded-full bg-beige text-taupe sm:size-11">
-                                <x-store.icon name="check" class="size-5" />
-                            </span>
-                            <div>
-                                <h3 class="text-sm font-semibold">Despacho coordinado</h3>
-                                <p class="mt-1 text-xs leading-relaxed text-ink/60 sm:text-sm">Al completar tu pedido por WhatsApp coordinamos contigo la alternativa disponible y todos los detalles.</p>
-                            </div>
-                        </li>
-                    </ul>
-                </section>
+                    <section class="mt-7 border-t border-ink/10 pt-6 sm:mt-8" aria-labelledby="despacho">
+                        <div class="flex flex-wrap items-center justify-between gap-2">
+                            <h2 id="despacho" class="font-serif text-lg font-semibold">Opciones de despacho</h2>
+                            @if ($shippingPage)
+                                <a href="{{ route('pages.show', $shippingPage) }}" class="text-xs font-semibold text-emerald underline decoration-emerald/30 underline-offset-4 transition hover:decoration-emerald">Ver detalles</a>
+                            @endif
+                        </div>
+
+                        <ul class="mt-3 divide-y divide-ink/10 border-t border-ink/10 sm:border-y">
+                            @foreach ($shippingOptions as $option)
+                                <li class="flex gap-3 py-4 sm:gap-4">
+                                    <span class="grid size-10 shrink-0 place-items-center rounded-full {{ $option['tone'] }} sm:size-11">
+                                        <x-store.icon :name="$option['icon']" class="size-5" />
+                                    </span>
+                                    <div class="min-w-0">
+                                        <h3 class="text-sm font-semibold">{{ $option['title'] }}</h3>
+                                        <p class="mt-1 break-words text-xs leading-relaxed whitespace-pre-line text-ink/60 sm:text-sm">{{ $option['text'] }}</p>
+                                    </div>
+                                </li>
+                            @endforeach
+                        </ul>
+                    </section>
+                @endif
             </div>
         </div>
 

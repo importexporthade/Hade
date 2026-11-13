@@ -32,6 +32,7 @@ class ProductFactory extends Factory
             'is_visible' => true,
             'is_featured' => false,
             'is_in_stock' => true,
+            'shows_shipping' => true,
             'sort_order' => 0,
         ];
     }

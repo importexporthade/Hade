@@ -406,6 +406,76 @@ class StorefrontTest extends TestCase
             ->assertDontSee('<script>alert(1)</script>', false);
     }
 
+    public function test_orders_on_whatsapp_start_with_the_owner_opening_message(): void
+    {
+        StoreSetting::current()->update(['whatsapp_number' => '51 986 000 362', 'whatsapp_message' => ' Hola Hade, quiero hacer un pedido ']);
+        $product = Product::factory()->create(['name' => 'Kit Hade Recargada', 'slug' => 'kit-hade-recargada', 'price' => 76.90]);
+
+        $this->get('/product/kit-hade-recargada')
+            ->assertOk()
+            ->assertSee('https://wa.me/51986000362?text='.rawurlencode("Hola Hade, quiero hacer un pedido\n\nKit Hade Recargada (S/ 76.90)\n".route('products.show', $product)), false)
+            ->assertSee('data-whatsapp-greeting="Hola Hade, quiero hacer un pedido"', false);
+    }
+
+    public function test_a_product_page_shows_the_shipping_the_owner_wrote(): void
+    {
+        StoreSetting::current()->update([
+            'shipping_capital' => 'Delivery S/ 10.
+Llega en 24 a 48 horas.',
+            'shipping_province' => 'Por <b>Shalom</b> desde S/ 15.',
+        ]);
+        Product::factory()->create(['slug' => 'kit']);
+
+        $this->get('/product/kit')
+            ->assertOk()
+            ->assertSeeInOrder(['Opciones de despacho', 'Envíos a capital', 'Delivery S/ 10.
+Llega en 24 a 48 horas.', 'Envíos a provincia', 'Por &lt;b&gt;Shalom&lt;/b&gt; desde S/ 15.'], false)
+            ->assertDontSee('Despacho coordinado');
+    }
+
+    public function test_only_the_shipping_the_owner_filled_in_is_shown(): void
+    {
+        StoreSetting::current()->update(['shipping_capital' => 'Delivery S/ 10.']);
+        Product::factory()->create(['slug' => 'kit']);
+
+        $this->get('/product/kit')
+            ->assertSee('Envíos a capital')
+            ->assertDontSee('Envíos a provincia');
+    }
+
+    public function test_without_shipping_texts_the_product_page_keeps_the_general_options(): void
+    {
+        Product::factory()->create(['slug' => 'kit']);
+
+        $this->get('/product/kit')
+            ->assertSee('Opciones de despacho')
+            ->assertSee('Hacemos delivery a todo el Perú.')
+            ->assertDontSee('Envíos a capital');
+    }
+
+    public function test_a_product_set_not_to_show_shipping_leaves_the_section_out(): void
+    {
+        StoreSetting::current()->update(['shipping_capital' => 'Delivery S/ 10.']);
+        Product::factory()->create(['slug' => 'kit', 'shows_shipping' => false]);
+
+        $this->get('/product/kit')
+            ->assertOk()
+            ->assertDontSee('Opciones de despacho')
+            ->assertDontSee('Delivery S/ 10.');
+    }
+
+    public function test_the_shipping_details_link_shows_only_once_that_page_is_published(): void
+    {
+        Product::factory()->create(['slug' => 'kit']);
+        $detailsLink = 'href="'.route('pages.show', 'envios-y-delivery').'"';
+
+        $this->get('/product/kit')->assertDontSee('Ver detalles');
+
+        Page::factory()->create(['slug' => 'envios-y-delivery']);
+
+        $this->get('/product/kit')->assertSee('Ver detalles')->assertSee($detailsLink, false);
+    }
+
     public function test_a_product_out_of_stock_cannot_be_added_to_the_cart(): void
     {
         Product::factory()->create(['slug' => 'lampara-conectada', 'is_in_stock' => false]);
