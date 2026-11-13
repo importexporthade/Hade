@@ -16,7 +16,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 
 #[Fillable([
     'category_id', 'name', 'slug', 'description', 'price', 'compare_at_price',
-    'images', 'cover_image', 'is_visible', 'is_featured', 'is_in_stock', 'sort_order',
+    'images', 'cover_image', 'is_visible', 'is_featured', 'is_in_stock', 'ships_to_capital', 'ships_to_province', 'sort_order',
 ])]
 class Product extends Model
 {
@@ -35,6 +35,8 @@ class Product extends Model
             'is_visible' => 'boolean',
             'is_featured' => 'boolean',
             'is_in_stock' => 'boolean',
+            'ships_to_capital' => 'boolean',
+            'ships_to_province' => 'boolean',
         ];
     }
 

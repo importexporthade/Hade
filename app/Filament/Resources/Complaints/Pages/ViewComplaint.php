@@ -3,6 +3,7 @@
 namespace App\Filament\Resources\Complaints\Pages;
 
 use App\Filament\Resources\Complaints\ComplaintResource;
+use App\Filament\Support\BreadcrumbsBackToTheList;
 use App\Mail\ComplaintAnswered;
 use App\Models\Complaint;
 use App\Support\ComplaintSheetPdf;
@@ -21,6 +22,8 @@ use Throwable;
  */
 class ViewComplaint extends ViewRecord
 {
+    use BreadcrumbsBackToTheList;
+
     protected static string $resource = ComplaintResource::class;
 
     public function getTitle(): string|Htmlable

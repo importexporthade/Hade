@@ -133,6 +133,22 @@ class ManageStore extends Page
                             ->url()
                             ->maxLength(255),
                     ]),
+                Section::make('Envíos y delivery')
+                    ->description('Cada uno se muestra en la página de los productos que tengan prendido «Envíos a Lima» o «Envíos a provincia».')
+                    ->columns(2)
+                    ->columnSpanFull()
+                    ->schema([
+                        Textarea::make('shipping_capital')
+                            ->label('Envíos a capital')
+                            ->hintIcon(Heroicon::OutlinedQuestionMarkCircle, tooltip: 'Lo que verán tus clientas de Lima: cuánto cuesta, cuánto tarda y cómo les llega. Ej: Delivery S/ 10, llega en 24 a 48 horas.')
+                            ->rows(4)
+                            ->maxLength(1000),
+                        Textarea::make('shipping_province')
+                            ->label('Envíos a provincia')
+                            ->hintIcon(Heroicon::OutlinedQuestionMarkCircle, tooltip: 'Lo que verán tus clientas fuera de Lima: por qué agencia va, cuánto cuesta y cuánto tarda. Ej: Por Shalom desde S/ 15, llega en 2 a 4 días.')
+                            ->rows(4)
+                            ->maxLength(1000),
+                    ]),
                 Section::make('Datos legales')
                     ->description('Se imprimen en cada hoja del Libro de Reclamaciones, como pide Indecopi.')
                     ->columns(2)

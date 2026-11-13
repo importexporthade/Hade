@@ -46,6 +46,23 @@ class ProductResourceTest extends TestCase
         $this->assertTrue($product->category->is($category));
         $this->assertSame(15, $product->discountPercentage());
         $this->assertTrue($product->is_visible);
+        $this->assertTrue($product->ships_to_capital);
+        $this->assertTrue($product->ships_to_province);
+    }
+
+    public function test_the_owner_turns_off_the_shipping_to_the_provinces_of_a_product(): void
+    {
+        $product = Product::factory()->create();
+
+        Livewire::test(EditProduct::class, ['record' => $product->getRouteKey()])
+            ->assertSchemaStateSet(['ships_to_capital' => true, 'ships_to_province' => true])
+            ->fillForm(['ships_to_province' => false])
+            ->call('save')
+            ->assertHasNoFormErrors();
+
+        $product->refresh();
+        $this->assertTrue($product->ships_to_capital);
+        $this->assertFalse($product->ships_to_province);
     }
 
     public function test_the_regular_price_must_be_higher_than_the_sale_price(): void

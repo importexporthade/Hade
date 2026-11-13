@@ -144,6 +144,14 @@ class ProductForm
                                 ->helperText('Aparece en Novedades, en la portada y en el menú, aunque su categoría esté oculta.')
                                 ->default(true)
                                 ->live(),
+                            Toggle::make('ships_to_capital')
+                                ->label('Envíos a Lima')
+                                ->hintIcon(Heroicon::OutlinedQuestionMarkCircle, tooltip: 'Muestra en la página del producto tu texto de «Envíos a capital» de Datos de la tienda. Apágalo si este producto no se envía dentro de Lima.')
+                                ->default(true),
+                            Toggle::make('ships_to_province')
+                                ->label('Envíos a provincia')
+                                ->hintIcon(Heroicon::OutlinedQuestionMarkCircle, tooltip: 'Muestra en la página del producto tu texto de «Envíos a provincia» de Datos de la tienda. Apágalo si este producto no viaja fuera de Lima. Ej: algo frágil.')
+                                ->default(true),
                         ]),
                 ])->columnSpan(['lg' => 1]),
             ]);

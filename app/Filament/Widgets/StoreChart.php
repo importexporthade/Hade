@@ -13,6 +13,11 @@ abstract class StoreChart extends ChartWidget
 {
     protected ?string $maxHeight = '260px';
 
+    /**
+     * The figures move slowly, so once a minute is enough instead of Filament's every 5 seconds.
+     */
+    protected ?string $pollingInterval = StoreActivity::POLLING_INTERVAL;
+
     public ?string $filter = '30';
 
     protected function getFilters(): ?array

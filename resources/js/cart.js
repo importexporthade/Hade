@@ -100,8 +100,9 @@ export function orderMessage(cartItems, customer = null) {
     const total = cartItems.reduce((sum, item) => sum + item.price * item.quantity, 0);
     const count = cartItems.reduce((sum, item) => sum + item.quantity, 0);
 
+    // The owner's opening message from "Datos de la tienda" starts the order when they wrote one
     return [
-        'Hola, quiero comprar estos productos:',
+        document.body.dataset.whatsappGreeting || 'Hola, quiero comprar estos productos:',
         '',
         ...lines,
         '',

@@ -26,7 +26,15 @@ class StoreActivity extends StatsOverviewWidget
      */
     public const array COLUMNS = ['default' => 2, '@3xl' => 4, '!@lg' => 4];
 
+    /**
+     * How often the dashboard figures refresh themselves while it stays open. Filament asks
+     * the server every 5 seconds by default, twelve times a minute for each block.
+     */
+    public const string POLLING_INTERVAL = '60s';
+
     protected static ?int $sort = 0;
+
+    protected ?string $pollingInterval = self::POLLING_INTERVAL;
 
     /**
      * @var array<string, int>

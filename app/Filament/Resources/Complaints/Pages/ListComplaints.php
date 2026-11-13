@@ -3,6 +3,7 @@
 namespace App\Filament\Resources\Complaints\Pages;
 
 use App\Filament\Resources\Complaints\ComplaintResource;
+use App\Filament\Support\WithoutBreadcrumbs;
 use App\Support\ComplaintBookExport;
 use Filament\Actions\Action;
 use Filament\Forms\Components\DatePicker;
@@ -14,6 +15,8 @@ use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class ListComplaints extends ListRecords
 {
+    use WithoutBreadcrumbs;
+
     protected static string $resource = ComplaintResource::class;
 
     protected static ?string $title = 'Libro de Reclamaciones';

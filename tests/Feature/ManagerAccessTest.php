@@ -2,6 +2,10 @@
 
 namespace Tests\Feature;
 
+use App\Filament\Resources\Categories\Pages\ManageCategories;
+use App\Filament\Resources\Products\Pages\CreateProduct;
+use App\Filament\Resources\Products\Pages\EditProduct;
+use App\Filament\Resources\Products\Pages\ListProducts;
 use App\Filament\Widgets\CatalogOverview;
 use App\Models\Product;
 use App\Models\User;
@@ -70,6 +74,27 @@ class ManagerAccessTest extends TestCase
 
         foreach (['products', 'products/create', 'categories', 'banners', 'banners/create', 'home-sections', 'pages', 'pages/create', 'tienda'] as $path) {
             $this->get("/manager/{$path}")->assertOk();
+        }
+    }
+
+    /**
+     * The breadcrumbs start on create and edit, leading back to the table with no link to
+     * the page already open; the tables themselves have none.
+     */
+    public function test_the_breadcrumbs_lead_from_each_form_back_to_its_table(): void
+    {
+        $this->actingAs(User::factory()->admin()->create());
+        $product = Product::factory()->create(['name' => 'Kit Hade Recargada']);
+
+        Livewire::test(EditProduct::class, ['record' => $product->getRouteKey()])
+            ->assertSeeInOrder(['fi-breadcrumbs', route('filament.manager.resources.products.index'), 'Productos', 'Editar'], false)
+            ->assertDontSee('href="'.route('filament.manager.resources.products.edit', $product).'"', false);
+
+        Livewire::test(CreateProduct::class)
+            ->assertSeeInOrder(['fi-breadcrumbs', route('filament.manager.resources.products.index'), 'Productos', 'Crear'], false);
+
+        foreach ([ListProducts::class, ManageCategories::class] as $table) {
+            Livewire::test($table)->assertDontSee('fi-breadcrumbs', false);
         }
     }
 }
