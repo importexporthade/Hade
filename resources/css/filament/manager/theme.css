@@ -143,6 +143,11 @@
     }
 }
 
+/* Long names wrap onto more lines, splitting a word that has no room, so a table never scrolls sideways for them */
+.fi-ta-text.fi-wrapped {
+    overflow-wrap: anywhere;
+}
+
 /* Calendar: the chosen day in the brand's burgundy, today ringed in rose */
 .fi-fo-date-time-picker-calendar-day {
     @apply rounded-md transition;

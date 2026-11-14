@@ -134,7 +134,7 @@ class ManageStore extends Page
                             ->maxLength(255),
                     ]),
                 Section::make('Envíos y delivery')
-                    ->description('Cada uno se muestra en la página de los productos que tengan prendido «Envíos a Lima» o «Envíos a provincia».')
+                    ->description('Cada uno se muestra en la página de los productos que tengan prendido «Lima» o «Provincia» en su sección «Envíos y delivery».')
                     ->columns(2)
                     ->columnSpanFull()
                     ->schema([

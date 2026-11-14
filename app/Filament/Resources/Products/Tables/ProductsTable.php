@@ -51,6 +51,7 @@ class ProductsTable
                     ->description(fn (Product $record): ?string => $record->category
                         ? $record->category->name.($record->category->is_visible ? '' : ' · categoría oculta')
                         : null)
+                    ->wrap()
                     ->searchable()
                     ->sortable(),
                 TextColumn::make('price')

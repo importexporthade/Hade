@@ -85,6 +85,7 @@ class CategoryResource extends Resource
                 TextColumn::make('name')
                     ->label('Categoría')
                     ->description(fn (Category $record): ?string => $record->hasVisibleProducts() ? null : 'Oculta: no tiene productos visibles')
+                    ->wrap()
                     ->searchable(),
                 TextColumn::make('products_count')
                     ->label('Productos')

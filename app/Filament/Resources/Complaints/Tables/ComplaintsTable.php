@@ -38,6 +38,7 @@ class ComplaintsTable
                 TextColumn::make('consumer_name')
                     ->label('Clienta')
                     ->description(fn (Complaint $record): string => $record->email)
+                    ->wrap()
                     ->searchable(['consumer_name', 'email', 'document_number']),
                 TextColumn::make('item_description')
                     ->label('Sobre')

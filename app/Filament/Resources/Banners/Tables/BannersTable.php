@@ -32,6 +32,7 @@ class BannersTable
                     ->label('Título')
                     ->placeholder('Sin título')
                     ->description(fn (Banner $record): ?string => $record->subtitle)
+                    ->wrap()
                     ->searchable(),
                 TextColumn::make('destination')
                     ->label('Lleva a')

@@ -60,7 +60,7 @@ class StoreActivity extends StatsOverviewWidget
                 ->description(Price::format((float) (clone $checkouts)->sum('total')).' en pedidos')
                 ->icon(Heroicon::OutlinedChatBubbleLeftRight)
                 ->color('success'),
-            Stat::make('Conversión', $visitors > 0 ? round($buyers / $visitors * 100, 1).' %' : '—')
+            Stat::make('% de ida a WhatsApp', $visitors > 0 ? round($buyers / $visitors * 100, 1).' %' : '—')
                 ->description('Visitantes que enviaron un pedido')
                 ->icon(Heroicon::OutlinedArrowTrendingUp),
         ];

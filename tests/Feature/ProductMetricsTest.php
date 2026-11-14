@@ -110,7 +110,7 @@ class ProductMetricsTest extends TestCase
         $this->travelBack();
 
         Livewire::test(StoreActivity::class)
-            ->assertSeeInOrder(['Productos vistos', '4', '2 visitantes', 'Agregados al carrito', '2', 'Pedidos por WhatsApp', '1', 'S/ 153.80', 'Conversión', '50 %']);
+            ->assertSeeInOrder(['Productos vistos', '4', '2 visitantes', 'Agregados al carrito', '2', 'Pedidos por WhatsApp', '1', 'S/ 153.80', '% de ida a WhatsApp', '50 %']);
 
         Livewire::test(ProductInterest::class)
             ->assertCanSeeTableRecords([$product])

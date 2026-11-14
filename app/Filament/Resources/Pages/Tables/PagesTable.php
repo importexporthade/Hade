@@ -22,6 +22,7 @@ class PagesTable
                 TextColumn::make('title')
                     ->label('Título')
                     ->description(fn (Page $record): string => '/'.$record->slug)
+                    ->wrap()
                     ->searchable(),
                 SelectColumn::make('visibility')
                     ->label('Dónde se ve')

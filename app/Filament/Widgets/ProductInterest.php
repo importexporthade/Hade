@@ -50,7 +50,8 @@ class ProductInterest extends TableWidget
                     ->defaultImageUrl(asset('images/product-placeholder.svg'))
                     ->square(),
                 TextColumn::make('name')
-                    ->label('Producto'),
+                    ->label('Producto')
+                    ->wrap(),
                 TextColumn::make('views_count')
                     ->label('Vistas')
                     ->sortable(),

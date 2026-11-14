@@ -128,7 +128,8 @@ class HomeSectionResource extends Resource
             ->columns([
                 TextColumn::make('title')
                     ->label('Título')
-                    ->description(fn (HomeSection $record): ?string => $record->subtitle),
+                    ->description(fn (HomeSection $record): ?string => $record->subtitle)
+                    ->wrap(),
                 TextColumn::make('type')
                     ->label('Tipo de sección')
                     ->badge()
