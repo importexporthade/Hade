@@ -634,6 +634,17 @@ Llega en 24 a 48 horas.', 'Envíos a provincia', 'Por &lt;b&gt;Shalom&lt;/b&gt; 
         $this->get('/information/borrador')->assertNotFound();
     }
 
+    public function test_the_cart_asks_for_the_dni_and_the_address_in_lima_or_the_agency_in_the_provinces(): void
+    {
+        $this->get('/products')
+            ->assertOk()
+            ->assertSeeInOrder(['name="first_name"', 'name="last_name"', 'name="dni"', 'name="shipping"'], false)
+            ->assertSeeInOrder(['data-cart-shipping-fields="lima"', 'name="district"', 'name="address"', 'name="reference"'], false)
+            ->assertSeeInOrder(['data-cart-shipping-fields="provincia" hidden disabled', 'name="agency"'], false)
+            ->assertDontSee('name="note"', false)
+            ->assertDontSee('name="place"', false);
+    }
+
     public function test_every_page_carries_the_store_details_from_the_manager(): void
     {
         StoreSetting::current()->update([

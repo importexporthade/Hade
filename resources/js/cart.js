@@ -5,10 +5,20 @@
 const STORAGE_KEY = 'hade-cart';
 const CUSTOMER_KEY = 'hade-customer';
 
+/** Each kind of shipping with the fields it asks for, in the order they go in the message. */
 const SHIPPING = {
-    lima: { label: 'Lima', place: 'Distrito' },
-    provincia: { label: 'Provincia (fuera de Lima)', place: 'Ciudad / provincia' },
+    lima: {
+        label: 'Lima',
+        fields: [
+            ['district', 'Distrito'],
+            ['address', 'Dirección'],
+            ['reference', 'Referencia'],
+        ],
+    },
+    provincia: { label: 'Provincia (fuera de Lima)', fields: [['agency', 'Agencia']] },
 };
+
+const CUSTOMER_FIELDS = ['first_name', 'last_name', 'dni', 'district', 'address', 'reference', 'agency'];
 
 export function formatPrice(amount) {
     return `S/ ${amount.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
@@ -70,16 +80,15 @@ function customerFromForm() {
         return null;
     }
 
-    const data = new FormData(form);
-    const value = (name) => String(data.get(name) ?? '').trim();
+    // Read straight from the fields, so what was typed for the other shipping is remembered too
+    const shipping = form.querySelector('[name="shipping"]:checked')?.value;
+    const customer = { shipping: SHIPPING[shipping] ? shipping : 'lima' };
 
-    return {
-        first_name: value('first_name'),
-        last_name: value('last_name'),
-        shipping: SHIPPING[value('shipping')] ? value('shipping') : 'lima',
-        place: value('place'),
-        note: value('note'),
-    };
+    CUSTOMER_FIELDS.forEach((name) => {
+        customer[name] = String(form.elements[name]?.value ?? '').trim();
+    });
+
+    return customer;
 }
 
 function setItems(nextItems) {
@@ -123,9 +132,9 @@ function customerLines(customer) {
         '',
         'Mis datos:',
         ...(name ? [`Nombre: ${name}`] : []),
+        ...(customer.dni ? [`DNI: ${customer.dni}`] : []),
         `Envío: ${shipping.label}`,
-        ...(customer.place ? [`${shipping.place}: ${customer.place}`] : []),
-        ...(customer.note ? [`Nota: ${customer.note}`] : []),
+        ...shipping.fields.filter(([field]) => customer[field]).map(([field, label]) => `${label}: ${customer[field]}`),
     ];
 }
 
@@ -146,7 +155,7 @@ function customerIsComplete() {
         return true;
     }
 
-    const missing = [...form.querySelectorAll('[required]')].filter((input) => input.value.trim() === '');
+    const missing = [...form.querySelectorAll('[required]')].filter((input) => !input.matches(':disabled') && input.value.trim() === '');
 
     missing.forEach((input) => input.setAttribute('aria-invalid', 'true'));
     missing[0]?.focus();
@@ -154,12 +163,19 @@ function customerIsComplete() {
     return missing.length === 0;
 }
 
-function updatePlaceLabel() {
-    const label = document.querySelector('[data-cart-place-label]');
+/**
+ * Shows only the fields of the chosen shipping: Lima asks for the address, the provinces only
+ * for the agency. The hidden ones are disabled, so they are not required.
+ */
+function showShippingFields() {
+    const shipping = customerFromForm().shipping;
 
-    if (label) {
-        label.textContent = SHIPPING[customerFromForm().shipping].place;
-    }
+    document.querySelectorAll('[data-cart-shipping-fields]').forEach((fieldset) => {
+        const isChosen = fieldset.dataset.cartShippingFields === shipping;
+
+        fieldset.hidden = !isChosen;
+        fieldset.disabled = !isChosen;
+    });
 }
 
 function initCustomerForm() {
@@ -171,16 +187,16 @@ function initCustomerForm() {
 
     const customer = readCustomer();
 
-    ['first_name', 'last_name', 'place', 'note'].forEach((name) => {
+    CUSTOMER_FIELDS.forEach((name) => {
         form.elements[name].value = typeof customer[name] === 'string' ? customer[name] : '';
     });
     form.querySelector(`[name="shipping"][value="${SHIPPING[customer.shipping] ? customer.shipping : 'lima'}"]`).checked = true;
-    updatePlaceLabel();
+    showShippingFields();
 
     form.addEventListener('input', (event) => {
         event.target.removeAttribute('aria-invalid');
         writeCustomer(customerFromForm());
-        updatePlaceLabel();
+        showShippingFields();
         render();
     });
     form.addEventListener('submit', (event) => event.preventDefault());

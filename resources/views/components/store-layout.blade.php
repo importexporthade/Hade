@@ -499,6 +499,11 @@
                         </div>
 
                         <div>
+                            <label for="cart-dni" class="form-label">DNI</label>
+                            <input id="cart-dni" name="dni" type="text" inputmode="numeric" maxlength="12" autocomplete="off" class="form-input" required>
+                        </div>
+
+                        <div>
                             <p class="form-label">Tipo de envío</p>
                             <div class="mt-1.5 grid grid-cols-2 gap-1 rounded-2xl bg-cream/80 p-1">
                                 <label class="flex cursor-pointer items-center justify-center rounded-xl px-3 py-2.5 text-center text-sm font-medium text-ink/60 transition has-checked:bg-white has-checked:text-burgundy has-checked:shadow-sm has-focus-visible:ring-2 has-focus-visible:ring-burgundy/30">
@@ -512,15 +517,30 @@
                             </div>
                         </div>
 
-                        <div>
-                            <label for="cart-place" class="form-label" data-cart-place-label>Distrito</label>
-                            <input id="cart-place" name="place" type="text" autocomplete="address-level3" class="form-input" required>
-                        </div>
+                        {{-- Only the fields of the chosen shipping show; cart.js disables the others so they are neither required nor sent --}}
+                        <fieldset class="space-y-4" data-cart-shipping-fields="lima">
+                            <div>
+                                <label for="cart-district" class="form-label">Distrito</label>
+                                <input id="cart-district" name="district" type="text" autocomplete="address-level3" class="form-input" required>
+                            </div>
 
-                        <div>
-                            <label for="cart-note" class="form-label">Nota <span class="font-normal text-ink/45">(opcional)</span></label>
-                            <input id="cart-note" name="note" type="text" class="form-input" placeholder="Ej.: es para regalo, dedicatoria…">
-                        </div>
+                            <div>
+                                <label for="cart-address" class="form-label">Dirección</label>
+                                <input id="cart-address" name="address" type="text" autocomplete="street-address" class="form-input" placeholder="Ej.: Av. Arequipa 1234, dpto. 502" required>
+                            </div>
+
+                            <div>
+                                <label for="cart-reference" class="form-label">Referencia</label>
+                                <input id="cart-reference" name="reference" type="text" class="form-input" placeholder="Ej.: frente al parque, puerta azul" required>
+                            </div>
+                        </fieldset>
+
+                        <fieldset class="space-y-4" data-cart-shipping-fields="provincia" hidden disabled>
+                            <div>
+                                <label for="cart-agency" class="form-label">Agencia</label>
+                                <input id="cart-agency" name="agency" type="text" class="form-input" placeholder="Ej.: Shalom, Av. Ejército 101, Arequipa" required>
+                            </div>
+                        </fieldset>
                     </form>
                 </div>
 
