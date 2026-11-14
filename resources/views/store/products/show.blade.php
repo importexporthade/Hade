@@ -124,7 +124,7 @@
 
                     <section class="mt-7 border-t border-ink/10 pt-6 sm:mt-8" aria-labelledby="despacho">
                         <div class="flex flex-wrap items-center justify-between gap-2">
-                            <h2 id="despacho" class="font-serif text-lg font-semibold">Opciones de despacho</h2>
+                            <h2 id="despacho" class="font-serif text-lg font-semibold">Envíos y delivery</h2>
                             @if ($shippingPage)
                                 <a href="{{ route('pages.show', $shippingPage) }}" class="text-xs font-semibold text-emerald underline decoration-emerald/30 underline-offset-4 transition hover:decoration-emerald">Ver detalles</a>
                             @endif

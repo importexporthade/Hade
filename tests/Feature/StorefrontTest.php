@@ -428,7 +428,7 @@ Llega en 24 a 48 horas.',
 
         $this->get('/product/kit')
             ->assertOk()
-            ->assertSeeInOrder(['Opciones de despacho', 'Envíos a capital', 'Delivery S/ 10.
+            ->assertSeeInOrder(['aria-labelledby="despacho"', 'Envíos y delivery', 'Envíos a capital', 'Delivery S/ 10.
 Llega en 24 a 48 horas.', 'Envíos a provincia', 'Por &lt;b&gt;Shalom&lt;/b&gt; desde S/ 15.'], false)
             ->assertDontSee('se confirman según tu');
     }
@@ -469,7 +469,7 @@ Llega en 24 a 48 horas.', 'Envíos a provincia', 'Por &lt;b&gt;Shalom&lt;/b&gt; 
 
         $this->get('/product/kit')
             ->assertOk()
-            ->assertDontSee('Opciones de despacho')
+            ->assertDontSee('aria-labelledby="despacho"', false)
             ->assertDontSee('Delivery S/ 10.');
     }
 
