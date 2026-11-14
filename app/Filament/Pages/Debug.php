@@ -15,12 +15,14 @@ use Filament\Schemas\Components\Grid;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
+use Illuminate\Support\Facades\Artisan;
 use Throwable;
 use UnitEnum;
 
 /**
  * Tools for trying things out on the live store: made-up catalog data that is deleted all at
- * once, and Laravel's caches rebuilt on demand, since Hostinger offers no terminal to run artisan.
+ * once, Laravel's caches rebuilt on demand, and the pending migrations applied, since Hostinger
+ * offers no terminal to run artisan.
  */
 class Debug extends Page
 {
@@ -77,7 +79,74 @@ class Debug extends Page
                         $this->rebuildRoutesAction(),
                         $this->rebuildConfigAction(),
                     ]),
+                Section::make('Base de datos')
+                    ->description('Un deploy trae los cambios de la base de datos pero no los aplica. Mientras haya alguno pendiente, guardar en el manager puede fallar.')
+                    ->columnSpanFull()
+                    ->schema([
+                        TextEntry::make('pendingMigrations')
+                            ->hiddenLabel()
+                            ->state(fn (): string => self::pendingMigrations() === []
+                                ? 'Está al día: no hay cambios pendientes.'
+                                : count(self::pendingMigrations()).' pendientes: '.implode(', ', self::pendingMigrations()))
+                            ->color(fn (): string => self::pendingMigrations() === [] ? 'success' : 'warning'),
+                    ])
+                    ->footer([
+                        $this->runMigrationsAction(),
+                    ]),
             ]);
+    }
+
+    /**
+     * The migrations in the deployed code that the database has not run yet.
+     *
+     * @return list<string>
+     */
+    public static function pendingMigrations(): array
+    {
+        $migrator = app('migrator');
+        $files = $migrator->getMigrationFiles([database_path('migrations'), ...$migrator->paths()]);
+        $ran = $migrator->repositoryExists() ? $migrator->getRepository()->getRan() : [];
+
+        return array_values(array_diff(array_keys($files), $ran));
+    }
+
+    /**
+     * Runs "migrate --force" in this same request, in place of the one-off hPanel cron.
+     */
+    public function runMigrationsAction(): Action
+    {
+        return Action::make('runMigrations')
+            ->label('Aplicar migraciones')
+            ->icon(Heroicon::OutlinedCircleStack)
+            ->requiresConfirmation()
+            ->modalHeading('¿Aplicar los cambios pendientes de la base de datos?')
+            ->modalDescription(fn (): string => 'Se aplicarán: '.implode(', ', self::pendingMigrations()).'. Tus productos y datos se conservan.')
+            ->modalSubmitActionLabel('Sí, aplicar')
+            ->disabled(fn (): bool => self::pendingMigrations() === [])
+            ->action(function (): void {
+                $pending = count(self::pendingMigrations());
+
+                try {
+                    Artisan::call('migrate', ['--force' => true]);
+                } catch (Throwable $exception) {
+                    report($exception);
+
+                    Notification::make()
+                        ->danger()
+                        ->title('No se pudieron aplicar')
+                        ->body($exception->getMessage())
+                        ->persistent()
+                        ->send();
+
+                    return;
+                }
+
+                Notification::make()
+                    ->success()
+                    ->title('Base de datos al día')
+                    ->body($pending === 1 ? 'Se aplicó 1 migración.' : "Se aplicaron {$pending} migraciones.")
+                    ->send();
+            });
     }
 
     public function createTestDataAction(): Action

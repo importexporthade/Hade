@@ -10,6 +10,9 @@ use App\Models\Product;
 use App\Models\User;
 use App\Support\AppCaches;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Artisan;
+use Illuminate\Support\Facades\File;
+use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\Storage;
 use Livewire\Livewire;
 use RuntimeException;
@@ -104,6 +107,26 @@ class DebugPageTest extends TestCase
             ->assertNotified('Rutas rehechas')
             ->callAction('rebuildConfig')
             ->assertNotified('Configuración y caché rehechas');
+    }
+
+    public function test_the_owner_applies_the_migrations_a_deploy_left_pending(): void
+    {
+        $latestMigration = pathinfo(collect(File::files(database_path('migrations')))->map->getFilename()->sort()->last(), PATHINFO_FILENAME);
+
+        Livewire::test(Debug::class)
+            ->assertSee('Está al día: no hay cambios pendientes.')
+            ->assertActionDisabled('runMigrations');
+
+        Artisan::call('migrate:rollback', ['--step' => 1]);
+
+        Livewire::test(Debug::class)
+            ->assertSee('1 pendientes: '.$latestMigration)
+            ->callAction('runMigrations')
+            ->assertNotified('Base de datos al día')
+            ->assertSee('Está al día: no hay cambios pendientes.');
+
+        $this->assertSame([], Debug::pendingMigrations());
+        $this->assertTrue(Schema::hasColumn('products', 'ships_to_capital'));
     }
 
     public function test_a_cache_that_cannot_be_rebuilt_says_why(): void
