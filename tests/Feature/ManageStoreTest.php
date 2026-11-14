@@ -33,22 +33,19 @@ class ManageStoreTest extends TestCase
         $this->assertSame('https://wa.me/51986000362?text=Hola%2C%20quiero%20comprar', $settings->whatsappUrl());
     }
 
-    public function test_the_owner_writes_the_shipping_to_lima_and_to_the_provinces(): void
+    public function test_the_owner_writes_the_shipping_and_delivery_in_one_text(): void
     {
         $this->actingAs(User::factory()->admin()->create());
 
         Livewire::test(ManageStore::class)
             ->fillForm([
                 'store_name' => 'Hade',
-                'shipping_capital' => 'Delivery S/ 10, llega en 24 a 48 horas.',
-                'shipping_province' => 'Por Shalom desde S/ 15.',
+                'shipping' => "Lima: delivery S/ 10, llega en 24 a 48 horas.\nProvincia: por Shalom desde S/ 15.",
             ])
             ->call('save')
             ->assertHasNoFormErrors();
 
-        $settings = StoreSetting::query()->sole();
-        $this->assertSame('Delivery S/ 10, llega en 24 a 48 horas.', $settings->shipping_capital);
-        $this->assertSame('Por Shalom desde S/ 15.', $settings->shipping_province);
+        $this->assertSame("Lima: delivery S/ 10, llega en 24 a 48 horas.\nProvincia: por Shalom desde S/ 15.", StoreSetting::query()->sole()->shipping);
     }
 
     public function test_the_form_opens_with_the_saved_details(): void

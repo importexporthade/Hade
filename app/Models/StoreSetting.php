@@ -9,7 +9,7 @@ use Illuminate\Database\Eloquent\Model;
 #[Fillable([
     'store_name', 'legal_name', 'ruc', 'legal_address', 'logo', 'header_image', 'announcement', 'whatsapp_number', 'whatsapp_message',
     'email', 'phone', 'facebook_url', 'instagram_url', 'tiktok_url', 'youtube_url', 'footer_text',
-    'shipping_capital', 'shipping_province',
+    'shipping',
 ])]
 class StoreSetting extends Model
 {

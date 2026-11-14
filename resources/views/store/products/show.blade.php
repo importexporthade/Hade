@@ -108,16 +108,14 @@
                 @endif
 
                 {{--
-                    Each destination shows when the product has its switch on, with the owner's text
-                    from "Datos de la tienda" or a general one until they write it.
+                    Shown while the product ships to Lima, to the provinces or both: where it arrives,
+                    then the owner's "Envíos y delivery" text from "Datos de la tienda", or a general one
+                    until they write it.
                 --}}
                 @php
-                    $shippingOptions = array_filter([
-                        $product->ships_to_capital ? ['title' => 'Envíos a capital', 'text' => filled($settings->shipping_capital) ? $settings->shipping_capital : 'Hacemos delivery en Lima. El costo y el plazo se confirman según tu distrito.', 'tone' => 'bg-sage-light text-emerald'] : null,
-                        $product->ships_to_province ? ['title' => 'Envíos a provincia', 'text' => filled($settings->shipping_province) ? $settings->shipping_province : 'Enviamos a todo el Perú. El costo y el plazo se confirman según tu ciudad.', 'tone' => 'bg-beige text-taupe'] : null,
-                    ]);
+                    $shippingDestinations = array_keys(array_filter(['Lima' => $product->ships_to_capital, 'provincia' => $product->ships_to_province]));
                 @endphp
-                @if ($shippingOptions !== [])
+                @if ($shippingDestinations !== [])
                     @php
                         $shippingPage = \App\Models\Page::query()->published()->where('slug', 'envios-y-delivery')->first();
                     @endphp
@@ -130,19 +128,15 @@
                             @endif
                         </div>
 
-                        <ul class="mt-3 divide-y divide-ink/10 border-t border-ink/10 sm:border-y">
-                            @foreach ($shippingOptions as $option)
-                                <li class="flex gap-3 py-4 sm:gap-4">
-                                    <span class="grid size-10 shrink-0 place-items-center rounded-full {{ $option['tone'] }} sm:size-11">
-                                        <x-store.icon name="truck" class="size-5" />
-                                    </span>
-                                    <div class="min-w-0">
-                                        <h3 class="text-sm font-semibold">{{ $option['title'] }}</h3>
-                                        <p class="mt-1 break-words text-xs leading-relaxed whitespace-pre-line text-ink/60 sm:text-sm">{{ $option['text'] }}</p>
-                                    </div>
-                                </li>
-                            @endforeach
-                        </ul>
+                        <div class="mt-3 flex gap-3 border-t border-ink/10 py-4 sm:gap-4 sm:border-y">
+                            <span class="grid size-10 shrink-0 place-items-center rounded-full bg-sage-light text-emerald sm:size-11">
+                                <x-store.icon name="truck" class="size-5" />
+                            </span>
+                            <div class="min-w-0">
+                                <h3 class="text-sm font-semibold">Llega a {{ implode(' y ', $shippingDestinations) }}</h3>
+                                <p class="mt-1 break-words text-xs leading-relaxed whitespace-pre-line text-ink/60 sm:text-sm">{{ filled($settings->shipping) ? $settings->shipping : 'Hacemos delivery en Lima y enviamos a todo el Perú. El costo y el plazo se confirman según tu ubicación.' }}</p>
+                            </div>
+                        </div>
                     </section>
                 @endif
             </div>

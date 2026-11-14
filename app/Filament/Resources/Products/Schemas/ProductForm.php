@@ -146,15 +146,15 @@ class ProductForm
                                 ->live(),
                         ]),
                     Section::make('Envíos y delivery')
-                        ->description('Dónde se puede enviar este producto. Cada uno muestra su texto de Datos de la tienda.')
+                        ->description('Dónde se puede enviar este producto. Con alguno prendido, su página muestra tu texto de «Envíos y delivery» de Datos de la tienda.')
                         ->schema([
                             Toggle::make('ships_to_capital')
                                 ->label('Lima')
-                                ->hintIcon(Heroicon::OutlinedQuestionMarkCircle, tooltip: 'Muestra en la página del producto tu texto de «Envíos a capital» de Datos de la tienda. Apágalo si este producto no se envía dentro de Lima.')
+                                ->hintIcon(Heroicon::OutlinedQuestionMarkCircle, tooltip: 'Prendido, la página del producto dice que llega a Lima. Apágalo si este producto no se envía dentro de Lima.')
                                 ->default(true),
                             Toggle::make('ships_to_province')
                                 ->label('Provincia')
-                                ->hintIcon(Heroicon::OutlinedQuestionMarkCircle, tooltip: 'Muestra en la página del producto tu texto de «Envíos a provincia» de Datos de la tienda. Apágalo si este producto no viaja fuera de Lima. Ej: algo frágil.')
+                                ->hintIcon(Heroicon::OutlinedQuestionMarkCircle, tooltip: 'Prendido, la página del producto dice que llega a provincia. Apágalo si este producto no viaja fuera de Lima. Ej: algo frágil.')
                                 ->default(true),
                         ]),
                 ])->columnSpan(['lg' => 1]),

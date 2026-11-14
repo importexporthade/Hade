@@ -419,52 +419,37 @@ class StorefrontTest extends TestCase
 
     public function test_a_product_page_shows_the_shipping_the_owner_wrote(): void
     {
-        StoreSetting::current()->update([
-            'shipping_capital' => 'Delivery S/ 10.
-Llega en 24 a 48 horas.',
-            'shipping_province' => 'Por <b>Shalom</b> desde S/ 15.',
-        ]);
+        StoreSetting::current()->update(['shipping' => 'Lima: delivery S/ 10.
+Provincia: por <b>Shalom</b> desde S/ 15.']);
         Product::factory()->create(['slug' => 'kit']);
 
         $this->get('/product/kit')
             ->assertOk()
-            ->assertSeeInOrder(['aria-labelledby="despacho"', 'Envíos y delivery', 'Envíos a capital', 'Delivery S/ 10.
-Llega en 24 a 48 horas.', 'Envíos a provincia', 'Por &lt;b&gt;Shalom&lt;/b&gt; desde S/ 15.'], false)
-            ->assertDontSee('se confirman según tu');
+            ->assertSeeInOrder(['aria-labelledby="despacho"', 'Envíos y delivery', 'Llega a Lima y provincia', 'Lima: delivery S/ 10.
+Provincia: por &lt;b&gt;Shalom&lt;/b&gt; desde S/ 15.'], false)
+            ->assertDontSee('se confirman según tu ubicación');
     }
 
-    public function test_a_destination_without_its_text_shows_a_general_one(): void
+    public function test_without_a_shipping_text_the_product_page_shows_a_general_one(): void
     {
-        StoreSetting::current()->update(['shipping_capital' => 'Delivery S/ 10.']);
         Product::factory()->create(['slug' => 'kit']);
 
         $this->get('/product/kit')
-            ->assertSeeInOrder(['Envíos a capital', 'Delivery S/ 10.', 'Envíos a provincia', 'Enviamos a todo el Perú.'])
-            ->assertDontSee('Hacemos delivery en Lima.');
+            ->assertSeeInOrder(['Envíos y delivery', 'Llega a Lima y provincia', 'Hacemos delivery en Lima y enviamos a todo el Perú.']);
     }
 
-    public function test_a_product_shows_only_the_destinations_it_ships_to(): void
+    public function test_a_product_says_which_destinations_it_ships_to(): void
     {
-        StoreSetting::current()->update(['shipping_capital' => 'Delivery S/ 10.', 'shipping_province' => 'Por Shalom desde S/ 15.']);
         Product::factory()->create(['slug' => 'solo-lima', 'ships_to_province' => false]);
         Product::factory()->create(['slug' => 'solo-provincia', 'ships_to_capital' => false]);
 
-        $this->get('/product/solo-lima')
-            ->assertSee('Envíos a capital')
-            ->assertSee('Delivery S/ 10.')
-            ->assertDontSee('Envíos a provincia')
-            ->assertDontSee('Por Shalom desde S/ 15.');
-
-        $this->get('/product/solo-provincia')
-            ->assertSee('Envíos a provincia')
-            ->assertSee('Por Shalom desde S/ 15.')
-            ->assertDontSee('Envíos a capital')
-            ->assertDontSee('Delivery S/ 10.');
+        $this->get('/product/solo-lima')->assertSee('Llega a Lima')->assertDontSee('Llega a Lima y provincia');
+        $this->get('/product/solo-provincia')->assertSee('Llega a provincia')->assertDontSee('Llega a Lima');
     }
 
     public function test_a_product_shipped_nowhere_leaves_the_section_out(): void
     {
-        StoreSetting::current()->update(['shipping_capital' => 'Delivery S/ 10.']);
+        StoreSetting::current()->update(['shipping' => 'Delivery S/ 10.']);
         Product::factory()->create(['slug' => 'kit', 'ships_to_capital' => false, 'ships_to_province' => false]);
 
         $this->get('/product/kit')
