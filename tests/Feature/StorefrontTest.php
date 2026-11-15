@@ -240,7 +240,8 @@ class StorefrontTest extends TestCase
             ->assertSee('data-carousel-interval="5000"', false)
             ->assertSee('data-carousel-merge-last-page', false)
             ->assertSee('data-carousel-pagination', false)
-            ->assertSee('aria-label="Ver todos los productos"', false)
+            ->assertSee('aria-label="Ver todas las ofertas"', false)
+            ->assertSee('href="'.route('products.index', ['collection' => 'offers']).'"', false)
             ->assertDontSee('data-carousel-progress', false);
     }
 
@@ -470,6 +471,45 @@ Provincia: por &lt;b&gt;Shalom&lt;/b&gt; desde S/ 15.'], false)
         $this->get('/product/kit')->assertSee('Ver detalles')->assertSee($detailsLink, false);
     }
 
+    public function test_suggestions_put_in_stock_products_of_the_same_category_first_then_others_then_out_of_stock(): void
+    {
+        $manicure = Category::factory()->create();
+        $product = Product::factory()->for($manicure)->create(['name' => 'Producto visto']);
+        Product::factory()->for($manicure)->create(['name' => 'Sugerencia Rosa']);
+        Product::factory()->for($manicure)->create(['name' => 'Sugerencia Lila']);
+        Product::factory()->for(Category::factory())->create(['name' => 'Sugerencia Lámpara']);
+        Product::factory()->for($manicure)->create(['name' => 'Sugerencia Agotada', 'is_in_stock' => false]);
+        Product::factory()->for($manicure)->hidden()->create(['name' => 'Sugerencia Oculta']);
+
+        $page = $this->get(route('products.show', $product))
+            ->assertOk()
+            ->assertSee('También te puede gustar')
+            ->assertDontSee('Sugerencia Oculta')
+            ->getContent();
+
+        $suggestions = substr($page, strpos($page, 'id="relacionados"'));
+        $positionOf = fn (string $name): int|false => strpos($suggestions, $name);
+
+        $this->assertNotFalse($positionOf('Sugerencia Agotada'));
+        $this->assertLessThan($positionOf('Sugerencia Lámpara'), max($positionOf('Sugerencia Rosa'), $positionOf('Sugerencia Lila')));
+        $this->assertLessThan($positionOf('Sugerencia Agotada'), $positionOf('Sugerencia Lámpara'));
+        $this->assertFalse($positionOf('Producto visto'));
+    }
+
+    public function test_suggestions_show_at_most_five_products(): void
+    {
+        $category = Category::factory()->create();
+        $product = Product::factory()->for($category)->create();
+        foreach (range(1, 7) as $position) {
+            Product::factory()->for($category)->create(['name' => "Sugerencia {$position}"]);
+        }
+
+        $page = $this->get(route('products.show', $product))->assertOk()->getContent();
+        $suggestions = substr($page, strpos($page, 'id="relacionados"'));
+
+        $this->assertSame(5, collect(range(1, 7))->filter(fn (int $position): bool => str_contains($suggestions, "Sugerencia {$position}<"))->count());
+    }
+
     public function test_a_product_out_of_stock_cannot_be_added_to_the_cart(): void
     {
         Product::factory()->create(['slug' => 'lampara-conectada', 'is_in_stock' => false]);
@@ -550,6 +590,20 @@ Provincia: por &lt;b&gt;Shalom&lt;/b&gt; desde S/ 15.'], false)
             ->assertDontSee('Diseño de siempre');
     }
 
+    public function test_the_offers_page_lists_only_visible_products_on_sale(): void
+    {
+        Product::factory()->onSale()->create(['name' => 'Kit rebajado']);
+        Product::factory()->onSale()->hidden()->create(['name' => 'Kit oculto']);
+        Product::factory()->create(['name' => 'Kit a precio normal']);
+
+        $this->get(route('products.index', ['collection' => 'offers']))
+            ->assertOk()
+            ->assertSee('Precios especiales')
+            ->assertSee('Kit rebajado')
+            ->assertDontSee('Kit oculto')
+            ->assertDontSee('Kit a precio normal');
+    }
+
     public function test_the_navigation_links_to_the_latest_products_page(): void
     {
         $latestProductsUrl = route('products.index', ['collection' => 'latest']);
@@ -626,6 +680,8 @@ Provincia: por &lt;b&gt;Shalom&lt;/b&gt; desde S/ 15.'], false)
             ->assertSeeInOrder(['name="first_name"', 'name="last_name"', 'name="dni"', 'name="shipping"'], false)
             ->assertSeeInOrder(['data-cart-shipping-fields="lima"', 'name="district"', 'name="address"', 'name="reference"'], false)
             ->assertSeeInOrder(['data-cart-shipping-fields="provincia" hidden disabled', 'name="agency"'], false)
+            ->assertSee('Los campos con <span class="text-sale">*</span> son obligatorios.', false)
+            ->assertSee('Dirección <span class="text-sale" aria-hidden="true">*</span>', false)
             ->assertDontSee('name="note"', false)
             ->assertDontSee('name="place"', false);
     }

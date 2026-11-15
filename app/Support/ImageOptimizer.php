@@ -16,6 +16,9 @@ class ImageOptimizer
 {
     public const int QUALITY = 82;
 
+    /** Longest side, in pixels, of the JPEG copy shared links show. */
+    public const int SHARE_SIZE = 1200;
+
     /**
      * Saves the image and its smaller copies, and returns the main copy's path, or null
      * when the contents are not an image GD can read or GD could not make the copies; the
@@ -82,8 +85,45 @@ class ImageOptimizer
     }
 
     /**
+     * Where the copy for shared links lives: "products/abc.webp" → "products/abc-share.jpg".
+     */
+    public static function sharePath(string $path): string
+    {
+        return preg_replace('/\.webp$/i', '-share.jpg', $path) ?? $path;
+    }
+
+    /**
+     * Disk path of a JPEG copy of the photo for WhatsApp, Facebook and Instagram, which do
+     * not reliably show WebP and drop pictures above about 300 KB. The copy is made the
+     * first time a page is shared, so photos saved before it existed get one too. Returns
+     * null when the photo is missing or cannot be read.
+     */
+    public static function shareCopy(string $path): ?string
+    {
+        $disk = Storage::disk('public');
+
+        if (! self::isOptimized($path)) {
+            $isSharable = in_array(strtolower(pathinfo($path, PATHINFO_EXTENSION)), ['jpg', 'jpeg', 'png', 'gif'], true);
+
+            return $isSharable && $disk->exists($path) ? $path : null;
+        }
+
+        $sharePath = self::sharePath($path);
+
+        if ($disk->exists($sharePath)) {
+            return $sharePath;
+        }
+
+        if (! $disk->exists($path) || ($image = self::decode($disk->get($path))) === null) {
+            return null;
+        }
+
+        return self::writeJpeg($image, $sharePath) ? $sharePath : null;
+    }
+
+    /**
      * Every file that may belong to a photo besides the photo itself: its copies of every
-     * width, and the "thumbs" copy older versions of the store made.
+     * width, the copy for shared links, and the "thumbs" copy older versions of the store made.
      *
      * @return list<string>
      */
@@ -98,6 +138,7 @@ class ImageOptimizer
 
         return [
             ...array_map(fn (int $width): string => self::variantPath($path, $width), ImageKind::allWidths()),
+            self::sharePath($path),
             $legacyThumbnail,
         ];
     }
@@ -231,6 +272,35 @@ class ImageOptimizer
         $webp = (string) ob_get_clean();
 
         return $encoded && $webp !== '' && Storage::disk('public')->put($path, $webp);
+    }
+
+    /**
+     * Saves a JPEG copy no longer than the share size on its longest side, with
+     * transparent areas turned white since JPEG has no transparency.
+     */
+    private static function writeJpeg(GdImage $image, string $path): bool
+    {
+        $scale = min(1, self::SHARE_SIZE / max(imagesx($image), imagesy($image)));
+        $width = max(1, (int) round(imagesx($image) * $scale));
+        $height = max(1, (int) round(imagesy($image) * $scale));
+
+        $canvas = imagecreatetruecolor($width, $height);
+
+        if ($canvas === false) {
+            return false;
+        }
+
+        imagefill($canvas, 0, 0, imagecolorallocate($canvas, 255, 255, 255));
+
+        if (! imagecopyresampled($canvas, $image, 0, 0, 0, 0, $width, $height, imagesx($image), imagesy($image))) {
+            return false;
+        }
+
+        ob_start();
+        $encoded = imagejpeg($canvas, null, self::QUALITY);
+        $jpeg = (string) ob_get_clean();
+
+        return $encoded && $jpeg !== '' && Storage::disk('public')->put($path, $jpeg);
     }
 
     /**

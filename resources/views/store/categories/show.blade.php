@@ -2,7 +2,7 @@
     use App\Enums\ImageKind;
 @endphp
 
-<x-store-layout :title="$category->name" :description="$category->description" :image="$category->imageUrl()">
+<x-store-layout :title="$category->name" :description="$category->description" :image="$category->image">
     <section class="bg-cream pt-5 sm:pt-7" aria-labelledby="category-title">
         <div class="store-container">
             <div class="relative isolate min-h-56 overflow-hidden rounded-[2rem] bg-blush shadow-[0_18px_45px_-32px_rgba(23,23,23,0.4)] sm:min-h-64">

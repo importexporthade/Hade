@@ -33,6 +33,11 @@
         <meta property="og:site_name" content="{{ $settings->store_name }}">
         <meta property="og:locale" content="es_PE">
         <meta property="og:image" content="{{ $shareImage() }}">
+        @if ($shareImageSize = $shareImageSize())
+            <meta property="og:image:width" content="{{ $shareImageSize['width'] }}">
+            <meta property="og:image:height" content="{{ $shareImageSize['height'] }}">
+        @endif
+        <meta property="og:image:alt" content="{{ $pageTitle() }}">
         <meta name="twitter:card" content="summary_large_image">
         @if ($price)
             <meta property="product:price:amount" content="{{ $price }}">
@@ -484,22 +489,22 @@
                     <form class="space-y-4 rounded-2xl border border-rose/30 bg-white p-4 sm:p-5" data-cart-customer data-cart-step="details" hidden novalidate>
                         <div>
                             <p class="text-[0.55rem] font-semibold tracking-[0.2em] text-burgundy/60 uppercase">Datos para tu envío</p>
-                            <p class="mt-1 text-xs leading-relaxed text-ink/60">Así preparamos tu pedido más rápido.</p>
+                            <p class="mt-1 text-xs leading-relaxed text-ink/60">Así preparamos tu pedido más rápido. Los campos con <span class="text-sale">*</span> son obligatorios.</p>
                         </div>
 
                         <div class="grid grid-cols-2 gap-3">
                             <div>
-                                <label for="cart-first-name" class="form-label">Nombre</label>
+                                <label for="cart-first-name" class="form-label">Nombre <span class="text-sale" aria-hidden="true">*</span></label>
                                 <input id="cart-first-name" name="first_name" type="text" autocomplete="given-name" class="form-input" required>
                             </div>
                             <div>
-                                <label for="cart-last-name" class="form-label">Apellido</label>
+                                <label for="cart-last-name" class="form-label">Apellido <span class="text-sale" aria-hidden="true">*</span></label>
                                 <input id="cart-last-name" name="last_name" type="text" autocomplete="family-name" class="form-input" required>
                             </div>
                         </div>
 
                         <div>
-                            <label for="cart-dni" class="form-label">DNI</label>
+                            <label for="cart-dni" class="form-label">DNI <span class="text-sale" aria-hidden="true">*</span></label>
                             <input id="cart-dni" name="dni" type="text" inputmode="numeric" maxlength="12" autocomplete="off" class="form-input" required>
                         </div>
 
@@ -520,24 +525,24 @@
                         {{-- Only the fields of the chosen shipping show; cart.js disables the others so they are neither required nor sent --}}
                         <fieldset class="space-y-4" data-cart-shipping-fields="lima">
                             <div>
-                                <label for="cart-district" class="form-label">Distrito</label>
+                                <label for="cart-district" class="form-label">Distrito <span class="text-sale" aria-hidden="true">*</span></label>
                                 <input id="cart-district" name="district" type="text" autocomplete="address-level3" class="form-input" required>
                             </div>
 
                             <div>
-                                <label for="cart-address" class="form-label">Dirección</label>
+                                <label for="cart-address" class="form-label">Dirección <span class="text-sale" aria-hidden="true">*</span></label>
                                 <input id="cart-address" name="address" type="text" autocomplete="street-address" class="form-input" placeholder="Ej.: Av. Arequipa 1234, dpto. 502" required>
                             </div>
 
                             <div>
-                                <label for="cart-reference" class="form-label">Referencia</label>
+                                <label for="cart-reference" class="form-label">Referencia <span class="text-sale" aria-hidden="true">*</span></label>
                                 <input id="cart-reference" name="reference" type="text" class="form-input" placeholder="Ej.: frente al parque, puerta azul" required>
                             </div>
                         </fieldset>
 
                         <fieldset class="space-y-4" data-cart-shipping-fields="provincia" hidden disabled>
                             <div>
-                                <label for="cart-agency" class="form-label">Agencia</label>
+                                <label for="cart-agency" class="form-label">Agencia <span class="text-sale" aria-hidden="true">*</span></label>
                                 <input id="cart-agency" name="agency" type="text" class="form-input" placeholder="Ej.: Shalom, Av. Ejército 101, Arequipa" required>
                             </div>
                         </fieldset>

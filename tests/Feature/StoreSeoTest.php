@@ -2,12 +2,16 @@
 
 namespace Tests\Feature;
 
+use App\Enums\ImageKind;
 use App\Enums\PageVisibility;
 use App\Models\Category;
 use App\Models\Page;
 use App\Models\Product;
 use App\Models\StoreSetting;
+use App\Support\ImageOptimizer;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Storage;
 use Tests\TestCase;
 
 class StoreSeoTest extends TestCase
@@ -29,7 +33,7 @@ class StoreSeoTest extends TestCase
             'slug' => 'kit-hade-recargada',
             'price' => 76.90,
             'description' => '<p>Incluye</p><ul><li>1 blister de stickers</li><li>Lámpara&nbsp;recargable</li></ul>',
-            'images' => ['products/kit.jpg'],
+            'images' => [],
         ]);
 
         $this->get(route('products.show', $product))
@@ -39,8 +43,25 @@ class StoreSeoTest extends TestCase
             ->assertSee('<meta property="og:url" content="'.route('products.show', $product).'">', false)
             ->assertSee('<meta property="product:price:amount" content="76.90">', false)
             ->assertSee('<meta property="product:price:currency" content="PEN">', false)
-            ->assertSee('<link rel="canonical" href="'.route('products.show', $product).'">', false)
-            ->assertSee('products/kit', false);
+            ->assertSee('<link rel="canonical" href="'.route('products.show', $product).'">', false);
+    }
+
+    public function test_a_shared_product_link_shows_a_light_jpeg_copy_of_its_photo(): void
+    {
+        Storage::fake('public');
+        $photo = ImageOptimizer::store(UploadedFile::fake()->image('kit.png', 1800, 1200)->get(), ImageKind::Product);
+        $product = Product::factory()->create(['images' => [$photo]]);
+        $sharePath = ImageOptimizer::sharePath($photo);
+
+        $this->get(route('products.show', $product))
+            ->assertOk()
+            ->assertSee('<meta property="og:image" content="'.url(Storage::disk('public')->url($sharePath)).'">', false);
+
+        Storage::disk('public')->assertExists($sharePath);
+        $this->assertSame([1200, 800, 'image/jpeg'], array_values(array_intersect_key(
+            getimagesizefromstring(Storage::disk('public')->get($sharePath)),
+            array_flip([0, 1, 'mime']),
+        )));
     }
 
     public function test_a_product_without_description_or_photo_still_shares_something_useful(): void
@@ -49,7 +70,9 @@ class StoreSeoTest extends TestCase
 
         $this->get(route('products.show', $product))
             ->assertSee('content="Lunares a S/ 35.00. Stickers de uñas en gel', false)
-            ->assertSee('<meta property="og:image" content="'.asset('images/hero-nail-stickers.jpg').'">', false)
+            ->assertSee('<meta property="og:image" content="'.asset('images/share.jpg').'">', false)
+            ->assertSee('<meta property="og:image:width" content="1200">', false)
+            ->assertSee('<meta property="og:image:height" content="630">', false)
             ->assertDontSee('product-placeholder.svg">', false);
     }
 

@@ -144,6 +144,29 @@ function checkoutUrl(cartItems) {
     return number ? `https://wa.me/${number}?text=${encodeURIComponent(orderMessage(cartItems, customerFromForm()))}` : null;
 }
 
+/** Marks an empty required field and says so right under it. */
+function showMissingMessage(input) {
+    const messageId = `${input.id}-error`;
+
+    input.setAttribute('aria-invalid', 'true');
+    input.setAttribute('aria-describedby', messageId);
+
+    if (!document.getElementById(messageId)) {
+        const message = document.createElement('p');
+
+        message.id = messageId;
+        message.className = 'form-error';
+        message.textContent = 'Completa este campo.';
+        input.after(message);
+    }
+}
+
+function clearMissingMessage(input) {
+    input.removeAttribute('aria-invalid');
+    input.removeAttribute('aria-describedby');
+    document.getElementById(`${input.id}-error`)?.remove();
+}
+
 /**
  * The checkout link is a plain link, so the details are checked when it is tapped: a
  * missing field keeps WhatsApp closed and points the customer at what is left to fill.
@@ -157,7 +180,7 @@ function customerIsComplete() {
 
     const missing = [...form.querySelectorAll('[required]')].filter((input) => !input.matches(':disabled') && input.value.trim() === '');
 
-    missing.forEach((input) => input.setAttribute('aria-invalid', 'true'));
+    missing.forEach(showMissingMessage);
     missing[0]?.focus();
 
     return missing.length === 0;
@@ -194,7 +217,9 @@ function initCustomerForm() {
     showShippingFields();
 
     form.addEventListener('input', (event) => {
-        event.target.removeAttribute('aria-invalid');
+        if (event.target.value.trim() !== '') {
+            clearMissingMessage(event.target);
+        }
         writeCustomer(customerFromForm());
         showShippingFields();
         render();

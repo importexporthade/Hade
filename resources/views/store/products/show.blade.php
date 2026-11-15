@@ -19,7 +19,7 @@
     ];
 @endphp
 
-<x-store-layout :title="$product->name" :description="$shareDescription" :image="$product->coverUrl()" :price="$product->price" :flush-footer="$related->isNotEmpty()">
+<x-store-layout :title="$product->name" :description="$shareDescription" :image="$product->coverPath()" :price="$product->price" :flush-footer="$related->isNotEmpty()">
     <div class="store-container min-w-0 pt-4 sm:pt-8">
         <nav class="flex min-w-0 items-center text-xs text-ink/60" aria-label="Ruta">
             <a href="{{ route('home') }}" class="shrink-0 hover:text-ink">Inicio</a>

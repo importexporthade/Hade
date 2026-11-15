@@ -5,6 +5,7 @@ namespace App\View\Components;
 use App\Models\Category;
 use App\Models\Page;
 use App\Models\StoreSetting;
+use App\Support\ImageOptimizer;
 use Illuminate\Contracts\View\View;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\Storage;
@@ -27,6 +28,7 @@ class StoreLayout extends Component
     public function __construct(
         public ?string $title = null,
         public ?string $description = null,
+        /** A photo on the public disk to show when the page is shared. */
         public ?string $image = null,
         public ?string $price = null,
         public bool $indexable = true,
@@ -53,17 +55,34 @@ class StoreLayout extends Component
         return filled($description) ? str($description)->squish()->limit(155)->toString() : null;
     }
 
+    /** The store picture shared links show when the page has no photo of its own. */
+    public const string DEFAULT_SHARE_IMAGE = 'images/share.jpg';
+
     /**
      * The picture WhatsApp, Facebook and Instagram show for a shared link, as a full address.
-     * They cannot show SVG, so the product placeholder gives way to the logo or the hero photo.
+     * The page's photo (a path on the public disk) goes out as a light JPEG copy, since
+     * those apps do not reliably show WebP and drop heavy pictures; without one, the logo or
+     * the store picture is shown.
      */
     public function shareImage(): string
     {
-        $image = $this->image && ! str_ends_with($this->image, '.svg')
-            ? $this->image
-            : ($this->publicUrl($this->settings->logo) ?? asset('images/hero-nail-stickers.jpg'));
+        $sharePath = collect([$this->image, $this->settings->logo])
+            ->filter()
+            ->map(fn (string $path): ?string => ImageOptimizer::shareCopy($path))
+            ->first(fn (?string $path): bool => $path !== null);
 
-        return url($image);
+        return url($sharePath ? Storage::disk('public')->url($sharePath) : asset(self::DEFAULT_SHARE_IMAGE));
+    }
+
+    /**
+     * Width and height of the shared picture when it is the store one, so the apps can draw
+     * the large preview the first time the link is shared, before downloading it.
+     *
+     * @return array{width: int, height: int}|null
+     */
+    public function shareImageSize(): ?array
+    {
+        return $this->shareImage() === url(asset(self::DEFAULT_SHARE_IMAGE)) ? ['width' => 1200, 'height' => 630] : null;
     }
 
     public function publicUrl(?string $path): ?string

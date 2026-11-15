@@ -137,9 +137,9 @@
                                     <x-store.product-card :product="$product" size="large" class="w-[80%] shrink-0 sm:w-[calc((100%-1.25rem)/2)] lg:w-[30%]" />
                                 @endforeach
                                 <a
-                                    href="{{ route('products.index') }}"
+                                    href="{{ route('products.index', ['collection' => 'offers']) }}"
                                     class="group flex w-[80%] shrink-0 flex-col items-center justify-center gap-4 px-6 text-center text-white focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-white sm:w-[calc((100%-1.25rem)/2)] lg:w-[30%]"
-                                    aria-label="Ver todos los productos"
+                                    aria-label="Ver todas las ofertas"
                                 >
                                     <span class="grid size-14 place-items-center rounded-full bg-white text-emerald shadow-lg transition-transform duration-300 group-hover:translate-x-1 motion-reduce:transition-none motion-reduce:group-hover:translate-x-0">
                                         <x-store.icon name="chevron-right" class="size-6" />
