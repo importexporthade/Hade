@@ -2,6 +2,7 @@
 
 namespace Database\Seeders;
 
+use App\Enums\PageFooterSection;
 use App\Enums\PageVisibility;
 use App\Models\Page;
 use App\Models\StoreSetting;
@@ -24,17 +25,18 @@ class InformationPagesSeeder extends Seeder
         $sortOrder = (int) Page::query()->max('sort_order');
 
         $pages = [
-            'preguntas-frecuentes' => ['Preguntas frecuentes', $this->frequentQuestions($contact), PageVisibility::MenuAndFooter],
-            'cambios-y-devoluciones' => ['Cambios y devoluciones', $this->exchangesAndReturns($contact), PageVisibility::Hidden],
-            'terminos-y-condiciones' => ['Términos y condiciones', $this->termsAndConditions($contact), PageVisibility::MenuAndFooter],
-            'politica-de-privacidad' => ['Política de privacidad', $this->privacyPolicy($contact), PageVisibility::MenuAndFooter],
+            'preguntas-frecuentes' => ['Preguntas frecuentes', $this->frequentQuestions($contact), PageVisibility::MenuAndFooter, PageFooterSection::Information],
+            'cambios-y-devoluciones' => ['Cambios y devoluciones', $this->exchangesAndReturns($contact), PageVisibility::Hidden, PageFooterSection::Legal],
+            'terminos-y-condiciones' => ['Términos y condiciones', $this->termsAndConditions($contact), PageVisibility::Footer, PageFooterSection::Legal],
+            'politica-de-privacidad' => ['Política de privacidad', $this->privacyPolicy($contact), PageVisibility::Footer, PageFooterSection::Legal],
         ];
 
-        foreach ($pages as $slug => [$title, $content, $visibility]) {
+        foreach ($pages as $slug => [$title, $content, $visibility, $footerSection]) {
             Page::query()->firstOrCreate(['slug' => $slug], [
                 'title' => $title,
                 'content' => $content,
                 'visibility' => $visibility,
+                'footer_section' => $footerSection,
                 'sort_order' => ++$sortOrder,
             ]);
         }

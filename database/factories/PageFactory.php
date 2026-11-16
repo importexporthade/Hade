@@ -2,6 +2,7 @@
 
 namespace Database\Factories;
 
+use App\Enums\PageFooterSection;
 use App\Enums\PageVisibility;
 use App\Models\Page;
 use Illuminate\Database\Eloquent\Factories\Factory;
@@ -26,6 +27,7 @@ class PageFactory extends Factory
             'slug' => Str::slug($title),
             'content' => '<p>'.fake()->paragraph().'</p>',
             'visibility' => PageVisibility::MenuAndFooter,
+            'footer_section' => PageFooterSection::Information,
             'sort_order' => 0,
         ];
     }

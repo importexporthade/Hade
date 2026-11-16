@@ -2,12 +2,15 @@
 
 namespace App\Filament\Resources\Pages\Schemas;
 
+use App\Enums\PageFooterSection;
 use App\Enums\PageVisibility;
 use App\Filament\Support\SlugInput;
 use Filament\Forms\Components\Radio;
 use Filament\Forms\Components\RichEditor;
+use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Schemas\Components\Section;
+use Filament\Schemas\Components\Utilities\Get;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 
@@ -23,7 +26,7 @@ class PageForm
                     ->schema([
                         TextInput::make('title')
                             ->label('Título')
-                            ->hintIcon(Heroicon::OutlinedQuestionMarkCircle, tooltip: 'Así se llamará la página en el menú Información. Ej: Envíos y delivery.')
+                            ->hintIcon(Heroicon::OutlinedQuestionMarkCircle, tooltip: 'Así se llamará la página en la tienda. Ej: Envíos y delivery.')
                             ->placeholder('Envíos y delivery')
                             ->required()
                             ->maxLength(255)
@@ -42,6 +45,18 @@ class PageForm
                             ->hintIcon(Heroicon::OutlinedQuestionMarkCircle, tooltip: 'Dónde aparece el enlace a esta página para que la encuentren. Ej: en el menú y al pie.')
                             ->options(PageVisibility::class)
                             ->default(PageVisibility::MenuAndFooter->value)
+                            ->live()
+                            ->required(),
+                        Select::make('footer_section')
+                            ->label('Sección del pie')
+                            ->options(PageFooterSection::class)
+                            ->default(PageFooterSection::Information->value)
+                            ->selectablePlaceholder(false)
+                            ->visible(function (Get $get): bool {
+                                $visibility = $get('visibility');
+
+                                return ($visibility instanceof PageVisibility ? $visibility : PageVisibility::tryFrom((string) $visibility))?->isInFooter() ?? false;
+                            })
                             ->required(),
                     ]),
             ]);

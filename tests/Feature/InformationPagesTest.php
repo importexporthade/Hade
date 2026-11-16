@@ -2,13 +2,17 @@
 
 namespace Tests\Feature;
 
+use App\Enums\PageFooterSection;
 use App\Enums\PageVisibility;
 use App\Models\Category;
 use App\Models\Page;
 use App\Models\Product;
 use App\Models\StoreSetting;
 use Database\Seeders\InformationPagesSeeder;
+use DOMDocument;
+use DOMXPath;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use PHPUnit\Framework\Attributes\DataProvider;
 use Tests\TestCase;
 
 class InformationPagesTest extends TestCase
@@ -54,7 +58,7 @@ class InformationPagesTest extends TestCase
         $this->seed(InformationPagesSeeder::class);
 
         $this->get('/information/cambios-y-devoluciones')->assertNotFound();
-        $this->get('/products')->assertSee('Contenido próximamente');
+        $this->get('/products')->assertDontSee('Cambios y devoluciones');
         $this->assertStringContainsString('Plantilla para completar', Page::query()->where('slug', 'cambios-y-devoluciones')->value('content'));
     }
 
@@ -141,7 +145,7 @@ class InformationPagesTest extends TestCase
 
     public function test_the_footer_links_the_legal_pages_once_they_exist(): void
     {
-        $this->get('/products')->assertSee('Contenido próximamente');
+        $this->get('/products')->assertDontSee('Política de privacidad');
 
         $this->seed(InformationPagesSeeder::class);
 
@@ -154,12 +158,83 @@ class InformationPagesTest extends TestCase
 
     public function test_pages_the_owner_already_edited_are_left_alone(): void
     {
-        Page::factory()->create(['slug' => 'politica-de-privacidad', 'title' => 'Privacidad', 'content' => '<p>Mi texto.</p>']);
+        $page = Page::factory()->create([
+            'slug' => 'politica-de-privacidad',
+            'title' => 'Privacidad',
+            'content' => '<p>Mi texto.</p>',
+            'visibility' => PageVisibility::Menu,
+            'footer_section' => PageFooterSection::Information,
+        ]);
 
         $this->seed(InformationPagesSeeder::class);
         $this->seed(InformationPagesSeeder::class);
 
         $this->assertSame('<p>Mi texto.</p>', Page::query()->where('slug', 'politica-de-privacidad')->value('content'));
+        $this->assertSame(PageVisibility::Menu, $page->fresh()->visibility);
+        $this->assertSame(PageFooterSection::Information, $page->fresh()->footer_section);
         $this->assertSame(4, Page::query()->count());
+    }
+
+    /**
+     * @return array<string, array{string, string, int, int, int}>
+     */
+    public static function pagePlacements(): array
+    {
+        return [
+            'hidden information' => ['hidden', 'information', 0, 0, 0],
+            'hidden legal' => ['hidden', 'legal', 0, 0, 0],
+            'menu information' => ['menu', 'information', 2, 0, 0],
+            'menu legal' => ['menu', 'legal', 2, 0, 0],
+            'menu and information footer' => ['menu_and_footer', 'information', 2, 1, 0],
+            'menu and legal footer' => ['menu_and_footer', 'legal', 2, 0, 1],
+            'information footer only' => ['footer', 'information', 0, 1, 0],
+            'legal footer only' => ['footer', 'legal', 0, 0, 1],
+        ];
+    }
+
+    #[DataProvider('pagePlacements')]
+    public function test_pages_follow_their_visibility_and_footer_section(string $visibility, string $section, int $menuLinks, int $informationLinks, int $legalLinks): void
+    {
+        $page = Page::factory()->create([
+            'title' => 'Mi página personalizada',
+            'visibility' => $visibility,
+            'footer_section' => $section,
+        ]);
+
+        $html = $this->get('/products')->assertOk()->getContent();
+
+        $document = new DOMDocument;
+        @$document->loadHTML('<?xml encoding="UTF-8">'.$html);
+        $xpath = new DOMXPath($document);
+        $link = 'a[@href="'.route('pages.show', $page).'"]';
+
+        $this->assertSame($menuLinks, $xpath->query('//header//'.$link)->length);
+        $this->assertSame($informationLinks, $xpath->query('//footer//div[h2[normalize-space()="Información"]]//'.$link)->length);
+        $this->assertSame($legalLinks, $xpath->query('//footer//div[h2[normalize-space()="Legal"]]//'.$link)->length);
+    }
+
+    public function test_a_legal_slug_uses_its_saved_title_and_can_be_moved_to_the_menu(): void
+    {
+        $page = Page::factory()->create([
+            'slug' => 'politica-de-privacidad',
+            'title' => 'Privacidad actualizada',
+            'visibility' => PageVisibility::Menu,
+            'footer_section' => PageFooterSection::Legal,
+        ]);
+
+        $html = $this->get('/products')->assertOk()->assertSee('Privacidad actualizada')->getContent();
+
+        $this->assertSame(2, substr_count($html, 'href="'.route('pages.show', $page).'"'));
+    }
+
+    public function test_a_footer_only_page_is_accessible_but_a_hidden_page_is_not(): void
+    {
+        $page = Page::factory()->create(['visibility' => PageVisibility::Footer]);
+
+        $this->get(route('pages.show', $page))->assertOk()->assertSee($page->title);
+
+        $page->update(['visibility' => PageVisibility::Hidden]);
+
+        $this->get(route('pages.show', $page))->assertNotFound();
     }
 }

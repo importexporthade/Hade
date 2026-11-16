@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enums\PageFooterSection;
 use App\Enums\PageVisibility;
 use Database\Factories\PageFactory;
 use Dom\Element;
@@ -12,7 +13,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-#[Fillable(['title', 'slug', 'content', 'visibility', 'sort_order'])]
+#[Fillable(['title', 'slug', 'content', 'visibility', 'footer_section', 'sort_order'])]
 class Page extends Model
 {
     /** @use HasFactory<PageFactory> */
@@ -25,6 +26,7 @@ class Page extends Model
      */
     protected $attributes = [
         'visibility' => 'menu_and_footer',
+        'footer_section' => 'information',
     ];
 
     /**
@@ -34,6 +36,7 @@ class Page extends Model
     {
         return [
             'visibility' => PageVisibility::class,
+            'footer_section' => PageFooterSection::class,
         ];
     }
 
@@ -44,7 +47,12 @@ class Page extends Model
 
     public function isInFooter(): bool
     {
-        return $this->visibility === PageVisibility::MenuAndFooter;
+        return $this->visibility->isInFooter();
+    }
+
+    public function isInMenu(): bool
+    {
+        return $this->visibility->isInMenu();
     }
 
     /**
@@ -71,7 +79,7 @@ class Page extends Model
     }
 
     /**
-     * Pages the store shows in its "Información" menu.
+     * Pages that customers can open, regardless of their navigation placement.
      *
      * @param  Builder<Page>  $query
      */

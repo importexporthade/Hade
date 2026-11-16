@@ -28,6 +28,9 @@ class PagesTable
                     ->label('Dónde se ve')
                     ->options(PageVisibility::class)
                     ->selectablePlaceholder(false),
+                TextColumn::make('footer_section')
+                    ->label('Sección del pie')
+                    ->formatStateUsing(fn (Page $record): string => $record->isInFooter() ? $record->footer_section->getLabel() : '—'),
                 TextColumn::make('updated_at')
                     ->label('Actualizada')
                     ->since(),

@@ -1,4 +1,6 @@
 @php
+    use App\Enums\PageFooterSection;
+
     $flushFooter = (bool) $attributes->get('flush-footer', false);
 @endphp
 
@@ -69,14 +71,10 @@
                 ];
                 $latestIsActive = request()->routeIs('products.index') && request('collection') === 'latest';
                 $storeIsActive = request()->routeIs('products.show', 'categories.*') || (request()->routeIs('products.index') && ! $latestIsActive);
-                $legalLinks = [
-                    ['label' => 'Política de privacidad', 'slug' => 'politica-de-privacidad'],
-                    ['label' => 'Términos y condiciones', 'slug' => 'terminos-y-condiciones'],
-                    ['label' => 'Cambios y devoluciones', 'slug' => 'cambios-y-devoluciones'],
-                ];
-                $legalPageSlugs = collect($legalLinks)->pluck('slug');
-                // Legal pages live only in the footer's "Legal" column, not in the "Información" menu
-                $menuPages = $pages->whereNotIn('slug', $legalPageSlugs);
+                $menuPages = $pages->filter->isInMenu();
+                $footerPages = $pages->filter->isInFooter();
+                $informationFooterPages = $footerPages->where('footer_section', PageFooterSection::Information);
+                $legalFooterPages = $footerPages->where('footer_section', PageFooterSection::Legal);
                 $informationIsActive = request()->routeIs('pages.*') && $menuPages->contains('slug', request()->route('page')?->slug);
             @endphp
 
@@ -354,12 +352,11 @@
                     </div>
                 @endif
 
-                @php($footerPages = $menuPages->filter->isInFooter())
-                @if ($footerPages->isNotEmpty())
+                @if ($informationFooterPages->isNotEmpty())
                     <div>
                         <h2 class="text-sm font-bold">Información</h2>
                         <ul class="mt-3 space-y-2 text-sm text-white/70">
-                            @foreach ($footerPages as $page)
+                            @foreach ($informationFooterPages as $page)
                                 <li><a href="{{ route('pages.show', $page) }}" class="hover:text-white">{{ $page->title }}</a></li>
                             @endforeach
                         </ul>
@@ -369,14 +366,9 @@
                 <div>
                     <h2 class="text-sm font-bold">Legal</h2>
                     <ul class="mt-3 space-y-2 text-sm text-white/70">
-                        @foreach ($legalLinks as $legalLink)
-                            @php($legalPage = $pages->firstWhere('slug', $legalLink['slug']))
+                        @foreach ($legalFooterPages as $page)
                             <li>
-                                @if ($legalPage)
-                                    <a href="{{ route('pages.show', $legalPage) }}" class="hover:text-white">{{ $legalLink['label'] }}</a>
-                                @else
-                                    <span class="cursor-not-allowed text-white/45" title="Contenido próximamente" aria-disabled="true">{{ $legalLink['label'] }}</span>
-                                @endif
+                                <a href="{{ route('pages.show', $page) }}" class="hover:text-white">{{ $page->title }}</a>
                             </li>
                         @endforeach
                         {{-- Stores in Peru must show the complaints book where customers can see it --}}
