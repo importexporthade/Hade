@@ -9,6 +9,7 @@ use App\Models\HomeSection;
 use App\Models\Product;
 use App\Models\User;
 use App\Support\AppCaches;
+use App\Support\TiendadaImport;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\File;
@@ -16,10 +17,12 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\Storage;
 use Livewire\Livewire;
 use RuntimeException;
+use Tests\Concerns\FakesTiendada;
 use Tests\TestCase;
 
 class DebugPageTest extends TestCase
 {
+    use FakesTiendada;
     use RefreshDatabase;
 
     protected function setUp(): void
@@ -36,6 +39,18 @@ class DebugPageTest extends TestCase
             ->assertOk()
             ->assertSee('Datos de prueba')
             ->assertSee('Cachés de Laravel');
+    }
+
+    public function test_the_owner_imports_the_tiendada_catalog_from_the_debug_page(): void
+    {
+        $this->fakeTiendada(TiendadaImport::STORE_URL);
+
+        Livewire::test(Debug::class)
+            ->callAction('importTiendada')
+            ->assertNotified('Importación terminada')
+            ->assertSet('tiendadaImport', null);
+
+        $this->assertSame(['kit-hade-recargada', 'lampara-conectada'], Product::query()->orderBy('slug')->pluck('slug')->all());
     }
 
     public function test_test_data_is_created_hidden_from_the_store_unless_asked(): void

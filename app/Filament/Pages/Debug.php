@@ -2,8 +2,10 @@
 
 namespace App\Filament\Pages;
 
+use App\Models\Product;
 use App\Support\AppCaches;
 use App\Support\TestCatalog;
+use App\Support\TiendadaImport;
 use BackedEnum;
 use Filament\Actions\Action;
 use Filament\Forms\Components\TextInput;
@@ -16,13 +18,14 @@ use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Illuminate\Support\Facades\Artisan;
+use Livewire\Attributes\Locked;
 use Throwable;
 use UnitEnum;
 
 /**
  * Tools for trying things out on the live store: made-up catalog data that is deleted all at
- * once, Laravel's caches rebuilt on demand, and the pending migrations applied, since Hostinger
- * offers no terminal to run artisan.
+ * once, Laravel's caches rebuilt on demand, the pending migrations applied and the catalog
+ * copied from Tiendada, since Hostinger offers no terminal to run artisan.
  */
 class Debug extends Page
 {
@@ -35,6 +38,19 @@ class Debug extends Page
     protected static ?string $title = 'Debug';
 
     protected static ?string $slug = 'debug';
+
+    /**
+     * Seconds of work per request of the Tiendada import, so the host never cuts one short.
+     */
+    private const int IMPORT_BATCH_SECONDS = 15;
+
+    /**
+     * Progress of the Tiendada import while its batches run; null when none is running.
+     *
+     * @var array{handled: list<string>, created: int, completed: int, images: int, problems: list<string>, remaining: int}|null
+     */
+    #[Locked]
+    public ?array $tiendadaImport = null;
 
     public function content(Schema $schema): Schema
     {
@@ -93,6 +109,20 @@ class Debug extends Page
                     ->footer([
                         $this->runMigrationsAction(),
                     ]),
+                Section::make('Productos de Tiendada')
+                    ->description('Copia de hade.tiendada.com los productos con sus fotos, descripciones y categorías, además del logo y la cabecera. Los productos que ya tienen fotos aquí no se tocan.')
+                    ->columnSpanFull()
+                    ->schema([
+                        TextEntry::make('tiendadaImportStatus')
+                            ->hiddenLabel()
+                            ->state(fn (): string => $this->tiendadaImport === null
+                                ? 'Ahora hay '.Product::query()->count().' productos en la tienda.'
+                                : 'Copiando… van '.count($this->tiendadaImport['handled']).' productos y faltan '.$this->tiendadaImport['remaining'].'. Deja esta pestaña abierta.')
+                            ->color(fn (): ?string => $this->tiendadaImport === null ? null : 'warning'),
+                    ])
+                    ->footer([
+                        $this->importTiendadaAction(),
+                    ]),
             ]);
     }
 
@@ -147,6 +177,81 @@ class Debug extends Page
                     ->body($pending === 1 ? 'Se aplicó 1 migración.' : "Se aplicaron {$pending} migraciones.")
                     ->send();
             });
+    }
+
+    public function importTiendadaAction(): Action
+    {
+        return Action::make('importTiendada')
+            ->label('Importar desde Tiendada')
+            ->icon(Heroicon::OutlinedArrowDownTray)
+            ->requiresConfirmation()
+            ->modalHeading('¿Copiar los productos de Tiendada?')
+            ->modalDescription('Se copian por tandas y puede tardar unos minutos: deja esta pestaña abierta hasta que avise que terminó. Si se corta, vuelve a presionar y sigue donde quedó.')
+            ->modalSubmitActionLabel('Sí, importar')
+            ->disabled(fn (): bool => $this->tiendadaImport !== null)
+            ->action(function (): void {
+                $this->tiendadaImport = ['handled' => [], 'created' => 0, 'completed' => 0, 'images' => 0, 'problems' => [], 'remaining' => 0];
+
+                $this->importNextTiendadaBatch();
+            });
+    }
+
+    /**
+     * Copies the next batch of products and asks the browser for the following one until none
+     * are left, since a single request for the whole catalog would outlast the host's limit.
+     */
+    public function importNextTiendadaBatch(): void
+    {
+        if ($this->tiendadaImport === null) {
+            return;
+        }
+
+        $import = TiendadaImport::fromHadeStore();
+
+        try {
+            $import->run($this->tiendadaImport['handled'], self::IMPORT_BATCH_SECONDS);
+        } catch (Throwable $exception) {
+            report($exception);
+            $this->tiendadaImport = null;
+
+            Notification::make()
+                ->danger()
+                ->title('No se pudo seguir importando')
+                ->body('Lo copiado hasta ahora se queda. Vuelve a presionar «Importar desde Tiendada» para seguir. ('.$exception->getMessage().')')
+                ->persistent()
+                ->send();
+
+            return;
+        }
+
+        $progress = [
+            'handled' => [...$this->tiendadaImport['handled'], ...$import->handledProducts],
+            'created' => $this->tiendadaImport['created'] + $import->createdProducts,
+            'completed' => $this->tiendadaImport['completed'] + $import->completedProducts,
+            'images' => $this->tiendadaImport['images'] + $import->downloadedImages,
+            'problems' => [...$this->tiendadaImport['problems'], ...$import->problems],
+            'remaining' => $import->remainingProducts,
+        ];
+
+        if ($import->remainingProducts > 0) {
+            $this->tiendadaImport = $progress;
+            $this->js('$wire.importNextTiendadaBatch()');
+
+            return;
+        }
+
+        $this->tiendadaImport = null;
+
+        $summary = "Productos nuevos: {$progress['created']}. Completados: {$progress['completed']}. Fotos copiadas: {$progress['images']}.";
+        $problems = $progress['problems'] === [] ? '' : ' Problemas: '.implode(' ', array_slice($progress['problems'], 0, 5))
+            .(count($progress['problems']) > 5 ? ' Y '.(count($progress['problems']) - 5).' más.' : '');
+
+        Notification::make()
+            ->status($progress['problems'] === [] ? 'success' : 'warning')
+            ->title('Importación terminada')
+            ->body($summary.$problems)
+            ->persistent()
+            ->send();
     }
 
     public function createTestDataAction(): Action
