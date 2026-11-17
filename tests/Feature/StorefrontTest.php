@@ -6,6 +6,7 @@ use App\Enums\HomeSectionType;
 use App\Enums\PageVisibility;
 use App\Models\Banner;
 use App\Models\Category;
+use App\Models\FrequentQuestion;
 use App\Models\HomeSection;
 use App\Models\Page;
 use App\Models\Product;
@@ -46,10 +47,7 @@ class StorefrontTest extends TestCase
             ]);
         }
 
-        Page::factory()->create([
-            'slug' => 'preguntas-frecuentes',
-            'content' => '<h2>¿Pregunta al final?</h2><p>Respuesta al final.</p>',
-        ]);
+        FrequentQuestion::factory()->create();
 
         $this->get('/')
             ->assertOk()

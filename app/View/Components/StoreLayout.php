@@ -3,6 +3,7 @@
 namespace App\View\Components;
 
 use App\Models\Category;
+use App\Models\FrequentQuestion;
 use App\Models\Page;
 use App\Models\StoreSetting;
 use App\Support\ImageOptimizer;
@@ -25,6 +26,9 @@ class StoreLayout extends Component
     /** @var Collection<int, Page> */
     public Collection $pages;
 
+    /** Whether the menu and footer link to "Preguntas frecuentes". */
+    public bool $showsFrequentQuestions;
+
     public function __construct(
         public ?string $title = null,
         public ?string $description = null,
@@ -36,6 +40,7 @@ class StoreLayout extends Component
         $this->settings = StoreSetting::current();
         $this->categories = Category::query()->visible()->orderBy('sort_order')->get();
         $this->pages = Page::query()->published()->orderBy('sort_order')->get();
+        $this->showsFrequentQuestions = FrequentQuestion::sectionIsShown();
     }
 
     public function pageTitle(): string

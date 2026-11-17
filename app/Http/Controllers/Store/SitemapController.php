@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Store;
 
 use App\Http\Controllers\Controller;
 use App\Models\Category;
+use App\Models\FrequentQuestion;
 use App\Models\Page;
 use App\Models\Product;
 use Illuminate\Http\Response;
@@ -28,6 +29,9 @@ class SitemapController extends Controller
             ...$products->map(fn (Product $product): array => ['loc' => route('products.show', $product), 'lastmod' => $product->updated_at]),
             ...Page::query()->published()->orderBy('sort_order')->get(['slug', 'updated_at'])
                 ->map(fn (Page $page): array => ['loc' => route('pages.show', $page), 'lastmod' => $page->updated_at]),
+            ...(FrequentQuestion::sectionIsShown()
+                ? [['loc' => route('frequent-questions'), 'lastmod' => FrequentQuestion::query()->active()->latest('updated_at')->first()?->updated_at]]
+                : []),
             ['loc' => route('complaints.create'), 'lastmod' => null],
         ];
 

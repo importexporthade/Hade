@@ -9,7 +9,7 @@ use Illuminate\Database\Eloquent\Model;
 #[Fillable([
     'store_name', 'legal_name', 'ruc', 'legal_address', 'logo', 'header_image', 'announcement', 'whatsapp_number', 'whatsapp_message',
     'email', 'phone', 'facebook_url', 'instagram_url', 'tiktok_url', 'youtube_url', 'footer_text',
-    'shipping',
+    'shipping', 'shows_frequent_questions',
 ])]
 class StoreSetting extends Model
 {
@@ -22,7 +22,18 @@ class StoreSetting extends Model
      */
     protected $attributes = [
         'store_name' => 'Hade',
+        'shows_frequent_questions' => true,
     ];
+
+    /**
+     * @return array<string, string>
+     */
+    protected function casts(): array
+    {
+        return [
+            'shows_frequent_questions' => 'boolean',
+        ];
+    }
 
     /**
      * The store keeps a single row of settings; it is created on first use.

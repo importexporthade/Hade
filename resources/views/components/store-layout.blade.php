@@ -75,7 +75,8 @@
                 $footerPages = $pages->filter->isInFooter();
                 $informationFooterPages = $footerPages->where('footer_section', PageFooterSection::Information);
                 $legalFooterPages = $footerPages->where('footer_section', PageFooterSection::Legal);
-                $informationIsActive = request()->routeIs('pages.*') && $menuPages->contains('slug', request()->route('page')?->slug);
+                $informationIsActive = request()->routeIs('frequent-questions') || (request()->routeIs('pages.*') && $menuPages->contains('slug', request()->route('page')?->slug));
+                $hasInformationMenu = $showsFrequentQuestions || $menuPages->isNotEmpty();
             @endphp
 
             <div class="store-container relative z-10 flex h-16 items-center justify-between lg:h-24 lg:justify-start lg:gap-5">
@@ -158,7 +159,7 @@
                                 'hover:bg-rose-light hover:text-burgundy' => ! (request()->routeIs('categories.show') && request()->route('category')?->is($kitsCategory)),
                             ])>Kits</a></li>
                         @endif
-                        @if ($menuPages->isNotEmpty())
+                        @if ($hasInformationMenu)
                             <li class="group static flex items-center self-stretch" data-nav-dropdown>
                                 <button type="button" @class([
                                     'flex items-center gap-1.5 rounded-full px-4 py-2.5 font-medium tracking-[0.01em] text-ink/70 transition-colors duration-200 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-burgundy',
@@ -180,6 +181,16 @@
                                         </div>
 
                                         <ul class="grid grid-cols-2 content-center gap-1 px-6 py-4 xl:grid-cols-3">
+                                            @if ($showsFrequentQuestions)
+                                                <li>
+                                                    <a href="{{ route('frequent-questions') }}" @class([
+                                                        'block rounded-xl px-4 py-3 text-sm text-ink/70 transition-colors duration-200 hover:bg-rose-light hover:text-burgundy focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-burgundy',
+                                                        'bg-rose font-semibold text-burgundy' => request()->routeIs('frequent-questions'),
+                                                    ])>
+                                                        Preguntas frecuentes
+                                                    </a>
+                                                </li>
+                                            @endif
                                             @foreach ($menuPages as $page)
                                                 <li>
                                                     <a href="{{ route('pages.show', $page) }}" @class([
@@ -287,7 +298,7 @@
                             </li>
                         @endif
 
-                        @if ($menuPages->isNotEmpty())
+                        @if ($hasInformationMenu)
                             <li data-mobile-submenu data-open="{{ $informationIsActive ? 'true' : 'false' }}">
                                 <button type="button" class="group flex w-full items-center justify-between rounded-xl px-3 py-3 text-left font-medium transition hover:bg-rose-light focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-burgundy" aria-controls="menu-movil-informacion" aria-expanded="{{ $informationIsActive ? 'true' : 'false' }}" data-submenu-trigger>
                                     <span @class(['text-burgundy' => $informationIsActive])>Información</span>
@@ -298,6 +309,20 @@
                                 <div id="menu-movil-informacion" class="grid grid-rows-[0fr] transition-[grid-template-rows] duration-200 ease-out data-[open=true]:grid-rows-[1fr] motion-reduce:transition-none" aria-hidden="{{ $informationIsActive ? 'false' : 'true' }}" data-submenu-panel data-open="{{ $informationIsActive ? 'true' : 'false' }}" @if (! $informationIsActive) inert @endif>
                                     <div class="overflow-hidden">
                                         <ul class="mx-3 mb-2 border-l border-rose/40 pl-3">
+                                            @if ($showsFrequentQuestions)
+                                                <li>
+                                                    <a href="{{ route('frequent-questions') }}" @class([
+                                                        'flex items-center gap-2.5 rounded-lg px-3 py-2.5 text-sm text-ink/65 transition-colors hover:bg-rose-light hover:text-burgundy',
+                                                        'font-semibold text-burgundy' => request()->routeIs('frequent-questions'),
+                                                    ])>
+                                                        <span @class([
+                                                            'size-1.5 shrink-0 rounded-full bg-rose-dark',
+                                                            'invisible' => ! request()->routeIs('frequent-questions'),
+                                                        ]) aria-hidden="true"></span>
+                                                        <span>Preguntas frecuentes</span>
+                                                    </a>
+                                                </li>
+                                            @endif
                                             @foreach ($menuPages as $page)
                                                 <li>
                                                     <a href="{{ route('pages.show', $page) }}" @class([
@@ -352,10 +377,13 @@
                     </div>
                 @endif
 
-                @if ($informationFooterPages->isNotEmpty())
+                @if ($showsFrequentQuestions || $informationFooterPages->isNotEmpty())
                     <div>
                         <h2 class="text-sm font-bold">Información</h2>
                         <ul class="mt-3 space-y-2 text-sm text-white/70">
+                            @if ($showsFrequentQuestions)
+                                <li><a href="{{ route('frequent-questions') }}" class="hover:text-white">Preguntas frecuentes</a></li>
+                            @endif
                             @foreach ($informationFooterPages as $page)
                                 <li><a href="{{ route('pages.show', $page) }}" class="hover:text-white">{{ $page->title }}</a></li>
                             @endforeach

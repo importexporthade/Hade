@@ -5,6 +5,7 @@ namespace Tests\Feature;
 use App\Enums\PageFooterSection;
 use App\Enums\PageVisibility;
 use App\Models\Category;
+use App\Models\FrequentQuestion;
 use App\Models\Page;
 use App\Models\Product;
 use App\Models\StoreSetting;
@@ -39,7 +40,7 @@ class InformationPagesTest extends TestCase
             ->assertSee('51 988940359')
             ->assertSee('import.export.hade@gmail.com');
         $this->get('/information/terminos-y-condiciones')->assertOk()->assertSee('Uso de la página web');
-        $this->get('/information/preguntas-frecuentes')->assertOk()->assertSee('¿Cómo hago un pedido?');
+        $this->get(route('frequent-questions'))->assertOk()->assertSee('¿Cómo hago un pedido?');
     }
 
     public function test_the_privacy_policy_explains_the_cookies_the_store_sets(): void
@@ -69,45 +70,9 @@ class InformationPagesTest extends TestCase
         $html = $this->get('/products')->assertOk()->getContent();
 
         // Help pages appear in the desktop menu, the mobile menu and the footer; legal pages only in the footer
-        $this->assertSame(3, substr_count($html, 'href="'.route('pages.show', 'preguntas-frecuentes').'"'));
+        $this->assertSame(3, substr_count($html, 'href="'.route('frequent-questions').'"'));
         $this->assertSame(1, substr_count($html, 'href="'.route('pages.show', 'politica-de-privacidad').'"'));
         $this->assertSame(1, substr_count($html, 'href="'.route('pages.show', 'terminos-y-condiciones').'"'));
-    }
-
-    public function test_the_home_page_answers_the_first_frequent_questions_from_their_page(): void
-    {
-        StoreSetting::current()->update(['whatsapp_number' => '51 988940359']);
-        $this->seed(InformationPagesSeeder::class);
-
-        $response = $this->get('/')->assertOk();
-
-        $response->assertSeeInOrder(['Resolvemos tus dudas', '¿Cómo hago un pedido?', '¿Cómo pago?', '¿Cómo los retiro sin dañar mis uñas?'])
-            ->assertSee('Elige tus productos, agrégalos al carrito')
-            ->assertDontSee('¿Necesito una lámpara?')
-            ->assertSee('href="'.route('pages.show', 'preguntas-frecuentes').'"', false)
-            ->assertSee('https://wa.me/51988940359', false)
-            ->assertSee('"@type":"FAQPage"', false);
-    }
-
-    public function test_the_home_page_follows_the_questions_the_owner_edits(): void
-    {
-        Page::factory()->create([
-            'slug' => 'preguntas-frecuentes',
-            'content' => '<p>Intro.</p><h2>¿Venden al por mayor?</h2><p>Sí, desde 12 unidades.</p><script>alert(1)</script>',
-        ]);
-
-        $this->get('/')
-            ->assertSee('¿Venden al por mayor?')
-            ->assertSee('Sí, desde 12 unidades.')
-            ->assertDontSee('Intro.')
-            ->assertDontSee('<script>alert(1)</script>', false);
-    }
-
-    public function test_the_home_page_has_no_questions_section_without_a_published_questions_page(): void
-    {
-        Page::factory()->create(['slug' => 'preguntas-frecuentes', 'visibility' => PageVisibility::Hidden, 'content' => '<h2>¿Oculta?</h2><p>Sí.</p>']);
-
-        $this->get('/')->assertOk()->assertDontSee('Resolvemos tus dudas')->assertDontSee('¿Oculta?');
     }
 
     public function test_the_footer_shows_who_sells(): void
@@ -152,7 +117,7 @@ class InformationPagesTest extends TestCase
         $this->get('/products')
             ->assertSee(route('pages.show', 'politica-de-privacidad'), false)
             ->assertSee(route('pages.show', 'terminos-y-condiciones'), false)
-            ->assertSee(route('pages.show', 'preguntas-frecuentes'), false)
+            ->assertSee(route('frequent-questions'), false)
             ->assertDontSee(route('pages.show', 'cambios-y-devoluciones'), false);
     }
 
@@ -172,7 +137,8 @@ class InformationPagesTest extends TestCase
         $this->assertSame('<p>Mi texto.</p>', Page::query()->where('slug', 'politica-de-privacidad')->value('content'));
         $this->assertSame(PageVisibility::Menu, $page->fresh()->visibility);
         $this->assertSame(PageFooterSection::Information, $page->fresh()->footer_section);
-        $this->assertSame(4, Page::query()->count());
+        $this->assertSame(3, Page::query()->count());
+        $this->assertSame(9, FrequentQuestion::query()->count());
     }
 
     /**

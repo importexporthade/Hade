@@ -229,8 +229,8 @@
         <x-store.home-mood-showcase />
     @endif
 
-    {{-- The first questions of the "Preguntas frecuentes" page, so the owner edits them in one place --}}
-    @if ($questions !== [])
+    {{-- The first active questions from "Preguntas frecuentes" in the manager --}}
+    @if ($questions->isNotEmpty())
         <section class="bg-blush pt-16 pb-14 sm:pt-18 lg:pt-20 lg:pb-18" aria-labelledby="preguntas-frecuentes-title">
             <div class="store-container grid gap-8 lg:grid-cols-[minmax(0,5fr)_minmax(0,7fr)] lg:grid-rows-[auto_1fr] lg:gap-x-16">
                 <div class="lg:col-start-1 lg:row-start-1">
@@ -240,7 +240,7 @@
                 </div>
 
                 <div class="flex flex-wrap gap-3 lg:col-start-1 lg:row-start-2 lg:self-start">
-                    <a href="{{ route('pages.show', $questionsPage) }}" class="btn-outline">Ver todas las preguntas</a>
+                    <a href="{{ route('frequent-questions') }}" class="btn-outline">Ver todas las preguntas</a>
                     @if ($whatsappUrl)
                         <a href="{{ $whatsappUrl }}" target="_blank" rel="noopener" class="btn-whatsapp rounded-full">
                             <x-store.icon name="whatsapp" class="size-5" />
@@ -249,36 +249,8 @@
                     @endif
                 </div>
 
-                <div class="divide-y divide-rose/40 rounded-3xl border border-rose/40 bg-white px-5 shadow-[0_18px_40px_-30px_rgba(43,32,34,0.35)] sm:px-7 lg:col-start-2 lg:row-span-2 lg:row-start-1 lg:self-start" data-faq-accordion>
-                    @foreach ($questions as $question)
-                        <details class="group" name="preguntas-frecuentes" data-faq-item>
-                            <summary class="group/trigger flex cursor-pointer list-none items-center justify-between gap-4 py-4 text-left text-[0.95rem] font-semibold text-ink transition-colors hover:text-burgundy focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-burgundy group-open:text-burgundy sm:py-5 [&::-webkit-details-marker]:hidden" data-faq-trigger>
-                                {{ $question['question'] }}
-                                <span class="grid size-8 shrink-0 place-items-center rounded-full bg-rose-light text-burgundy transition-transform duration-400 ease-[cubic-bezier(0.22,1,0.36,1)] group-aria-expanded/trigger:rotate-45 motion-reduce:transition-none" aria-hidden="true">
-                                    <x-store.icon name="plus" class="size-4" />
-                                </span>
-                            </summary>
-                            <div data-faq-panel>
-                                <div class="rich-text pb-5">
-                                    {!! $question['answer'] !!}
-                                </div>
-                            </div>
-                        </details>
-                    @endforeach
-                </div>
+                <x-store.faq-accordion :questions="$questions" class="lg:col-start-2 lg:row-span-2 lg:row-start-1 lg:self-start" />
             </div>
-
-            <script type="application/ld+json">
-                {!! json_encode([
-                    '@context' => 'https://schema.org',
-                    '@type' => 'FAQPage',
-                    'mainEntity' => array_map(fn (array $question): array => [
-                        '@type' => 'Question',
-                        'name' => $question['question'],
-                        'acceptedAnswer' => ['@type' => 'Answer', 'text' => str(strip_tags(str_replace('<', ' <', $question['answer'])))->squish()->toString()],
-                    ], $questions),
-                ], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_HEX_TAG) !!}
-            </script>
         </section>
     @endif
 

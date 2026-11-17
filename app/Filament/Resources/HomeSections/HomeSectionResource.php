@@ -4,11 +4,11 @@ namespace App\Filament\Resources\HomeSections;
 
 use App\Enums\HomeSectionType;
 use App\Filament\Resources\HomeSections\Pages\ManageHomeSections;
+use App\Filament\Support\SortableCards;
 use App\Models\Category;
 use App\Models\HomeSection;
 use App\Models\Product;
 use BackedEnum;
-use Filament\Actions\Action;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\EditAction;
 use Filament\Forms\Components\Select;
@@ -42,31 +42,6 @@ class HomeSectionResource extends Resource
     protected static ?string $pluralModelLabel = 'secciones de portada';
 
     protected static ?string $recordTitleAttribute = 'title';
-
-    /**
-     * On a phone the whole card is a drag handle, so a finger only picks a section up after
-     * holding it for a moment; until then the list scrolls as usual.
-     */
-    private const string HOLD_TO_DRAG = <<<'JS'
-        const list = $event.target.closest('[x-sortable]');
-
-        if (list?.sortable) {
-            list.sortable.option('delay', 300);
-            list.sortable.option('delayOnTouchOnly', true);
-        }
-        JS;
-
-    /**
-     * A plain click on a section opens its edit window. Its own switch and buttons keep doing
-     * their job, and a drag never ends in a click.
-     */
-    private const string CLICK_TO_EDIT = <<<'JS'
-        const row = $event.target.closest('[x-sortable-item]');
-
-        if (row && ! $event.target.closest('button, a, input, label, select, textarea, [role=switch]')) {
-            $wire.mountTableAction('edit', row.getAttribute('x-sortable-item'));
-        }
-        JS;
 
     public static function form(Schema $schema): Schema
     {
@@ -112,19 +87,9 @@ class HomeSectionResource extends Resource
 
     public static function table(Table $table): Table
     {
-        return $table
+        return SortableCards::configure($table)
             ->modifyQueryUsing(fn (Builder $query): Builder => $query->with('category'))
-            ->defaultSort('sort_order')
-            ->reorderable('sort_order')
-            // The table always stays in reorder mode, so the button that leaves it is hidden.
-            // Filament prints it even when hidden(), hence the theme class.
-            ->reorderRecordsTriggerAction(fn (Action $action): Action => $action->extraAttributes(['class' => 'hade-always-reordering'], merge: true))
             ->description('Este es el orden en que se ven en la portada. Toca una sección para editarla, o mantenla presionada y arrástrala para cambiarla de lugar.')
-            ->extraAttributes([
-                'class' => 'hade-click-to-edit',
-                'x-on:pointerdown.capture' => self::HOLD_TO_DRAG,
-                'x-on:click' => self::CLICK_TO_EDIT,
-            ], merge: true)
             ->columns([
                 TextColumn::make('title')
                     ->label('Título')

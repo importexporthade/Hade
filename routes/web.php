@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Store\CategoryController;
 use App\Http\Controllers\Store\ComplaintController;
+use App\Http\Controllers\Store\FrequentQuestionController;
 use App\Http\Controllers\Store\HomeController;
 use App\Http\Controllers\Store\MetricsController;
 use App\Http\Controllers\Store\PageController;
@@ -27,6 +28,9 @@ Route::middleware(IdentifyVisitor::class)->group(function (): void {
     Route::get('/information/complaints/{complaint}/constancia', [ComplaintController::class, 'receipt'])
         ->middleware('signed')
         ->name('complaints.receipt');
+    Route::get('/preguntas-frecuentes', FrequentQuestionController::class)->name('frequent-questions');
+    // The questions used to live in an informational page; links already shared keep working
+    Route::permanentRedirect('/information/preguntas-frecuentes', '/preguntas-frecuentes');
     Route::get('/information/{page:slug}', [PageController::class, 'show'])->name('pages.show');
 
     Route::middleware('throttle:120,1')->group(function (): void {

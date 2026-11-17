@@ -4,6 +4,7 @@ namespace Database\Seeders;
 
 use App\Enums\PageFooterSection;
 use App\Enums\PageVisibility;
+use App\Models\FrequentQuestion;
 use App\Models\Page;
 use App\Models\StoreSetting;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
@@ -11,7 +12,7 @@ use Illuminate\Database\Seeder;
 
 /**
  * Starter texts for the pages every store in Peru should publish: privacy (Ley N° 29733),
- * terms of use and sale, a template for exchanges and returns, and frequent questions.
+ * terms of use and sale and a template for exchanges and returns, plus starter frequent questions.
  * They are a starting point the owner reviews and edits in the manager, so pages that
  * already exist are never overwritten. In production run `php artisan db:seed --class=InformationPagesSeeder --force`.
  */
@@ -25,7 +26,6 @@ class InformationPagesSeeder extends Seeder
         $sortOrder = (int) Page::query()->max('sort_order');
 
         $pages = [
-            'preguntas-frecuentes' => ['Preguntas frecuentes', $this->frequentQuestions($contact), PageVisibility::MenuAndFooter, PageFooterSection::Information],
             'cambios-y-devoluciones' => ['Cambios y devoluciones', $this->exchangesAndReturns($contact), PageVisibility::Hidden, PageFooterSection::Legal],
             'terminos-y-condiciones' => ['Términos y condiciones', $this->termsAndConditions($contact), PageVisibility::Footer, PageFooterSection::Legal],
             'politica-de-privacidad' => ['Política de privacidad', $this->privacyPolicy($contact), PageVisibility::Footer, PageFooterSection::Legal],
@@ -39,6 +39,13 @@ class InformationPagesSeeder extends Seeder
                 'footer_section' => $footerSection,
                 'sort_order' => ++$sortOrder,
             ]);
+        }
+
+        // Starter questions only on a store that has none yet, so the owner's are never touched
+        if (! FrequentQuestion::query()->exists()) {
+            foreach ($this->frequentQuestions($contact) as $position => [$question, $answer]) {
+                FrequentQuestion::query()->create(['question' => $question, 'answer' => $answer, 'sort_order' => $position + 1]);
+            }
         }
     }
 
@@ -55,40 +62,22 @@ class InformationPagesSeeder extends Seeder
         return $channels === [] ? 'por los medios de contacto que figuran al pie de la página' : implode(' o ', $channels);
     }
 
-    private function frequentQuestions(string $contact): string
+    /**
+     * @return list<array{0: string, 1: string}>
+     */
+    private function frequentQuestions(string $contact): array
     {
-        return <<<HTML
-            <h2>¿Cómo hago un pedido?</h2>
-            <p>Elige tus productos, agrégalos al carrito y envía tu pedido por WhatsApp. Se abrirá un chat con tu pedido ya escrito; te respondemos para confirmar el stock, el total, la dirección de entrega y el pago.</p>
-
-            <h2>¿Cómo pago?</h2>
-            <p>Al confirmar tu pedido por WhatsApp te indicamos los medios de pago disponibles. Preparamos el envío cuando el pago está confirmado.</p>
-
-            <h2>¿Hacen envíos a todo el Perú?</h2>
-            <p>Sí, enviamos a todo el país. Al confirmar tu pedido te indicamos el plazo estimado de entrega según tu ciudad.</p>
-
-            <h2>¿Cómo se aplican los stickers de uñas?</h2>
-            <ol>
-                <li>Limpia y seca bien tus uñas, sin restos de esmalte ni aceite.</li>
-                <li>Elige el sticker del tamaño de cada uña, retíralo y pégalo presionando desde el centro hacia los bordes.</li>
-                <li>Lima el sobrante hacia abajo y sella con la lámpara durante el tiempo que indica el empaque.</li>
-            </ol>
-
-            <h2>¿Cuánto duran?</h2>
-            <p>Con una buena aplicación duran entre 10 y 14 días. Evita el agua caliente y los productos de limpieza sin guantes durante las primeras horas.</p>
-
-            <h2>¿Cómo los retiro sin dañar mis uñas?</h2>
-            <p>Levanta el borde con un palito de naranjo y retíralo con suavidad. Si cuesta, aplica un poco de aceite de cutícula en el borde y espera unos minutos.</p>
-
-            <h2>¿Necesito una lámpara?</h2>
-            <p>Sí, los stickers de gel se sellan con una lámpara UV/LED. Si no tienes una, puedes llevar uno de nuestros kits, que ya la incluyen.</p>
-
-            <h2>¿Puedo cambiar un producto?</h2>
-            <p>Escríbenos {$contact} y te contamos las condiciones para tu caso. También puedes revisar nuestra política de Cambios y devoluciones en la sección Legal, al pie de esta página.</p>
-
-            <h2>¿Tienes otra pregunta?</h2>
-            <p>Escríbenos {$contact}.</p>
-            HTML;
+        return [
+            ['¿Cómo hago un pedido?', '<p>Elige tus productos, agrégalos al carrito y envía tu pedido por WhatsApp. Se abrirá un chat con tu pedido ya escrito; te respondemos para confirmar el stock, el total, la dirección de entrega y el pago.</p>'],
+            ['¿Cómo pago?', '<p>Al confirmar tu pedido por WhatsApp te indicamos los medios de pago disponibles. Preparamos el envío cuando el pago está confirmado.</p>'],
+            ['¿Hacen envíos a todo el Perú?', '<p>Sí, enviamos a todo el país. Al confirmar tu pedido te indicamos el plazo estimado de entrega según tu ciudad.</p>'],
+            ['¿Cómo se aplican los stickers de uñas?', '<ol><li>Limpia y seca bien tus uñas, sin restos de esmalte ni aceite.</li><li>Elige el sticker del tamaño de cada uña, retíralo y pégalo presionando desde el centro hacia los bordes.</li><li>Lima el sobrante hacia abajo y sella con la lámpara durante el tiempo que indica el empaque.</li></ol>'],
+            ['¿Cuánto duran?', '<p>Con una buena aplicación duran entre 10 y 14 días. Evita el agua caliente y los productos de limpieza sin guantes durante las primeras horas.</p>'],
+            ['¿Cómo los retiro sin dañar mis uñas?', '<p>Levanta el borde con un palito de naranjo y retíralo con suavidad. Si cuesta, aplica un poco de aceite de cutícula en el borde y espera unos minutos.</p>'],
+            ['¿Necesito una lámpara?', '<p>Sí, los stickers de gel se sellan con una lámpara UV/LED. Si no tienes una, puedes llevar uno de nuestros kits, que ya la incluyen.</p>'],
+            ['¿Puedo cambiar un producto?', "<p>Escríbenos {$contact} y te contamos las condiciones para tu caso. También puedes revisar nuestra política de Cambios y devoluciones en la sección Legal, al pie de esta página.</p>"],
+            ['¿Tienes otra pregunta?', "<p>Escríbenos {$contact}.</p>"],
+        ];
     }
 
     /**
@@ -167,7 +156,7 @@ class InformationPagesSeeder extends Seeder
 
             <h2>7. Uso seguro de los productos</h2>
             <ul>
-                <li>Sigue las indicaciones del empaque y de nuestras <a href="/information/preguntas-frecuentes">Preguntas frecuentes</a> para aplicar y retirar los stickers.</li>
+                <li>Sigue las indicaciones del empaque y de nuestras <a href="/preguntas-frecuentes">Preguntas frecuentes</a> para aplicar y retirar los stickers.</li>
                 <li>Si tienes piel o uñas sensibles, prueba primero en una sola uña. Si notas irritación, enrojecimiento o picazón, retira el producto y consulta a un especialista.</li>
                 <li>No apliques los productos sobre uñas o piel lastimadas, con hongos o infecciones.</li>
                 <li>Usa la lámpara UV/LED siguiendo su manual, sin mirar directamente su luz y solo el tiempo indicado.</li>
