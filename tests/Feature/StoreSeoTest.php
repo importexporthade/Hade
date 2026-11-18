@@ -70,10 +70,23 @@ class StoreSeoTest extends TestCase
 
         $this->get(route('products.show', $product))
             ->assertSee('content="Lunares a S/ 35.00. Stickers de uñas en gel', false)
-            ->assertSee('<meta property="og:image" content="'.asset('images/share.jpg').'">', false)
-            ->assertSee('<meta property="og:image:width" content="1200">', false)
-            ->assertSee('<meta property="og:image:height" content="630">', false)
+            ->assertSee('<meta property="og:image" content="'.asset('images/logos/logo-vino.jpeg').'">', false)
+            ->assertSee('<meta property="og:image:width" content="1080">', false)
+            ->assertSee('<meta property="og:image:height" content="1350">', false)
             ->assertDontSee('product-placeholder.svg">', false);
+    }
+
+    public function test_a_page_without_a_photo_shares_the_logo_uploaded_in_the_store_settings(): void
+    {
+        Storage::fake('public');
+        $logo = ImageOptimizer::store(UploadedFile::fake()->image('logo.png', 800, 800)->get(), ImageKind::Logo);
+        StoreSetting::current()->update(['logo' => $logo]);
+        $page = Page::factory()->create();
+
+        $this->get(route('pages.show', $page))
+            ->assertOk()
+            ->assertSee('<meta property="og:image" content="'.url(Storage::disk('public')->url(ImageOptimizer::sharePath($logo))).'">', false)
+            ->assertDontSee('og:image:width', false);
     }
 
     public function test_pages_without_their_own_description_use_the_store_one(): void

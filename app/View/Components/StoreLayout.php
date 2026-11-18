@@ -60,14 +60,14 @@ class StoreLayout extends Component
         return filled($description) ? str($description)->squish()->limit(155)->toString() : null;
     }
 
-    /** The store picture shared links show when the page has no photo of its own. */
-    public const string DEFAULT_SHARE_IMAGE = 'images/share.jpg';
+    /** The brand logo shared links show when neither the page nor the store settings have a picture. */
+    public const string DEFAULT_SHARE_IMAGE = 'images/logos/logo-vino.jpeg';
 
     /**
-     * The picture WhatsApp, Facebook and Instagram show for a shared link, as a full address.
-     * The page's photo (a path on the public disk) goes out as a light JPEG copy, since
-     * those apps do not reliably show WebP and drop heavy pictures; without one, the logo or
-     * the store picture is shown.
+     * The picture WhatsApp, Facebook and Instagram show for a shared link, as a full address:
+     * the page's own photo (a product's or a category's), else the logo uploaded in the
+     * store settings, else the brand logo. Photos on the public disk go out as a light JPEG
+     * copy, since those apps do not reliably show WebP and drop heavy pictures.
      */
     public function shareImage(): string
     {
@@ -80,14 +80,20 @@ class StoreLayout extends Component
     }
 
     /**
-     * Width and height of the shared picture when it is the store one, so the apps can draw
-     * the large preview the first time the link is shared, before downloading it.
+     * Width and height of the shared picture when it is the brand logo, read from the file,
+     * so the apps can draw the preview the first time the link is shared.
      *
      * @return array{width: int, height: int}|null
      */
     public function shareImageSize(): ?array
     {
-        return $this->shareImage() === url(asset(self::DEFAULT_SHARE_IMAGE)) ? ['width' => 1200, 'height' => 630] : null;
+        if ($this->shareImage() !== url(asset(self::DEFAULT_SHARE_IMAGE))) {
+            return null;
+        }
+
+        $size = @getimagesize(public_path(self::DEFAULT_SHARE_IMAGE));
+
+        return $size ? ['width' => $size[0], 'height' => $size[1]] : null;
     }
 
     public function publicUrl(?string $path): ?string
