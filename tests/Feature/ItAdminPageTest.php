@@ -52,9 +52,14 @@ class ItAdminPageTest extends TestCase
         $this->get('/manager/it-admin')->assertForbidden();
     }
 
-    public function test_an_it_admin_imports_the_tiendada_catalog(): void
+    public function test_an_it_admin_imports_the_tiendada_catalog_from_zero(): void
     {
         $this->fakeTiendada(TiendadaImport::STORE_URL);
+        $oldCategory = Category::factory()->create(['name' => 'Vieja', 'slug' => 'vieja']);
+        $oldProduct = Product::factory()->for($oldCategory)->create(['images' => ['products/vieja.webp']]);
+        Storage::disk('public')->put('products/vieja.webp', 'foto');
+        Banner::factory()->create();
+        $categorySection = HomeSection::factory()->create(['category_id' => $oldCategory->id]);
 
         Livewire::test(ItAdmin::class)
             ->callAction('importTiendada')
@@ -62,6 +67,26 @@ class ItAdminPageTest extends TestCase
             ->assertSet('tiendadaImport', null);
 
         $this->assertSame(['kit-hade-recargada', 'lampara-conectada'], Product::query()->orderBy('slug')->pluck('slug')->all());
+        $this->assertSame(['kits-y-promociones', 'lamparas'], Category::query()->orderBy('slug')->pluck('slug')->all());
+        $this->assertModelMissing($oldProduct);
+        $this->assertModelMissing($categorySection);
+        $this->assertDatabaseCount('banners', 0);
+        Storage::disk('public')->assertMissing('products/vieja.webp');
+    }
+
+    public function test_an_import_that_was_cut_resumes_without_deleting_anything(): void
+    {
+        $this->fakeTiendada(TiendadaImport::STORE_URL);
+        $banner = Banner::factory()->create();
+        $kit = Product::factory()->create(['name' => 'Kit Hade Recargada', 'slug' => 'kit-hade-recargada', 'images' => ['products/de-la-duena.webp']]);
+
+        Livewire::test(ItAdmin::class)
+            ->callAction('importTiendada', data: ['startFromZero' => false])
+            ->assertNotified('Importación terminada');
+
+        $this->assertModelExists($banner);
+        $this->assertSame(['products/de-la-duena.webp'], $kit->fresh()->images);
+        $this->assertDatabaseCount('products', 2);
     }
 
     public function test_test_data_is_created_hidden_from_the_store_unless_asked(): void
@@ -125,8 +150,11 @@ class ItAdminPageTest extends TestCase
         $caches->shouldReceive('rebuildViews')->once();
         $caches->shouldReceive('rebuildRoutes')->once();
         $caches->shouldReceive('rebuildConfig')->once();
+        $caches->shouldReceive('clearAndRebuild')->once();
 
         Livewire::test(ItAdmin::class)
+            ->callAction('clearAllCaches')
+            ->assertNotified('Cachés limpias y rehechas')
             ->callAction('rebuildViews')
             ->assertNotified('Vistas rehechas')
             ->callAction('rebuildRoutes')

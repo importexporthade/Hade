@@ -2,6 +2,7 @@
 
 namespace App\Support;
 
+use Filament\Facades\Filament;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\File;
 
@@ -91,6 +92,24 @@ class AppCaches
     public function build(): void
     {
         Artisan::call('optimize');
+    }
+
+    /**
+     * Throws every cache away and builds them again, Filament's list of manager pages
+     * included: a list left from before a deploy can name a page that no longer exists.
+     *
+     * From the web, "optimize" leaves Filament's list alone, so it is deleted here and
+     * Filament reads the pages from the code until the scheduler caches them again.
+     */
+    public function clearAndRebuild(): void
+    {
+        Artisan::call('optimize:clear');
+
+        foreach (Filament::getPanels() as $panel) {
+            $panel->clearCachedComponents();
+        }
+
+        $this->rebuild();
     }
 
     /**

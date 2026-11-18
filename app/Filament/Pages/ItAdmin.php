@@ -58,7 +58,7 @@ class ItAdmin extends Page
     /**
      * Progress of the Tiendada import while its batches run; null when none is running.
      *
-     * @var array{handled: list<string>, created: int, completed: int, images: int, problems: list<string>, remaining: int}|null
+     * @var array{handled: list<string>, created: int, completed: int, images: int, problems: list<string>, remaining: int, deleted: ?string}|null
      */
     #[Locked]
     public ?array $tiendadaImport = null;
@@ -102,6 +102,7 @@ class ItAdmin extends Page
                         ]),
                     ])
                     ->footer([
+                        $this->clearAllCachesAction(),
                         $this->rebuildViewsAction(),
                         $this->rebuildRoutesAction(),
                         $this->rebuildConfigAction(),
@@ -121,7 +122,7 @@ class ItAdmin extends Page
                         $this->runMigrationsAction(),
                     ]),
                 Section::make('Productos de Tiendada')
-                    ->description('Copia de hade.tiendada.com los productos con sus fotos, descripciones y categorías, además del logo y la cabecera. Los productos que ya tienen fotos aquí no se tocan.')
+                    ->description('Copia de hade.tiendada.com los productos con sus fotos, descripciones y categorías, además del logo y la cabecera si faltan. Puede empezar de cero, borrando antes el catálogo y los banners.')
                     ->columnSpanFull()
                     ->schema([
                         TextEntry::make('tiendadaImportStatus')
@@ -197,11 +198,22 @@ class ItAdmin extends Page
             ->icon(Heroicon::OutlinedArrowDownTray)
             ->requiresConfirmation()
             ->modalHeading('¿Copiar los productos de Tiendada?')
-            ->modalDescription('Se copian por tandas y puede tardar unos minutos: deja esta pestaña abierta hasta que avise que terminó. Si se corta, vuelve a presionar y sigue donde quedó.')
+            ->modalDescription('Se copian por tandas y puede tardar unos minutos: deja esta pestaña abierta hasta que avise que terminó.')
+            ->schema([
+                Toggle::make('startFromZero')
+                    ->label('Empezar de cero')
+                    ->helperText('Borra antes todos los productos, categorías y banners de la tienda, con sus fotos, y las secciones de portada de esas categorías. Apágalo solo para seguir una importación que se cortó.')
+                    ->default(true),
+            ])
             ->modalSubmitActionLabel('Sí, importar')
             ->disabled(fn (): bool => $this->tiendadaImport !== null)
-            ->action(function (): void {
-                $this->tiendadaImport = ['handled' => [], 'created' => 0, 'completed' => 0, 'images' => 0, 'problems' => [], 'remaining' => 0];
+            ->action(function (array $data): void {
+                $deleted = $data['startFromZero'] ? TiendadaImport::deleteCatalog() : null;
+
+                $this->tiendadaImport = [
+                    'handled' => [], 'created' => 0, 'completed' => 0, 'images' => 0, 'problems' => [], 'remaining' => 0,
+                    'deleted' => $deleted === null ? null : TestCatalog::describe($deleted),
+                ];
 
                 $this->importNextTiendadaBatch();
             });
@@ -242,6 +254,7 @@ class ItAdmin extends Page
             'images' => $this->tiendadaImport['images'] + $import->downloadedImages,
             'problems' => [...$this->tiendadaImport['problems'], ...$import->problems],
             'remaining' => $import->remainingProducts,
+            'deleted' => $this->tiendadaImport['deleted'],
         ];
 
         if ($import->remainingProducts > 0) {
@@ -253,7 +266,8 @@ class ItAdmin extends Page
 
         $this->tiendadaImport = null;
 
-        $summary = "Productos nuevos: {$progress['created']}. Completados: {$progress['completed']}. Fotos copiadas: {$progress['images']}.";
+        $summary = ($progress['deleted'] === null ? '' : "Se borraron antes {$progress['deleted']}. ")
+            ."Productos nuevos: {$progress['created']}. Completados: {$progress['completed']}. Fotos copiadas: {$progress['images']}.";
         $problems = $progress['problems'] === [] ? '' : ' Problemas: '.implode(' ', array_slice($progress['problems'], 0, 5))
             .(count($progress['problems']) > 5 ? ' Y '.(count($progress['problems']) - 5).' más.' : '');
 
@@ -339,6 +353,12 @@ class ItAdmin extends Page
                     ->body('Se borraron '.TestCatalog::describe($deleted).'.')
                     ->send();
             });
+    }
+
+    public function clearAllCachesAction(): Action
+    {
+        return $this->rebuildCachesButton('clearAllCaches', 'Limpiar todo', 'optimize:clear y optimize, también la lista de páginas de Filament. Úsalo si el manager da error después de un deploy.', Heroicon::OutlinedSparkles,
+            fn (AppCaches $caches) => $caches->clearAndRebuild(), 'Cachés limpias y rehechas');
     }
 
     public function rebuildViewsAction(): Action

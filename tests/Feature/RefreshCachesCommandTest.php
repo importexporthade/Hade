@@ -3,8 +3,10 @@
 namespace Tests\Feature;
 
 use App\Support\AppCaches;
+use Filament\Facades\Filament;
 use Illuminate\Console\Scheduling\CallbackEvent;
 use Illuminate\Console\Scheduling\Schedule;
+use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\File;
 use Mockery;
 use Mockery\MockInterface;
@@ -118,6 +120,20 @@ class RefreshCachesCommandTest extends TestCase
     {
         $this->assertContainsOnlyInstancesOf(CallbackEvent::class, app(Schedule::class)->events());
         $this->assertNotEmpty(app(Schedule::class)->events());
+    }
+
+    public function test_clearing_everything_also_drops_the_filament_page_list_left_by_a_deploy(): void
+    {
+        $panel = Filament::getPanel('manager');
+        File::ensureDirectoryExists(dirname($panel->getComponentCachePath()));
+        File::put($panel->getComponentCachePath(), "<?php return ['pages' => ['App\\\\Filament\\\\Pages\\\\Debug']];");
+        Artisan::shouldReceive('call')->once()->with('optimize:clear');
+
+        $this->caches->clearAndRebuild();
+
+        $this->assertFileDoesNotExist($panel->getComponentCachePath());
+        $this->assertSame(1, $this->builds);
+        $this->assertTrue($this->caches->areUpToDate());
     }
 
     private function deploy(string $commit): void

@@ -3,10 +3,13 @@
 namespace App\Support;
 
 use App\Enums\ImageKind;
+use App\Models\Banner;
 use App\Models\Category;
+use App\Models\HomeSection;
 use App\Models\Product;
 use App\Models\StoreSetting;
 use Illuminate\Http\Client\RequestException;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Throwable;
@@ -50,6 +53,33 @@ class TiendadaImport
     public static function fromHadeStore(): self
     {
         return new self(new TiendadaCatalog(self::STORE_URL, self::STORE_ID));
+    }
+
+    /**
+     * Deletes every product, category and banner with their photos, and the home sections that
+     * show one of those categories, so an import starts from zero.
+     *
+     * @return array{categories: int, products: int, banners: int, sections: int}
+     */
+    public static function deleteCatalog(): array
+    {
+        $sections = HomeSection::query()->whereNotNull('category_id');
+
+        $deleted = [
+            'categories' => Category::query()->count(),
+            'products' => Product::query()->count(),
+            'banners' => Banner::query()->count(),
+            'sections' => $sections->count(),
+        ];
+
+        DB::transaction(function () use ($sections): void {
+            $sections->get()->each->delete();
+            Banner::query()->get()->each->delete();
+            Product::query()->get()->each->delete();
+            Category::query()->get()->each->delete();
+        });
+
+        return $deleted;
     }
 
     /**
