@@ -19,12 +19,4 @@ class EditPage extends EditRecord
             DeleteAction::make(),
         ];
     }
-
-    /**
-     * A page is edited once and left alone, so saving goes back to the list of pages.
-     */
-    protected function getRedirectUrl(): ?string
-    {
-        return $this->getResourceUrl();
-    }
 }

@@ -58,11 +58,21 @@ class ProductResourceTest extends TestCase
             ->assertSchemaStateSet(['ships_to_capital' => true, 'ships_to_province' => true])
             ->fillForm(['ships_to_province' => false])
             ->call('save')
-            ->assertHasNoFormErrors();
+            ->assertHasNoFormErrors()
+            ->assertRedirect(ProductResource::getUrl('index'));
 
         $product->refresh();
         $this->assertTrue($product->ships_to_capital);
         $this->assertFalse($product->ships_to_province);
+    }
+
+    public function test_the_form_shows_when_the_product_was_created_and_last_changed(): void
+    {
+        $product = Product::factory()->create(['created_at' => '2026-11-10 09:15:00', 'updated_at' => '2026-11-17 18:40:00']);
+
+        Livewire::test(EditProduct::class, ['record' => $product->getRouteKey()])
+            ->assertSee('10/11/2026, 09:15')
+            ->assertSee('17/11/2026, 18:40');
     }
 
     public function test_the_regular_price_must_be_higher_than_the_sale_price(): void

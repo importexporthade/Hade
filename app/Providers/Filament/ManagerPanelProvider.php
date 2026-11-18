@@ -84,8 +84,9 @@ class ManagerPanelProvider extends PanelProvider
                     ->codeNotification(ItAdminLoginCode::class)
                     ->codeExpiryMinutes(10),
             )
-            // After creating something, go back to its list instead of opening it to edit.
+            // After creating or saving something, go back to its list instead of staying on the form.
             ->resourceCreatePageRedirect('index')
+            ->resourceEditPageRedirect('index')
             ->brandName('Hade Manager')
             ->brandLogo(fn (): View => view('filament.brand'))
             ->brandLogoHeight('2.75rem')

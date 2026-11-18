@@ -13,6 +13,7 @@ use Filament\Forms\Components\RichEditor;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
+use Filament\Infolists\Components\TextEntry;
 use Filament\Notifications\Notification;
 use Filament\Schemas\Components\Callout;
 use Filament\Schemas\Components\Group;
@@ -156,6 +157,16 @@ class ProductForm
                                 ->label('Provincia')
                                 ->hintIcon(Heroicon::OutlinedQuestionMarkCircle, tooltip: 'Prendido, la página del producto dice que llega a provincia. Apágalo si este producto no viaja fuera de Lima. Ej: algo frágil.')
                                 ->default(true),
+                        ]),
+                    Section::make('Historial')
+                        ->hiddenOn('create')
+                        ->schema([
+                            TextEntry::make('created_at')
+                                ->label('Creado')
+                                ->dateTime('d/m/Y, H:i'),
+                            TextEntry::make('updated_at')
+                                ->label('Última modificación')
+                                ->dateTime('d/m/Y, H:i'),
                         ]),
                 ])->columnSpan(['lg' => 1]),
             ]);
