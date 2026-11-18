@@ -2,7 +2,7 @@
 
 namespace Tests\Feature;
 
-use App\Filament\Pages\Debug;
+use App\Filament\Pages\ItAdmin;
 use App\Models\Banner;
 use App\Models\Category;
 use App\Models\HomeSection;
@@ -20,7 +20,7 @@ use RuntimeException;
 use Tests\Concerns\FakesTiendada;
 use Tests\TestCase;
 
-class DebugPageTest extends TestCase
+class ItAdminPageTest extends TestCase
 {
     use FakesTiendada;
     use RefreshDatabase;
@@ -30,22 +30,33 @@ class DebugPageTest extends TestCase
         parent::setUp();
 
         Storage::fake('public');
-        $this->actingAs(User::factory()->admin()->create());
+        config(['auth.it_admin_emails' => ['it@bytebuster.example']]);
+        $this->actingAs(User::factory()->admin()->create(['email' => 'IT@bytebuster.example']));
     }
 
-    public function test_the_owner_opens_the_debug_page_from_the_manager(): void
+    public function test_an_it_admin_opens_the_page_from_the_manager(): void
     {
-        $this->get('/manager/debug')
+        $this->get('/manager')->assertSee('IT Admin');
+
+        $this->get('/manager/it-admin')
             ->assertOk()
             ->assertSee('Datos de prueba')
             ->assertSee('Cachés de Laravel');
     }
 
-    public function test_the_owner_imports_the_tiendada_catalog_from_the_debug_page(): void
+    public function test_the_store_owner_neither_sees_nor_opens_the_page(): void
+    {
+        $this->actingAs(User::factory()->admin()->create(['email' => 'duena@gmail.com']));
+
+        $this->get('/manager')->assertOk()->assertDontSee('IT Admin');
+        $this->get('/manager/it-admin')->assertForbidden();
+    }
+
+    public function test_an_it_admin_imports_the_tiendada_catalog(): void
     {
         $this->fakeTiendada(TiendadaImport::STORE_URL);
 
-        Livewire::test(Debug::class)
+        Livewire::test(ItAdmin::class)
             ->callAction('importTiendada')
             ->assertNotified('Importación terminada')
             ->assertSet('tiendadaImport', null);
@@ -55,7 +66,7 @@ class DebugPageTest extends TestCase
 
     public function test_test_data_is_created_hidden_from_the_store_unless_asked(): void
     {
-        Livewire::test(Debug::class)
+        Livewire::test(ItAdmin::class)
             ->callAction('createTestData', data: ['categories' => 2, 'productsPerCategory' => 5, 'banners' => 1, 'visibleInStore' => false])
             ->assertHasNoActionErrors()
             ->assertNotified('Datos de prueba creados');
@@ -71,7 +82,7 @@ class DebugPageTest extends TestCase
         $this->assertStringStartsWith('[Prueba] ', $banner->title);
         Storage::disk('public')->assertExists($banner->image);
 
-        Livewire::test(Debug::class)
+        Livewire::test(ItAdmin::class)
             ->callAction('createTestData', data: ['categories' => 1, 'productsPerCategory' => 3, 'banners' => 0, 'visibleInStore' => true]);
 
         $this->assertSame(3, Product::query()->visible()->count());
@@ -83,11 +94,11 @@ class DebugPageTest extends TestCase
         $realProduct = Product::factory()->for(Category::factory())->create(['name' => 'Kit Hade Recargada']);
         $realBanner = Banner::factory()->create(['title' => 'Promo de verano']);
 
-        Livewire::test(Debug::class)
+        Livewire::test(ItAdmin::class)
             ->callAction('createTestData', data: ['categories' => 2, 'productsPerCategory' => 3, 'banners' => 2, 'visibleInStore' => false]);
         $testBannerPhoto = Banner::query()->where('title', 'like', '[Prueba]%')->value('image');
 
-        Livewire::test(Debug::class)
+        Livewire::test(ItAdmin::class)
             ->assertSee('Ahora hay 2 categorías, 6 productos, 2 banners y 2 secciones de prueba.')
             ->callAction('deleteTestData')
             ->assertNotified('Datos de prueba borrados');
@@ -101,7 +112,7 @@ class DebugPageTest extends TestCase
         $this->assertSame(0, HomeSection::query()->count());
         Storage::disk('public')->assertMissing($testBannerPhoto);
 
-        Livewire::test(Debug::class)
+        Livewire::test(ItAdmin::class)
             ->assertSee('No hay datos de prueba.')
             ->assertActionDisabled('deleteTestData');
     }
@@ -115,7 +126,7 @@ class DebugPageTest extends TestCase
         $caches->shouldReceive('rebuildRoutes')->once();
         $caches->shouldReceive('rebuildConfig')->once();
 
-        Livewire::test(Debug::class)
+        Livewire::test(ItAdmin::class)
             ->callAction('rebuildViews')
             ->assertNotified('Vistas rehechas')
             ->callAction('rebuildRoutes')
@@ -124,23 +135,23 @@ class DebugPageTest extends TestCase
             ->assertNotified('Configuración y caché rehechas');
     }
 
-    public function test_the_owner_applies_the_migrations_a_deploy_left_pending(): void
+    public function test_an_it_admin_applies_the_migrations_a_deploy_left_pending(): void
     {
         $latestMigration = pathinfo(collect(File::files(database_path('migrations')))->map->getFilename()->sort()->last(), PATHINFO_FILENAME);
 
-        Livewire::test(Debug::class)
+        Livewire::test(ItAdmin::class)
             ->assertSee('Está al día: no hay cambios pendientes.')
             ->assertActionDisabled('runMigrations');
 
         Artisan::call('migrate:rollback', ['--step' => 1]);
 
-        Livewire::test(Debug::class)
+        Livewire::test(ItAdmin::class)
             ->assertSee('1 pendientes: '.$latestMigration)
             ->callAction('runMigrations')
             ->assertNotified('Base de datos al día')
             ->assertSee('Está al día: no hay cambios pendientes.');
 
-        $this->assertSame([], Debug::pendingMigrations());
+        $this->assertSame([], ItAdmin::pendingMigrations());
         $this->assertTrue(Schema::hasColumn('products', 'ships_to_capital'));
     }
 
@@ -151,7 +162,7 @@ class DebugPageTest extends TestCase
         $caches->shouldReceive('areUpToDate')->andReturn(true);
         $caches->shouldReceive('rebuildRoutes')->andThrow(new RuntimeException('Unable to prepare route [x] for serialization.'));
 
-        Livewire::test(Debug::class)
+        Livewire::test(ItAdmin::class)
             ->callAction('rebuildRoutes')
             ->assertNotified('No se pudo terminar');
     }

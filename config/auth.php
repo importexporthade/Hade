@@ -114,4 +114,20 @@ return [
 
     'password_timeout' => env('AUTH_PASSWORD_TIMEOUT', 10800),
 
+    /*
+    |--------------------------------------------------------------------------
+    | IT Admin Accounts
+    |--------------------------------------------------------------------------
+    |
+    | Comma-separated emails of the IT team's manager accounts. Only they open
+    | the IT Admin page, and they always confirm their login with a 6-digit
+    | code sent to their email. Kept in the .env, never in the public repo.
+    |
+    */
+
+    'it_admin_emails' => array_values(array_filter(array_map(
+        fn (string $email): string => strtolower(trim($email)),
+        explode(',', (string) env('IT_ADMIN_EMAILS', '')),
+    ))),
+
 ];

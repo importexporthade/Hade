@@ -62,7 +62,7 @@ class TestCatalog
                 $category = Category::query()->create([
                     'name' => self::NAME_PREFIX.$name,
                     'slug' => self::SLUG_PREFIX."{$run}-".Str::slug($name)."-{$number}",
-                    'description' => 'Categoría de prueba creada desde Debug.',
+                    'description' => 'Categoría de prueba creada desde IT Admin.',
                     'is_visible' => $visibleInStore,
                     'sort_order' => 100 + $number,
                 ]);
@@ -76,7 +76,7 @@ class TestCatalog
                         'category_id' => $category->id,
                         'name' => self::NAME_PREFIX."{$productName} {$number}.{$position}",
                         'slug' => self::SLUG_PREFIX."{$run}-".Str::slug($productName)."-{$number}-{$position}",
-                        'description' => '<p>Producto de prueba creado desde Debug. Bórralo cuando termines.</p>',
+                        'description' => '<p>Producto de prueba creado desde IT Admin. Bórralo cuando termines.</p>',
                         'price' => $price,
                         'compare_at_price' => $regularPrice,
                         'images' => [],
@@ -104,7 +104,7 @@ class TestCatalog
 
                 Banner::query()->create([
                     'title' => self::NAME_PREFIX."Banner {$number}",
-                    'subtitle' => 'Banner de prueba creado desde Debug.',
+                    'subtitle' => 'Banner de prueba creado desde IT Admin.',
                     'image' => $image,
                     'link_type' => $firstCategory ? BannerLinkType::Category : BannerLinkType::None,
                     'link_category_id' => $firstCategory?->id,

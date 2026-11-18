@@ -16,7 +16,7 @@ use Illuminate\Http\Client\RequestException;
 class ImportTiendadaCommand extends Command
 {
     /**
-     * Execute the console command. The manager's Debug page runs the same import in batches.
+     * Execute the console command. The manager's IT Admin page runs the same import in batches.
      */
     public function handle(): int
     {

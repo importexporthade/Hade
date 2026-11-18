@@ -3,6 +3,7 @@
 namespace App\Filament\Pages;
 
 use App\Models\Product;
+use App\Models\User;
 use App\Support\AppCaches;
 use App\Support\TestCatalog;
 use App\Support\TiendadaImport;
@@ -23,21 +24,31 @@ use Throwable;
 use UnitEnum;
 
 /**
- * Tools for trying things out on the live store: made-up catalog data that is deleted all at
- * once, Laravel's caches rebuilt on demand, the pending migrations applied and the catalog
- * copied from Tiendada, since Hostinger offers no terminal to run artisan.
+ * The IT team's page, opened only by an IT admin account: Laravel's caches rebuilt on demand and
+ * the pending migrations applied after a release, since Hostinger offers no terminal to run
+ * artisan. Until they are retired, it also holds the made-up catalog data and the Tiendada import.
  */
-class Debug extends Page
+class ItAdmin extends Page
 {
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedWrenchScrewdriver;
 
     protected static string|UnitEnum|null $navigationGroup = 'Herramientas';
 
-    protected static ?string $navigationLabel = 'Debug';
+    protected static ?string $navigationLabel = 'IT Admin';
 
-    protected static ?string $title = 'Debug';
+    protected static ?string $title = 'IT Admin';
 
-    protected static ?string $slug = 'debug';
+    protected static ?string $slug = 'it-admin';
+
+    /**
+     * Neither the store owner, who never needs these tools, nor any other account sees the page.
+     */
+    public static function canAccess(): bool
+    {
+        $user = auth()->user();
+
+        return $user instanceof User && $user->isItAdmin();
+    }
 
     /**
      * Seconds of work per request of the Tiendada import, so the host never cuts one short.

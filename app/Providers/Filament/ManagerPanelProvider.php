@@ -2,10 +2,13 @@
 
 namespace App\Providers\Filament;
 
+use App\Filament\Pages\Auth\EditProfile;
 use App\Filament\Pages\Auth\Login;
 use App\Filament\Pages\Auth\UnlockAccount;
 use App\Filament\Pages\Dashboard;
 use App\Filament\Resources\Products\Pages\ListProducts;
+use App\Notifications\ItAdminLoginCode;
+use Filament\Auth\MultiFactor\Email\EmailAuthentication;
 use Filament\Http\Middleware\Authenticate;
 use Filament\Http\Middleware\AuthenticateSession;
 use Filament\Http\Middleware\DisableBladeIconComponents;
@@ -74,7 +77,13 @@ class ManagerPanelProvider extends PanelProvider
             ->viteTheme('resources/css/filament/manager/theme.css')
             ->login(Login::class)
             ->routes(fn () => Route::get('desbloquear', UnlockAccount::class)->name('auth.unlock'))
-            ->profile()
+            ->profile(EditProfile::class)
+            // IT admins type a 6-digit code emailed to them after the password, on every login
+            ->multiFactorAuthentication(
+                EmailAuthentication::make()
+                    ->codeNotification(ItAdminLoginCode::class)
+                    ->codeExpiryMinutes(10),
+            )
             // After creating something, go back to its list instead of opening it to edit.
             ->resourceCreatePageRedirect('index')
             ->brandName('Hade Manager')
