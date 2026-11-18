@@ -1,5 +1,6 @@
 <?php
 
+use Carbon\CarbonImmutable;
 use Illuminate\Support\Str;
 
 return [
@@ -129,8 +130,16 @@ return [
     | storage. By default, no PHP classes will be unserialized from your
     | cache to prevent gadget chain attacks if your APP_KEY is leaked.
     |
+    | Only dates are allowed: the IT admin's emailed login code is kept with
+    | its expiry date, and without these it comes back unreadable and every
+    | code is rejected.
+    |
     */
 
-    'serializable_classes' => false,
+    'serializable_classes' => [
+        Carbon\Carbon::class,
+        CarbonImmutable::class,
+        Illuminate\Support\Carbon::class,
+    ],
 
 ];

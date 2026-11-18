@@ -22,7 +22,8 @@ class ItAdminLoginTest extends TestCase
         parent::setUp();
 
         Notification::fake();
-        config(['auth.it_admin_emails' => [self::IT_EMAIL]]);
+        // The code is kept in the cache, so use the database store production runs on
+        config(['auth.it_admin_emails' => [self::IT_EMAIL], 'cache.default' => 'database']);
     }
 
     public function test_an_it_admin_enters_only_with_the_emailed_six_digit_code(): void
