@@ -2,6 +2,7 @@
 
 namespace Database\Seeders;
 
+use App\Enums\CategoryMenuGroup;
 use App\Enums\HomeSectionType;
 use App\Models\Category;
 use App\Models\HomeSection;
@@ -19,6 +20,18 @@ use Illuminate\Support\Str;
 class StoreSeeder extends Seeder
 {
     use WithoutModelEvents;
+
+    /**
+     * The "Tienda" menu group of each category; the rest go to "Para descubrir".
+     *
+     * @var array<string, CategoryMenuGroup>
+     */
+    private const array MENU_GROUPS = [
+        'Stickers Manicure' => CategoryMenuGroup::Nails,
+        'Stickers Pedicure' => CategoryMenuGroup::Nails,
+        'Lámparas' => CategoryMenuGroup::Complements,
+        'Accesorios' => CategoryMenuGroup::Complements,
+    ];
 
     /**
      * Products per category as [name, price, regular price when on sale].
@@ -54,6 +67,7 @@ class StoreSeeder extends Seeder
             $name => Category::query()->create([
                 'name' => $name,
                 'slug' => Str::slug($name),
+                'menu_group' => self::MENU_GROUPS[$name] ?? CategoryMenuGroup::Discover,
                 'sort_order' => $position + 1,
             ]),
         ]);

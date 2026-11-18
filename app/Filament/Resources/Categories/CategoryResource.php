@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\Categories;
 
+use App\Enums\CategoryMenuGroup;
 use App\Enums\ImageKind;
 use App\Filament\Resources\Categories\Pages\ManageCategories;
 use App\Filament\Support\PhotoUpload;
@@ -11,6 +12,7 @@ use App\Support\ImageOptimizer;
 use BackedEnum;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\EditAction;
+use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
@@ -62,10 +64,19 @@ class CategoryResource extends Resource
                     ->label('Foto')
                     ->hintIcon(Heroicon::OutlinedQuestionMarkCircle, tooltip: 'La foto que la representa en «Universo Hade», en la portada. Elige una que muestre bien lo que hay dentro.')
                     ->columnSpanFull(),
+                Select::make('menu_group')
+                    ->label('Menú')
+                    ->hintIcon(Heroicon::OutlinedQuestionMarkCircle, tooltip: 'El grupo del menú «Tienda» en el que aparece. Ej: Lámparas en Complementos.')
+                    ->options(CategoryMenuGroup::class)
+                    ->default(CategoryMenuGroup::Discover->value)
+                    ->selectablePlaceholder(false)
+                    ->required()
+                    ->columnSpanFull(),
                 Toggle::make('is_visible')
                     ->label('Visible en la tienda')
                     ->hintIcon(Heroicon::OutlinedQuestionMarkCircle, tooltip: 'Apágala para esconderla aunque tenga productos. Y no te preocupes: si no tiene ningún producto visible, se esconde sola.')
-                    ->default(true),
+                    ->default(true)
+                    ->columnSpanFull(),
             ]);
     }
 
@@ -87,6 +98,9 @@ class CategoryResource extends Resource
                     ->description(fn (Category $record): ?string => $record->hasVisibleProducts() ? null : 'Oculta: no tiene productos visibles')
                     ->wrap()
                     ->searchable(),
+                TextColumn::make('menu_group')
+                    ->label('Menú')
+                    ->badge(),
                 TextColumn::make('products_count')
                     ->label('Productos')
                     ->counts('products')

@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enums\CategoryMenuGroup;
 use App\Models\Concerns\DeletesStoredImages;
 use Database\Factories\CategoryFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
@@ -12,11 +13,20 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Facades\Storage;
 
-#[Fillable(['name', 'slug', 'description', 'image', 'is_visible', 'sort_order'])]
+#[Fillable(['name', 'slug', 'description', 'image', 'is_visible', 'menu_group', 'sort_order'])]
 class Category extends Model
 {
     /** @use HasFactory<CategoryFactory> */
     use DeletesStoredImages, HasFactory;
+
+    /**
+     * Mirrors the column default so a new category in memory already has a menu group.
+     *
+     * @var array<string, mixed>
+     */
+    protected $attributes = [
+        'menu_group' => 'discover',
+    ];
 
     /**
      * @return array<string, string>
@@ -25,6 +35,7 @@ class Category extends Model
     {
         return [
             'is_visible' => 'boolean',
+            'menu_group' => CategoryMenuGroup::class,
         ];
     }
 

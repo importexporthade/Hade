@@ -1,4 +1,5 @@
 @php
+    use App\Enums\CategoryMenuGroup;
     use App\Enums\PageFooterSection;
 
     $flushFooter = (bool) $attributes->get('flush-footer', false);
@@ -61,14 +62,11 @@
         <header class="brand-nav sticky top-0 z-30 border-b border-ink/10 shadow-[0_1px_0_rgba(23,23,23,0.02)] backdrop-blur-xl">
             @php
                 $kitsCategory = $categories->first(fn ($category) => str_contains(mb_strtolower($category->name), 'kit'));
-                $nailCategories = $categories->filter(fn ($category) => str_contains(mb_strtolower($category->name), 'manicur') || str_contains(mb_strtolower($category->name), 'pedicur'));
-                $complementCategories = $categories->filter(fn ($category) => str_contains(mb_strtolower($category->name), 'lámpara') || str_contains(mb_strtolower($category->name), 'lampara') || str_contains(mb_strtolower($category->name), 'accesorio'));
-                $discoverCategories = $categories->whereNotIn('id', $nailCategories->merge($complementCategories)->modelKeys());
-                $categoryGroups = [
-                    ['label' => 'Para tus uñas', 'categories' => $nailCategories],
-                    ['label' => 'Complementos', 'categories' => $complementCategories],
-                    ['label' => 'Para descubrir', 'categories' => $discoverCategories],
-                ];
+                $categoryGroups = collect(CategoryMenuGroup::cases())->map(fn (CategoryMenuGroup $group): array => [
+                    'group' => $group,
+                    'label' => $group->getLabel(),
+                    'categories' => $categories->where('menu_group', $group),
+                ]);
                 $latestIsActive = request()->routeIs('products.index') && request('collection') === 'latest';
                 $storeIsActive = request()->routeIs('products.show', 'categories.*') || (request()->routeIs('products.index') && ! $latestIsActive);
                 $menuPages = $pages->filter->isInMenu();
@@ -119,7 +117,7 @@
                                             @if ($group['categories']->isNotEmpty())
                                                 <section @class([
                                                     'min-w-0',
-                                                    'col-span-2 border-t border-rose/35 pt-4' => $group['label'] === 'Para descubrir',
+                                                    'col-span-2 border-t border-rose/35 pt-4' => $group['group'] === CategoryMenuGroup::Discover,
                                                 ]) aria-labelledby="menu-tienda-grupo-{{ $loop->index }}">
                                                     <h3 id="menu-tienda-grupo-{{ $loop->index }}" class="px-3 text-[0.6rem] font-bold tracking-[0.15em] text-burgundy uppercase">{{ $group['label'] }}</h3>
                                                     <ul class="mt-1">
